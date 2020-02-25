@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${vcpkgRoot}/x64-windows/include",
+                "${vcpkgRoot}/x86-windows/include",
+                "C:/Qt/Qt5.14.0/5.14.0/msvc2017_64/include",
+                "C:/Qt/Qt5.14.0/5.14.0/msvc2017_64/include/QtCore",
+                "C:/Qt/Qt5.14.0/5.14.0/msvc2017_64/include/QtGui",
+                "C:/Qt/Qt5.14.0/5.14.0/msvc2017_64/include/QtWidgets",
+                "C:/Qt/Qt5.14.0/5.14.0/msvc2017_64/include/QtNetwork"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.24.28314/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64",
+            "configurationProvider": "vector-of-bool.cmake-tools"
+        }
+    ],
+    "version": 4
+}
