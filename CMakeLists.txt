@@ -63,10 +63,29 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets)
 
 # auto copy dlls if on windows
 if(WIN32)
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:${PROJECT_NAME}> )
+  find_program(QT5_DEPLOYQT_BIN
+          windeployqt
+          PATHS "$ENV{QT_ROOT}/bin"
+          NO_CMAKE_PATH
+          NO_CMAKE_ENVIRONMENT_PATH
+          NO_SYSTEM_ENVIRONMENT_PATH
+          NO_CMAKE_SYSTEM_PATH)
+  if(NOT QT5_DEPLOYQT_BIN)
+    message(FATAL_ERROR "No Qt Deploy command found in : $ENV{QT_ROOT}/bin")
+  endif()
+endif(WIN32)
+
+if(WIN32)
+  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/windeployqt)
+
+  if(CMKAE_BUILD_TYPE STREQUAL "Debug")
+    set(QCLASH_DEPLOYQT_TYPE "--debug")
+  else()
+    set(QCLASH_DEPLOYQT_TYPE "--release")
+  endif()
+  add_custom_command(TARGET ${PROJECT_NAME}
+          POST_BUILD
+          COMMAND ${QT5_DEPLOYQT_BIN} $<TARGET_FILE:${PROJECT_NAME}> ${QCLASH_DEPLOYQT_TYPE} --dir ${PROJECT_BINARY_DIR})
 endif(WIN32)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
