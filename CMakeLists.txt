@@ -31,11 +31,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #include(CTest)
-#enable_testing()
+enable_testing()
 
 set(QtMinVersion "5.9.0")
 
 find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Network LinguistTools)
+find_package(Qt5Test REQUIRED)
 if (WIN32)
     find_package(Qt5 ${QT_MIN_VERSION} REQUIRED WinExtras)
 endif()
@@ -53,13 +54,15 @@ qt5_add_resources(${PROJECT_NAME}_RESOURCES
 set(${PROJECT_NAME}_SOURCES
   src/mainwindow.h
   src/mainwindow.cpp
+  src/utils/httputil.h
+  src/utils/httputil.cpp
 )
 
 add_executable(${PROJECT_NAME}
   ${${PROJECT_NAME}_SOURCES}
   ${${PROJECT_NAME}_FORMS}
   src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network)
 
 # auto copy dlls if on windows
 if(WIN32)
@@ -86,7 +89,26 @@ if(WIN32)
   add_custom_command(TARGET ${PROJECT_NAME}
           POST_BUILD
           COMMAND ${QT5_DEPLOYQT_BIN} $<TARGET_FILE:${PROJECT_NAME}> ${QCLASH_DEPLOYQT_TYPE} --dir ${PROJECT_BINARY_DIR})
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Network> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Test> $<TARGET_FILE_DIR:${PROJECT_NAME}> )
 endif(WIN32)
+
+function(auto_test subsystem module)
+  add_executable(test_${module}
+    ${${PROJECT_NAME}_SOURCES}
+    test/${subsystem}/${module}_test.cpp)
+  target_link_libraries(test_${module} PRIVATE
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::Network
+    Qt5::Test)
+  add_test(
+    NAME test_${module}
+    COMMAND test_${module})
+endfunction()
+
+auto_test(utils http)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
