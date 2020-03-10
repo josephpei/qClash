@@ -47,9 +47,17 @@ endif()
 qt5_wrap_ui(${PROJECT_NAME}_FORMS
   src/mainwindow.ui
 )
-qt5_add_translation(${PROJECT_NAME}_QM_FILES
-)
+
+# set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM TRUE)
+# qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src 
+#   lang/en_US.ts
+#   lang/zh_CN.ts)
+file(GLOB TS_FILES lang/*.ts)
+set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "lang")
+qt5_add_translation(${PROJECT_NAME}_QM_FILES ${TS_FILES})
+
 qt5_add_resources(${PROJECT_NAME}_RESOURCES
+  resources.qrc
 )
 set(${PROJECT_NAME}_SOURCES
   src/mainwindow.h
@@ -60,6 +68,8 @@ set(${PROJECT_NAME}_SOURCES
 
 add_executable(${PROJECT_NAME}
   ${${PROJECT_NAME}_SOURCES}
+  ${${PROJECT_NAME}_QM_FILES}
+  ${${PROJECT_NAME}_RESOURCES}
   ${${PROJECT_NAME}_FORMS}
   src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network)
