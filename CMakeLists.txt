@@ -76,7 +76,7 @@ set(QCLASH_SRCS
 
 if(WIN32)
   add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc
-    ${CMAKE_SOURCE_DIR}/assets/qclash_windows_icons.arc)
+    ${CMAKE_SOURCE_DIR}/assets/qclash_windows_icons.rc)
 elseif(APPLE)
   set(MACOSX_BUNDLE_EXECUTABLE_NAME "qClash")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.qclash")
