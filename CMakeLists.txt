@@ -41,6 +41,10 @@ if (WIN32)
     find_package(Qt5 ${QT_MIN_VERSION} REQUIRED WinExtras)
 endif()
 
+# singleton app
+set(QAPPLICATION_CLASS QApplication CACHE STRING "Inheritance class for SingleApplication")
+add_subdirectory(src/third_party/singleapplication SingleApplication)
+
 ################################################################################
 # main library sources
 ################################################################################
@@ -94,7 +98,7 @@ else()
   add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network SingleApplication)
 
 # auto copy dlls if on windows
 if(WIN32)
