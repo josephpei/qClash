@@ -52,6 +52,7 @@ qt5_wrap_ui(${PROJECT_NAME}_FORMS
 # qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src 
 #   lang/en_US.ts
 #   lang/zh_CN.ts)
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/lang)
 file(GLOB TS_FILES lang/*.ts)
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "lang")
 qt5_add_translation(${PROJECT_NAME}_QM_FILES ${TS_FILES})
@@ -66,12 +67,33 @@ set(${PROJECT_NAME}_SOURCES
   src/utils/httputil.cpp
 )
 
-add_executable(${PROJECT_NAME}
+set(QCLASH_SRCS
   ${${PROJECT_NAME}_SOURCES}
   ${${PROJECT_NAME}_QM_FILES}
   ${${PROJECT_NAME}_RESOURCES}
   ${${PROJECT_NAME}_FORMS}
   src/main.cpp)
+
+if(WIN32)
+  add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc
+    ${CMAKE_SOURCE_DIR}/assets/qclash_windows_icons.arc)
+elseif(APPLE)
+  set(MACOSX_BUNDLE_EXECUTABLE_NAME "qClash")
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.qclash")
+  set(MACOSX_BUNDLE_ICON_FILE "qClash.icns")
+  set(MACOSX_BUNDLE_INFO_STRING "Clash GUI Client")
+  set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+  set(MACOSX_BUNDLE_LONG_VERSION_STRING ${KSNIP_VERSION})
+
+  set(MACOSX_ICON ${CMAKE_SOURCE_DIR}/assets/qClash.icns)
+  set_source_files_properties(${MACOSX_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+  add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${QCLASH_SRCS}
+    ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc ${MACOSX_ICON})
+else()
+  add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc)
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network)
 
 # auto copy dlls if on windows

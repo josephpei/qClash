@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
 
     trayIcon->show();
+    this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
 }
 
 MainWindow::~MainWindow()
@@ -59,5 +60,5 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayMenu);
-    trayIcon->setIcon(QIcon(":/assets/icons/tray.svg"));
+    trayIcon->setIcon(QIcon(":/assets/icons/icon.svg"));
 }
