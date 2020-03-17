@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/assets">
+   <file>icons/icon.svg</file>
+   <file>icons/icon.png</file>
+</qresource>
+</RCC>
