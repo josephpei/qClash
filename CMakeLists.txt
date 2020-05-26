@@ -23,6 +23,8 @@ endif()
 
 set(QCLASH_VERSION "${PROJECT_VERSION}${QCLASH_VERSION_SUFIX}")
 
+configure_file(src/BuildConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/BuildConfig.h)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -44,6 +46,11 @@ endif()
 # singleton app
 set(QAPPLICATION_CLASS QApplication CACHE STRING "Inheritance class for SingleApplication")
 add_subdirectory(src/third_party/singleapplication SingleApplication)
+
+# yaml cpp
+find_package(yaml-cpp CONFIG REQUIRED)
+include_directories(${YAML_CPP_INCLUDE_DIR})
+link_libraries(${YAML_CPP_LIBRARIES})
 
 ################################################################################
 # main library sources
@@ -67,9 +74,19 @@ qt5_add_resources(${PROJECT_NAME}_RESOURCES
 set(${PROJECT_NAME}_SOURCES
   src/mainwindow.h
   src/mainwindow.cpp
+  src/core/configurator.h
+  src/core/configurator.cpp
+  src/core/clashCore.h
+  src/core/clashCore.cpp
+  src/dialogs/subscribeDialog.h
+  src/dialogs/subscribeDialog.cpp
+  src/dialogs/subscribeNewDialog.cpp
+  src/dialogs/subscribeNewDialog.h
+  src/dialogs/aboutDialog.h
+  src/dialogs/aboutDialog.cpp
   src/utils/httputil.h
   src/utils/httputil.cpp
-)
+  src/utils/iconsForkAwesome.h)
 
 set(QCLASH_SRCS
   ${${PROJECT_NAME}_SOURCES}
@@ -81,6 +98,7 @@ set(QCLASH_SRCS
 if(WIN32)
   add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc
     ${CMAKE_SOURCE_DIR}/assets/qclash_windows_icons.rc)
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 elseif(APPLE)
   set(MACOSX_BUNDLE_EXECUTABLE_NAME "qClash")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.qclash")
@@ -98,7 +116,11 @@ else()
   add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network SingleApplication)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  Qt5::Widgets
+  Qt5::Network
+  SingleApplication
+  yaml-cpp)
 
 # auto copy dlls if on windows
 if(WIN32)
