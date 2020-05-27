@@ -99,9 +99,11 @@ QVector<QMenu*> MainWindow::createProxyMenus()
     for (YAML::const_iterator iter = root["Proxy Group"].begin(); iter != root["Proxy Group"].end(); ++iter) {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
         QMenu *groupMenu = new QMenu(groupName, this);
-        for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi) {
+        groupMenu->setStyleSheet("* { menu-scrollable: 1 }");
+        for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi)
+        {
             QString proxyName = (*pi).as<std::string>().c_str();
-            QAction *proxyAction = new QAction(proxyName, this);
+            QAction *proxyAction = new QAction(proxyName, groupMenu);
             groupMenu->addAction(proxyAction);
         }
         menus.push_back(groupMenu);

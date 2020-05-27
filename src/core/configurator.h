@@ -25,5 +25,6 @@ class Configurator : public QObject {
 public:
     static Configurator& instance();
 
+    static const QString getClashConfigPath();
     static YAML::Node loadClashConfig();
 };

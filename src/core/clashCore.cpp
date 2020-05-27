@@ -1,14 +1,25 @@
 #include "clashCore.h"
+#include "configurator.h"
 
 #include <QDebug>
+#include <QDir>
+#include <QFile>
 
 ClashCore::ClashCore()
 {
 #ifdef Q_OS_WIN
     clashFilePath = "D:/PortableApp/clash/clash.exe";
 #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
-    clashFilePath = "clash"
+    clashFilePath = "clash";
 #endif
+
+    QString clashConfigPath = Configurator::getClashConfigPath();
+    QDir dir(clashConfigPath);
+    if (!dir.exists()) {
+        dir.mkpath(clashConfigPath);
+        QFile::copy("./config/clash.yaml", clashConfigPath + "config.yaml");
+        QFile::copy("./config/Country.mmdb", clashConfigPath + "Country.mmdb");
+    }
 
     clashProcess = new QProcess;
 }

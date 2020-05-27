@@ -122,6 +122,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   SingleApplication
   yaml-cpp)
 
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/config/ $<TARGET_FILE_DIR:${PROJECT_NAME}> )
+
 # auto copy dlls if on windows
 if(WIN32)
   find_program(QT5_DEPLOYQT_BIN
