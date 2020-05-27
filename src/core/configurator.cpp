@@ -8,10 +8,15 @@ Configurator &Configurator::instance()
     return configuratorInstance;
 }
 
-YAML::Node Configurator::loadClashConfig()
+const QString Configurator::getClashConfigPath()
 {
     QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    QString configFile = homePath + "/.config/clash/config.yaml";
+    return homePath + "/.config/clash/";
+}
+
+YAML::Node Configurator::loadClashConfig()
+{
+    QString configFile = Configurator::getClashConfigPath() + "config.yaml";
     YAML::Node root = YAML::LoadFile(configFile.toStdString());
     return root;
 }
