@@ -31,3 +31,11 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.setValue(key, value);
     config.sync();
 }
+
+QList<QStringList> Configurator::getSubscribes() {
+    return loadValue("subscribes").value<QList<QStringList>>();
+}
+
+void Configurator::setSubscribes(const QList<QStringList> &subscribes) {
+    saveValue("subscribes", QVariant::fromValue(subscribes));
+}

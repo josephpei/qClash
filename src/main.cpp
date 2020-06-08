@@ -4,9 +4,18 @@
 #include <QApplication>
 #include <singleapplication.h>
 #include <QTranslator>
+#include <QMetaType>
+#include <QSettings>
 
 int main(int argc, char *argv[])
 {
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    QSettings::setDefaultFormat(QSettings::NativeFormat);
+    QApplication::setOrganizationName("qClash");
+    QApplication::setApplicationName("qClash");
+
+    qRegisterMetaTypeStreamOperators<QList<QStringList>>("QList<QStringList>");
     SingleApplication app(argc, argv);
 
     app.setApplicationName(QStringLiteral("qClash"));
