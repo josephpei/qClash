@@ -17,9 +17,6 @@ class Configurator : public QObject {
 
     Configurator() = default;
 
-    const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
-    void saveValue(const QString& key, const QVariant& value);
-
     QSettings config;
 
 public:
@@ -27,4 +24,10 @@ public:
 
     static const QString getClashConfigPath();
     static YAML::Node loadClashConfig();
+
+    const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
+    void saveValue(const QString& key, const QVariant& value);
+
+    QList<QStringList> getSubscribes();
+    void setSubscribes(const QList<QStringList>& subscribes);
 };

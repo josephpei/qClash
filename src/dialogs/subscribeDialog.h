@@ -4,6 +4,7 @@
 #include <QPointer>
 
 #include "subscribeNewDialog.h"
+#include "../core/configurator.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -27,6 +28,8 @@ private slots:
     void addSubscribe(const QStringList &newSubscribe);
 
 private:
+    Configurator& configurator;
+
     QVBoxLayout *vLayout;
     QTableView *tableView;
     QGroupBox *btnGroupBox;
