@@ -11,7 +11,7 @@ class QAction;
 class QVBoxLayout;
 class QHBoxLayout;
 class QTableView;
-class QDialogButtonBox;
+class QFrame;
 class QLabel;
 class QPushButton;
 QT_END_NAMESPACE
@@ -26,13 +26,15 @@ public:
 private slots:
     void showSubNewDlg();
     void addSubscribe(const QStringList &newSubscribe);
+    void delSubscribe();
+    void updateCell(const QModelIndex & indexA, const QModelIndex & indexB);
 
 private:
     Configurator& configurator;
 
     QVBoxLayout *vLayout;
     QTableView *tableView;
-    QGroupBox *btnGroupBox;
+    QFrame *btnFrame;
     QHBoxLayout *btnLayout;
     QPushButton *subNewBtn;
     QPushButton *subDelBtn;
