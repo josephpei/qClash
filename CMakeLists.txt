@@ -123,7 +123,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   yaml-cpp)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/config/ $<TARGET_FILE_DIR:${PROJECT_NAME}> )
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config/ $<TARGET_FILE_DIR:${PROJECT_NAME}>/config )
 
 # auto copy dlls if on windows
 if(WIN32)
