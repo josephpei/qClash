@@ -5,6 +5,7 @@
 
 #include "subscribeNewDialog.h"
 #include "../core/configurator.h"
+#include "../core/common.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -25,7 +26,7 @@ public:
 
 private slots:
     void showSubNewDlg();
-    void addSubscribe(const QStringList &newSubscribe);
+    void addSubscribe(const Subscribe &newSubscribe);
     void delSubscribe();
     void updateCell(const QModelIndex & indexA, const QModelIndex & indexB);
 

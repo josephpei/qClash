@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "../core/common.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -21,7 +22,7 @@ public:
     explicit SubscribeNewDialog(QWidget *parent = nullptr);
 
 signals:
-    void newSubscribe(const QStringList &sub);
+    void newSubscribe(const Subscribe &sub);
 
 private slots:
     void subscribeNewClicked();

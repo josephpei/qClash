@@ -5,6 +5,7 @@
 #include <string>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QMenu>
 #include <QPixmap>
 #include <QFontDatabase>
@@ -82,6 +83,7 @@ void MainWindow::createActions()
     startAtLogin = new QAction(tr("Start at login"), this);
     allowLan = new QAction(tr("Allow connect from lan"), this);
 
+    defaultConfig = new QAction("config", this);
     manageRemoteConfig = new QAction(tr("Manage"), this);
     updateRemoteConfig = new QAction(tr("Update"), this);
     autoUpdateRemoteConfig = new QAction(tr("Auto Update"), this);
@@ -96,16 +98,19 @@ QVector<QMenu*> MainWindow::createProxyMenus()
 {
     QVector<QMenu *> menus;
     YAML::Node root = Configurator::loadClashConfig();
-    for (YAML::const_iterator iter = root["Proxy Group"].begin(); iter != root["Proxy Group"].end(); ++iter) {
+    for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter) {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
         QMenu *groupMenu = new QMenu(groupName, this);
         groupMenu->setStyleSheet("* { menu-scrollable: 1 }");
+        QActionGroup *actions = new QActionGroup(groupMenu);
         for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi)
         {
             QString proxyName = (*pi).as<std::string>().c_str();
-            QAction *proxyAction = new QAction(proxyName, groupMenu);
-            groupMenu->addAction(proxyAction);
+            // QAction *proxyAction = new QAction(proxyName, groupMenu);
+            QAction *action = groupMenu->addAction(proxyName);
+            actions->addAction(action)->setData(proxyName);
         }
+        connect(actions, SIGNAL(triggered(QAction *)), SLOT(proxyChange(QAction *)));
         menus.push_back(groupMenu);
     }
     return menus;
@@ -154,6 +159,17 @@ void MainWindow::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayMenu);
     trayIcon->setIcon(QIcon(":/assets/icons/icon.svg"));
+}
+
+void MainWindow::proxyChange(QAction *action)
+{
+    QString proxyName = action->data().toString();
+    qDebug() << proxyName;
+    QWidget *widget = action->parentWidget();
+    if (widget) {
+        QMenu *menu = dynamic_cast<QMenu *>(widget);
+        qDebug() << menu->title();
+    }
 }
 
 void MainWindow::showAboutDialog()

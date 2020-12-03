@@ -5,15 +5,11 @@
 #include <QSettings>
 #include <yaml-cpp/yaml.h>
 
+#include "common.h"
+
+
 class Configurator : public QObject {
     Q_OBJECT
-    enum ProxyType
-    {
-        SS,
-        SSR,
-        VMESS,
-        TROJAN
-    };
 
     Configurator() = default;
 
@@ -28,6 +24,6 @@ public:
     const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
     void saveValue(const QString& key, const QVariant& value);
 
-    QList<QStringList> getSubscribes();
-    void setSubscribes(const QList<QStringList>& subscribes);
+    QList<Subscribe> getSubscribes();
+    void setSubscribes(const QList<Subscribe>& subscribes);
 };

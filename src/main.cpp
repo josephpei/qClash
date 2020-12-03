@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("qClash");
     QApplication::setApplicationName("qClash");
 
-    qRegisterMetaTypeStreamOperators<QList<QStringList>>("QList<QStringList>");
+    qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
     SingleApplication app(argc, argv);
 
     app.setApplicationName(QStringLiteral("qClash"));

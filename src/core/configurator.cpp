@@ -1,4 +1,6 @@
 #include <QStandardPaths>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include "configurator.h"
 
@@ -32,10 +34,19 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.sync();
 }
 
-QList<QStringList> Configurator::getSubscribes() {
-    return loadValue("subscribes").value<QList<QStringList>>();
+QList<Subscribe> Configurator::getSubscribes() {
+    QList<QString> data = loadValue("subscribes").value<QList<QString>>();
+    QList<Subscribe> subscribes;
+    for (int i = 0; i < data.size(); i++) {
+        subscribes.append(Subscribe(stringToJson(data[i])));
+    }
+    return subscribes;
 }
 
-void Configurator::setSubscribes(const QList<QStringList> &subscribes) {
-    saveValue("subscribes", QVariant::fromValue(subscribes));
+void Configurator::setSubscribes(const QList<Subscribe> &subscribes) {
+    QList<QString> data;
+    for (int i = 0; i < subscribes.size(); ++i) {
+        data.append(jsonToString(subscribes[i].write()));
+    }
+    saveValue("subscribes", QVariant::fromValue(data));
 }
