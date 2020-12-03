@@ -34,10 +34,10 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     model->setHeaderData(1, Qt::Horizontal, tr("Url"));
     // this->tableView->setColumnWidth(1, 255);
 
-    QList<QStringList> subscribes = configurator.getSubscribes();
+    QList<Subscribe> subscribes = configurator.getSubscribes();
     for (int i = 0; i < subscribes.count(); i++) {
-        model->setItem(i, 0, new QStandardItem(subscribes[i][0]));
-        model->setItem(i, 1, new QStandardItem(subscribes[i][1]));
+        model->setItem(i, 0, new QStandardItem(subscribes[i].name));
+        model->setItem(i, 1, new QStandardItem(subscribes[i].url));
     }
 
     vLayout->addWidget(tableView);
@@ -58,15 +58,15 @@ void SubscribeDialog::showSubNewDlg()
     }
 }
 
-void SubscribeDialog::addSubscribe(const QStringList &newSubscribe)
+void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
 {
-    QList<QStringList> subscribes = configurator.getSubscribes();
+    QList<Subscribe> subscribes = configurator.getSubscribes();
     int count = subscribes.count();
     subscribes.append(newSubscribe);
     configurator.setSubscribes(subscribes);
 
-    QString subName = newSubscribe.at(0);
-    QString subUrl = newSubscribe.at(1);
+    QString subName = newSubscribe.name;
+    QString subUrl = newSubscribe.url;
     // QMessageBox::information(this, "Add Subscribe", subName + subUrl);
 
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
@@ -81,7 +81,7 @@ void SubscribeDialog::delSubscribe()
         return;
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
 
-    QList<QStringList> subscribes = configurator.getSubscribes();
+    QList<Subscribe> subscribes = configurator.getSubscribes();
     subscribes.removeAt(index.row());
     configurator.setSubscribes(subscribes);
 
@@ -92,9 +92,15 @@ void SubscribeDialog::updateCell(const QModelIndex & indexA, const QModelIndex &
 {
     int col = indexA.column();
     int row = indexB.row();
-    QList<QStringList> subscribes = configurator.getSubscribes();
+    QList<Subscribe> subscribes = configurator.getSubscribes();
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
-    subscribes[row][col] = model->data(model->index(row, col)).toString();
+    QString str = model->data(model->index(row, col)).toString();
+    if (col > 1)
+        return;
+    if (col == 0)
+        subscribes[row].name = str;
+    if (col == 1)
+        subscribes[row].url = str;
     configurator.setSubscribes(subscribes);
 }
 

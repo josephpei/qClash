@@ -29,8 +29,10 @@ SubscribeNewDialog::SubscribeNewDialog(QWidget *parent)
 
 void SubscribeNewDialog::subscribeNewClicked()
 {
-    QStringList subscribe;
-    subscribe << this->subName->text() << this->subUrl->text();
+    // QStringList subscribe;
+    // subscribe << this->subName->text() << this->subUrl->text();
+    // emit newSubscribe(subscribe);
+    Subscribe subscribe(this->subName->text(), this->subUrl->text());
     emit newSubscribe(subscribe);
     accept();
 }

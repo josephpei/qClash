@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QPointer>
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -32,6 +32,7 @@ protected:
 private slots:
     void showAboutDialog();
     void showSubscribeDialog();
+    void proxyChange(QAction *);
 
 private:
     Ui::MainWindow *ui;
@@ -53,6 +54,7 @@ private:
     QAction *startAtLogin;
     QAction *allowLan;
 
+    QAction *defaultConfig;
     QAction *manageRemoteConfig;
     QAction *updateRemoteConfig;
     QAction *autoUpdateRemoteConfig;
@@ -66,7 +68,7 @@ private:
     QMenu *remoteConfigMenu;
     QMenu *helpMenu;
 
-    QVector<QMenu*> proxyMenu;
+    QList<QMenu*> proxyMenus;
 
     QPointer<AboutDialog> aboutDialog;
     QPointer<SubscribeDialog> subscribeDialog;
