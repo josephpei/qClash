@@ -16,9 +16,9 @@ const QString Configurator::getClashConfigPath()
     return homePath + "/.config/clash/";
 }
 
-YAML::Node Configurator::loadClashConfig()
+YAML::Node Configurator::loadClashConfig(QString name)
 {
-    QString configFile = Configurator::getClashConfigPath() + "config.yaml";
+    QString configFile = Configurator::getClashConfigPath() + name + ".yaml";
     YAML::Node root = YAML::LoadFile(configFile.toStdString());
     return root;
 }
