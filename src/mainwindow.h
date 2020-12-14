@@ -8,6 +8,7 @@
 #include <QSystemTrayIcon>
 #include <QPointer>
 #include <QList>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -32,12 +33,17 @@ protected:
 private slots:
     void showAboutDialog();
     void showSubscribeDialog();
+    void updateSubActions();
+
+    void subChange();
     void proxyChange(QAction *);
 
 private:
     Ui::MainWindow *ui;
 
 private:
+    Configurator& configurator;
+
     void createActions();
     void createTrayIcon();
     QVector<QMenu*> createProxyMenus();
@@ -55,9 +61,9 @@ private:
     QAction *allowLan;
 
     QAction *defaultConfig;
-    QAction *manageRemoteConfig;
-    QAction *updateRemoteConfig;
-    QAction *autoUpdateRemoteConfig;
+    QAction *manageSubConfig;
+    QAction *updateSubConfig;
+    QAction *autoUpdateSubConfig;
 
     QAction *about;
     QAction *checkUpdate;
@@ -65,10 +71,14 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayMenu;
     QMenu *proxyModeMenu;
-    QMenu *remoteConfigMenu;
+    QMenu *subConfigMenu;
     QMenu *helpMenu;
 
-    QList<QMenu*> proxyMenus;
+    enum
+    {
+        MaxSubs = 99
+    };
+    QAction *subActions[MaxSubs];
 
     QPointer<AboutDialog> aboutDialog;
     QPointer<SubscribeDialog> subscribeDialog;

@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , clashCore(ClashCore::instance())
+    , configurator(Configurator::instance())
 {
     int fontId = QFontDatabase::addApplicationFont(":/forkawesome.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
@@ -84,10 +85,12 @@ void MainWindow::createActions()
     allowLan = new QAction(tr("Allow connect from lan"), this);
 
     defaultConfig = new QAction("config", this);
-    manageRemoteConfig = new QAction(tr("Manage"), this);
-    updateRemoteConfig = new QAction(tr("Update"), this);
-    autoUpdateRemoteConfig = new QAction(tr("Auto Update"), this);
-    connect(manageRemoteConfig, &QAction::triggered, this, &MainWindow::showSubscribeDialog);
+    defaultConfig->setVisible(true);
+
+    manageSubConfig = new QAction(tr("Manage"), this);
+    updateSubConfig = new QAction(tr("Update"), this);
+    autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
+    connect(manageSubConfig, &QAction::triggered, this, &MainWindow::showSubscribeDialog);
 
     about = new QAction(tr("About"), this);
     checkUpdate = new QAction(tr("Check Update"), this);
@@ -97,7 +100,7 @@ void MainWindow::createActions()
 QVector<QMenu*> MainWindow::createProxyMenus()
 {
     QVector<QMenu *> menus;
-    YAML::Node root = Configurator::loadClashConfig();
+    YAML::Node root = Configurator::loadClashConfig(QString("config"));
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter) {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
         QMenu *groupMenu = new QMenu(groupName, this);
@@ -141,11 +144,20 @@ void MainWindow::createTrayIcon()
     trayMenu->addAction(allowLan);
     trayMenu->addSeparator();
 
-    remoteConfigMenu = new QMenu(tr("Config"), this);
-    remoteConfigMenu->addAction(manageRemoteConfig);
-    remoteConfigMenu->addAction(updateRemoteConfig);
-    remoteConfigMenu->addAction(autoUpdateRemoteConfig);
-    trayMenu->addMenu(remoteConfigMenu);
+    subConfigMenu = new QMenu(tr("Config"), this);
+    subConfigMenu->addAction(defaultConfig);
+    connect(subConfigMenu, &QMenu::aboutToShow, this, &MainWindow::updateSubActions);
+    // subscribe action placeholer
+    for (int i = 1; i < 99; ++i)
+    {
+        subActions[i] = subConfigMenu->addAction(QString(), this, &MainWindow::subChange);
+        subActions[i]->setVisible(false);
+    }
+    subConfigMenu->addSeparator();
+    subConfigMenu->addAction(manageSubConfig);
+    subConfigMenu->addAction(updateSubConfig);
+    subConfigMenu->addAction(autoUpdateSubConfig);
+    trayMenu->addMenu(subConfigMenu);
     trayMenu->addSeparator();
 
     helpMenu = new QMenu(tr("Help"), this);
@@ -159,6 +171,29 @@ void MainWindow::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayMenu);
     trayIcon->setIcon(QIcon(":/assets/icons/icon.svg"));
+}
+
+void MainWindow::updateSubActions()
+{
+    QList<Subscribe> subs = configurator.getSubscribes();
+    const int count = qMin(subs.size(), int(MaxSubs));
+    int i = 0;
+    for (; i < count; ++i)
+    {
+        qDebug() << subs[i].name;
+        subActions[i + 1]->setText(subs[i].name);
+        subActions[i + 1]->setData(subs[i].name);
+        subActions[i + 1]->setVisible(true);
+    }
+    for (; i < int(MaxSubs) - 1; ++i)
+        subActions[i + 1]->setVisible(false);
+}
+
+void MainWindow::subChange()
+{
+    if (const QAction *action = qobject_cast<const QAction*>(sender())) {
+        qDebug() << action->data().toString();
+    }
 }
 
 void MainWindow::proxyChange(QAction *action)
