@@ -19,7 +19,9 @@ public:
     static Configurator& instance();
 
     static const QString getClashConfigPath();
-    static YAML::Node loadClashConfig(QString name);
+    static const QString getClashConfigPath(const QString& name);
+    static void saveClashConfig(const QString& name, const QString& content);
+    static YAML::Node loadClashConfig(const QString& name);
 
     const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
     void saveValue(const QString& key, const QVariant& value);
@@ -27,6 +29,7 @@ public:
     QList<Subscribe> getSubscribes();
     void setSubscribes(const QList<Subscribe>& subscribes);
 
-    Subscribe getCurrentSub();
-    void setCurrentSub(const Subscribe &subscribe);
+    Subscribe getCurrentConfig();
+    void setCurrentConfig(const Subscribe& subscribe);
+    Subscribe getSubscribeByName(const QString &name);
 };

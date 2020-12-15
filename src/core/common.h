@@ -23,7 +23,7 @@ struct Subscribe {
     bool updating;
 
     Subscribe() { }
-    Subscribe(QString name, QString url) : name(name), url(url), updating(false) { }
+    Subscribe(QString name, QString url = "") : name(name), url(url), updating(false) { }
     explicit Subscribe(const QJsonObject &json);
 
     Subscribe read(const QJsonObject &json);

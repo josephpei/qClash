@@ -1,7 +1,10 @@
 #include <QtWidgets>
 #include <QDebug>
+#include <QFile>
 
 #include "subscribeDialog.h"
+#include "../utils/httputil.h"
+#include "../core/configurator.h"
 
 SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     configurator(Configurator::instance())
@@ -68,6 +71,9 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
     QString subName = newSubscribe.name;
     QString subUrl = newSubscribe.url;
     // QMessageBox::information(this, "Add Subscribe", subName + subUrl);
+    HttpUtil &http = HttpUtil::instance();
+    QByteArray data = http.get(subUrl);
+    Configurator::saveClashConfig(subName, QString(data));
 
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
     model->setItem(count, 0, new QStandardItem(subName));
