@@ -41,9 +41,12 @@ bool ClashCore::isRunning()
     return clashProcess->state() == QProcess::Running;
 }
 
-bool ClashCore::start()
+bool ClashCore::start(const QString& configFilePath)
 {
-    clashProcess->start(clashFilePath);
+    QStringList arguments;
+    if (!configFilePath.isEmpty())
+        arguments << "-f" << configFilePath;
+    clashProcess->start(clashFilePath, arguments);
     clashProcess->waitForFinished(500);
     int exitCode = clashProcess->exitCode();
     if (exitCode != 0) {
@@ -60,9 +63,9 @@ bool ClashCore::stop()
     return clashProcess->state() == QProcess::NotRunning;
 }
 
-bool ClashCore::restart()
+bool ClashCore::restart(const QString& configFilePath)
 {
     stop();
-    start();
+    start(configFilePath);
     return isRunning();
 }

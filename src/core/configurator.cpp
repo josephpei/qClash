@@ -1,6 +1,8 @@
 #include <QStandardPaths>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QFile>
+#include <QFileInfo>
 
 #include "configurator.h"
 
@@ -16,10 +18,33 @@ const QString Configurator::getClashConfigPath()
     return homePath + "/.config/clash/";
 }
 
-YAML::Node Configurator::loadClashConfig(QString name)
+const QString Configurator::getClashConfigPath(const QString& name)
 {
-    QString configFile = Configurator::getClashConfigPath() + name + ".yaml";
-    YAML::Node root = YAML::LoadFile(configFile.toStdString());
+    QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    return homePath + "/.config/clash/" + name + ".yaml";
+}
+
+void Configurator::saveClashConfig(const QString& name, const QString& content)
+{
+    QString filePath = Configurator::getClashConfigPath(name);
+    QFile configFile(filePath);
+    if (!configFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        // open file failed
+        return;
+    } else {
+        configFile.write(content.toUtf8());
+    }
+}
+
+YAML::Node Configurator::loadClashConfig(const QString& name)
+{
+    QString configFile = Configurator::getClashConfigPath(name);
+    YAML::Node root;
+    try {
+        root = YAML::LoadFile(configFile.toStdString());
+    } catch (YAML::BadFile err) {
+
+    }
     return root;
 }
 
@@ -34,7 +59,8 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.sync();
 }
 
-QList<Subscribe> Configurator::getSubscribes() {
+QList<Subscribe> Configurator::getSubscribes()
+{
     QList<QString> data = loadValue("subscribes").value<QList<QString>>();
     QList<Subscribe> subscribes;
     for (int i = 0; i < data.size(); i++) {
@@ -43,10 +69,34 @@ QList<Subscribe> Configurator::getSubscribes() {
     return subscribes;
 }
 
-void Configurator::setSubscribes(const QList<Subscribe> &subscribes) {
+void Configurator::setSubscribes(const QList<Subscribe> &subscribes)
+{
     QList<QString> data;
     for (int i = 0; i < subscribes.size(); ++i) {
         data.append(jsonToString(subscribes[i].write()));
     }
     saveValue("subscribes", QVariant::fromValue(data));
+}
+
+Subscribe Configurator::getCurrentConfig()
+{
+    QString data = loadValue("currentConfig").value<QString>();
+    if (data.isEmpty()) {
+        return Subscribe("config");
+    }
+    return Subscribe(stringToJson(data));
+}
+
+void Configurator::setCurrentConfig(const Subscribe& subscribe)
+{
+    saveValue("currentConfig", QVariant::fromValue(jsonToString(subscribe.write())));
+}
+
+Subscribe Configurator::getSubscribeByName(const QString& name)
+{
+    QList<Subscribe> subscribes = getSubscribes();
+    for (int i = 0; i < subscribes.size(); ++i) {
+        if (subscribes[i].name == name)
+            return subscribes[i];
+    }
 }

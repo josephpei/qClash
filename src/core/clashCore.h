@@ -12,9 +12,9 @@ public:
 
     QString getVersion();
     bool isRunning();
-    bool start();
+    bool start(const QString& configFilePath = "");
     bool stop();
-    bool restart();
+    bool restart(const QString& configFilePath = "");
 
 private:
     ClashCore();

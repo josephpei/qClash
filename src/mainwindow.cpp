@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "./core/configurator.h"
+#include "./core/clashApi.h"
 #include "./utils/iconsForkAwesome.h"
 #include <string>
 
@@ -47,7 +48,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     trayIcon->show();
     this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
-    clashCore.start();
+
+    Subscribe subscribe = configurator.getCurrentConfig();
+    QString configFilePath = configurator.getClashConfigPath(subscribe.name);
+    clashCore.start(configFilePath);
 }
 
 MainWindow::~MainWindow()
@@ -192,7 +196,11 @@ void MainWindow::updateSubActions()
 void MainWindow::subChange()
 {
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
-        qDebug() << action->data().toString();
+        QString name = action->data().toString();
+        qDebug() << "Current config: " << name;
+        configurator.setCurrentConfig(configurator.getSubscribeByName(name));
+        QString configFilePath = configurator.getClashConfigPath(name);
+        clashCore.restart(configFilePath);
     }
 }
 
@@ -202,8 +210,9 @@ void MainWindow::proxyChange(QAction *action)
     qDebug() << proxyName;
     QWidget *widget = action->parentWidget();
     if (widget) {
-        QMenu *menu = dynamic_cast<QMenu *>(widget);
+        QMenu *menu = qobject_cast<QMenu *>(widget);
         qDebug() << menu->title();
+        setGroupProxy(menu->title(), proxyName);
     }
 }
 

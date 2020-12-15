@@ -78,6 +78,8 @@ set(${PROJECT_NAME}_SOURCES
   src/core/configurator.cpp
   src/core/clashCore.h
   src/core/clashCore.cpp
+  src/core/clashApi.h
+  src/core/clashApi.cpp
   src/core/common.h
   src/core/common.cpp
   src/dialogs/subscribeDialog.h
