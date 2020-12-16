@@ -3,7 +3,11 @@
 #include "configurator.h"
 #include "../utils/httputil.h"
 
-Configurator &configurator = Configurator::instance();
-HttpUtil &http = HttpUtil::instance();
+class ClashApi {
+private:
+    static Configurator &configurator;
+    static HttpUtil &http;
 
-void setGroupProxy(const QString &group, const QString &proxy);
+public:
+    static void setGroupProxy(const QString &group, const QString &proxy);
+};

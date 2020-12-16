@@ -99,4 +99,5 @@ Subscribe Configurator::getSubscribeByName(const QString& name)
         if (subscribes[i].name == name)
             return subscribes[i];
     }
+    return Subscribe("config");
 }
