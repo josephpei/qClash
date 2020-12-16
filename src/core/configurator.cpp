@@ -39,7 +39,6 @@ void Configurator::saveClashConfig(const QString& name, const QString& content)
 YAML::Node Configurator::loadClashConfig(const QString& name)
 {
     QString configFile = Configurator::getClashConfigPath(name);
-    YAML::Node root;
     try {
         root = YAML::LoadFile(configFile.toStdString());
     } catch (YAML::BadFile err) {
@@ -100,4 +99,19 @@ Subscribe Configurator::getSubscribeByName(const QString& name)
             return subscribes[i];
     }
     return Subscribe("config");
+}
+
+QString Configurator::getHttpPort()
+{
+    return root["port"].as<std::string>().c_str();
+}
+
+QString Configurator::getSocksPort()
+{
+    return root["socks-port"].as<std::string>().c_str();
+}
+
+QString Configurator::getExternalControlPort()
+{
+    return QString(root["external-controller"].as<std::string>().c_str()).split(":")[1];
 }

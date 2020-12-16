@@ -14,6 +14,7 @@ class Configurator : public QObject {
     Configurator() = default;
 
     QSettings config;
+    YAML::Node root;
 
 public:
     static Configurator& instance();
@@ -21,7 +22,8 @@ public:
     static const QString getClashConfigPath();
     static const QString getClashConfigPath(const QString& name);
     static void saveClashConfig(const QString& name, const QString& content);
-    static YAML::Node loadClashConfig(const QString& name);
+    
+    YAML::Node loadClashConfig(const QString& name);
 
     const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
     void saveValue(const QString& key, const QVariant& value);
@@ -32,4 +34,8 @@ public:
     Subscribe getCurrentConfig();
     void setCurrentConfig(const Subscribe& subscribe);
     Subscribe getSubscribeByName(const QString &name);
+
+    QString getHttpPort();
+    QString getSocksPort();
+    QString getExternalControlPort();
 };

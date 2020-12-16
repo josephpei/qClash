@@ -37,9 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->overviewButton->setFont(font);
     QString overviewStr = QString("%1 %2").arg(QChar(0xf0e4)).arg(tr("Overview"));
     ui->overviewButton->setText(overviewStr);
+    connect(ui->overviewButton, &QPushButton::clicked, this, &MainWindow::pageChange);
     ui->proxiesButton->setFont(font);
     QString proxiesStr = QString("%1 %2").arg(QChar(0xf1d8)).arg(tr("Proxies"));
     ui->proxiesButton->setText(proxiesStr);
+    connect(ui->proxiesButton, &QPushButton::clicked, this, &MainWindow::pageChange);
 
     createActions();
     createTrayIcon();
@@ -51,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     Subscribe subscribe = configurator.getCurrentConfig();
     qDebug() << "Start with config: " << subscribe.name;
+    configurator.loadClashConfig(subscribe.name);
+    fillOverviewPage();
     QString configFilePath = configurator.getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
 }
@@ -102,7 +106,7 @@ void MainWindow::createActions()
 void MainWindow::trayActivated()
 {
     QVector<QMenu *> menus;
-    YAML::Node root = Configurator::loadClashConfig(configurator.getCurrentConfig().name);
+    YAML::Node root = configurator.loadClashConfig(configurator.getCurrentConfig().name);
     int i = 0;
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
     {
@@ -160,6 +164,7 @@ void MainWindow::createTrayIcon()
     for (int i = 0; i < MaxMenu; ++i)
     {
         subActions[i] = subConfigMenu->addAction(QString(), this, &MainWindow::configChange);
+        subActions[i]->setCheckable(true);
         subActions[i]->setVisible(false);
     }
     // default config
@@ -224,6 +229,26 @@ void MainWindow::proxyChange(QAction *action)
         qDebug() << menu->title();
         ClashApi::setGroupProxy(menu->title(), proxyName);
     }
+}
+
+void MainWindow::pageChange()
+{
+    if (const QPushButton *button = qobject_cast<const QPushButton*>(sender())) {
+        QString page = button->text();
+        qDebug() << "Current page: " << page;
+        if (page.contains("Overview")) {
+            ui->stackedWidget->setCurrentIndex(0);
+        } else if (page.contains("Proxies")) {
+            ui->stackedWidget->setCurrentIndex(1);
+        }
+    }
+}
+
+void MainWindow::fillOverviewPage()
+{
+    ui->httpPortLabel->setText(configurator.getHttpPort());
+    ui->socksPortLabel->setText(configurator.getSocksPort());
+    ui->exControlPortLabel->setText(configurator.getExternalControlPort());
 }
 
 void MainWindow::showAboutDialog()
