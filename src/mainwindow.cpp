@@ -44,12 +44,13 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createTrayIcon();
 
-    // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
+    connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
     trayIcon->show();
     this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
 
     Subscribe subscribe = configurator.getCurrentConfig();
+    qDebug() << "Start with config: " << subscribe.name;
     QString configFilePath = configurator.getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
 }
@@ -88,9 +89,6 @@ void MainWindow::createActions()
     startAtLogin = new QAction(tr("Start at login"), this);
     allowLan = new QAction(tr("Allow connect from lan"), this);
 
-    defaultConfig = new QAction("config", this);
-    defaultConfig->setVisible(true);
-
     manageSubConfig = new QAction(tr("Manage"), this);
     updateSubConfig = new QAction(tr("Update"), this);
     autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
@@ -101,26 +99,33 @@ void MainWindow::createActions()
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
 }
 
-QVector<QMenu*> MainWindow::createProxyMenus()
+void MainWindow::trayActivated()
 {
     QVector<QMenu *> menus;
-    YAML::Node root = Configurator::loadClashConfig(QString("config"));
-    for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter) {
+    YAML::Node root = Configurator::loadClashConfig(configurator.getCurrentConfig().name);
+    int i = 0;
+    for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
+    {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
-        QMenu *groupMenu = new QMenu(groupName, this);
-        groupMenu->setStyleSheet("* { menu-scrollable: 1 }");
-        QActionGroup *actions = new QActionGroup(groupMenu);
+        proxyGroupMenus[i]->setTitle(groupName);
+        proxyGroupMenus[i]->menuAction()->setVisible(true);
+        proxyGroupMenus[i]->clear();
+        QActionGroup *actions = new QActionGroup(proxyGroupMenus[i]);
         for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi)
         {
             QString proxyName = (*pi).as<std::string>().c_str();
             // QAction *proxyAction = new QAction(proxyName, groupMenu);
-            QAction *action = groupMenu->addAction(proxyName);
+            QAction *action = proxyGroupMenus[i]->addAction(proxyName);
+            action->setCheckable(true);
             actions->addAction(action)->setData(proxyName);
         }
         connect(actions, SIGNAL(triggered(QAction *)), SLOT(proxyChange(QAction *)));
-        menus.push_back(groupMenu);
+        ++i;
     }
-    return menus;
+
+    for (; i < MaxMenu; ++i) {
+        proxyGroupMenus[i]->menuAction()->setVisible(false);
+    }
 }
 
 void MainWindow::createTrayIcon()
@@ -134,9 +139,10 @@ void MainWindow::createTrayIcon()
     trayMenu->addMenu(proxyModeMenu);
     trayMenu->addSeparator();
 
-    QVector<QMenu *> menus = createProxyMenus();
-    for (int i = 0; i < menus.size(); i++) {
-        trayMenu->addMenu(menus.at(i));
+    for (int i = 0; i < MaxMenu; i++) {
+        proxyGroupMenus[i] = trayMenu->addMenu(QString());
+        proxyGroupMenus[i]->setStyleSheet("* { menu-scrollable: 1 }");
+        proxyGroupMenus[i]->menuAction()->setVisible(false);
     }
     trayMenu->addSeparator();
 
@@ -149,14 +155,18 @@ void MainWindow::createTrayIcon()
     trayMenu->addSeparator();
 
     subConfigMenu = new QMenu(tr("Config"), this);
-    subConfigMenu->addAction(defaultConfig);
     connect(subConfigMenu, &QMenu::aboutToShow, this, &MainWindow::updateSubActions);
     // subscribe action placeholer
-    for (int i = 1; i < 99; ++i)
+    for (int i = 0; i < MaxMenu; ++i)
     {
-        subActions[i] = subConfigMenu->addAction(QString(), this, &MainWindow::subChange);
+        subActions[i] = subConfigMenu->addAction(QString(), this, &MainWindow::configChange);
         subActions[i]->setVisible(false);
     }
+    // default config
+    subActions[0]->setText("config");
+    subActions[0]->setData("config");
+    subActions[0]->setVisible(true);
+
     subConfigMenu->addSeparator();
     subConfigMenu->addAction(manageSubConfig);
     subConfigMenu->addAction(updateSubConfig);
@@ -180,7 +190,7 @@ void MainWindow::createTrayIcon()
 void MainWindow::updateSubActions()
 {
     QList<Subscribe> subs = configurator.getSubscribes();
-    const int count = qMin(subs.size(), int(MaxSubs));
+    const int count = qMin(subs.size(), int(MaxMenu));
     int i = 0;
     for (; i < count; ++i)
     {
@@ -189,13 +199,13 @@ void MainWindow::updateSubActions()
         subActions[i + 1]->setData(subs[i].name);
         subActions[i + 1]->setVisible(true);
     }
-    for (; i < int(MaxSubs) - 1; ++i)
+    for (; i < int(MaxMenu) - 1; ++i)
         subActions[i + 1]->setVisible(false);
 }
 
-void MainWindow::subChange()
+void MainWindow::configChange()
 {
-    if (const QAction *action = qobject_cast<const QAction*>(sender())) {
+    if (const QAction *action = qobject_cast<const QAction *>(sender())) {
         QString name = action->data().toString();
         qDebug() << "Current config: " << name;
         configurator.setCurrentConfig(configurator.getSubscribeByName(name));
@@ -212,7 +222,7 @@ void MainWindow::proxyChange(QAction *action)
     if (widget) {
         QMenu *menu = qobject_cast<QMenu *>(widget);
         qDebug() << menu->title();
-        setGroupProxy(menu->title(), proxyName);
+        ClashApi::setGroupProxy(menu->title(), proxyName);
     }
 }
 

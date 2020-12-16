@@ -35,7 +35,8 @@ private slots:
     void showSubscribeDialog();
     void updateSubActions();
 
-    void subChange();
+    void trayActivated();
+    void configChange();
     void proxyChange(QAction *);
 
 private:
@@ -60,7 +61,6 @@ private:
     QAction *startAtLogin;
     QAction *allowLan;
 
-    QAction *defaultConfig;
     QAction *manageSubConfig;
     QAction *updateSubConfig;
     QAction *autoUpdateSubConfig;
@@ -76,9 +76,10 @@ private:
 
     enum
     {
-        MaxSubs = 99
+        MaxMenu = 9
     };
-    QAction *subActions[MaxSubs];
+    QAction *subActions[MaxMenu];
+    QMenu *proxyGroupMenus[MaxMenu];
 
     QPointer<AboutDialog> aboutDialog;
     QPointer<SubscribeDialog> subscribeDialog;

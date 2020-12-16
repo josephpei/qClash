@@ -1,6 +1,8 @@
 #include "httputil.h"
 
 #include <QEventLoop>
+#include <QJsonDocument>
+#include <QVariant>
 
 class HttpUtil::Inner
 {
@@ -26,7 +28,7 @@ QByteArray HttpUtil::request(const QUrl &url,
                          uint offset)
 {
     QNetworkRequest request(url);
-    //request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
 
     QNetworkReply *reply = nullptr;
     switch (operation)
@@ -70,10 +72,13 @@ QByteArray HttpUtil::post(const QUrl &url, const QMap<QString, QString> &params)
 QByteArray HttpUtil::put(const QUrl &url, const QMap<QString, QString> &params)
 {
     QByteArray body;
+    QVariantMap vmap;
     QMapIterator<QString, QString> i(params);
     while (i.hasNext()) {
         i.next();
-        body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
+        // body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
+        vmap.insert(i.key(), i.value());
     }
-    return request(url, QNetworkAccessManager::PutOperation, body);
+    QJsonDocument json = QJsonDocument::fromVariant(vmap);
+    return request(url, QNetworkAccessManager::PutOperation, json.toJson());
 }
