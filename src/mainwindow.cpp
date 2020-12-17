@@ -7,7 +7,9 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QButtonGroup>
 #include <QMenu>
+#include <QSystemTrayIcon>
 #include <QPixmap>
 #include <QFontDatabase>
 #include <QCloseEvent>
@@ -17,6 +19,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , pageButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
     , configurator(Configurator::instance())
 {
@@ -37,16 +40,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->overviewButton->setFont(font);
     QString overviewStr = QString("%1 %2").arg(QChar(0xf0e4)).arg(tr("Overview"));
     ui->overviewButton->setText(overviewStr);
-    connect(ui->overviewButton, &QPushButton::clicked, this, &MainWindow::pageChange);
+    pageButtons->addButton(ui->overviewButton);
     ui->proxiesButton->setFont(font);
     QString proxiesStr = QString("%1 %2").arg(QChar(0xf1d8)).arg(tr("Proxies"));
     ui->proxiesButton->setText(proxiesStr);
-    connect(ui->proxiesButton, &QPushButton::clicked, this, &MainWindow::pageChange);
+    pageButtons->addButton(ui->proxiesButton);
+
+    pageButtons->setExclusive(true);
+    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), [=](int id) {
+        ui->stackedWidget->setCurrentIndex(qAbs(id) - 2);
+    });
+    // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
 
     createActions();
     createTrayIcon();
 
-    connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
+    // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
     trayIcon->show();
     this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
@@ -55,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     qDebug() << "Start with config: " << subscribe.name;
     configurator.loadClashConfig(subscribe.name);
     fillOverviewPage();
+    ui->overviewButton->setChecked(true);
     QString configFilePath = configurator.getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
 }
@@ -63,6 +73,12 @@ MainWindow::~MainWindow()
 {
     clashCore.stop();
     delete ui;
+}
+
+void MainWindow::showMainWindow()
+{
+    if (!isVisible())
+        show();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -80,6 +96,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::createActions()
 {
+    mainWindowAction = new QAction(tr("Show MainWindow"), this);
+    connect(mainWindowAction, &QAction::triggered, this, &MainWindow::showMainWindow);
+
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
@@ -103,9 +122,8 @@ void MainWindow::createActions()
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
 }
 
-void MainWindow::trayActivated()
+void MainWindow::proxyGroupMenusChange()
 {
-    QVector<QMenu *> menus;
     YAML::Node root = configurator.loadClashConfig(configurator.getCurrentConfig().name);
     int i = 0;
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
@@ -148,6 +166,7 @@ void MainWindow::createTrayIcon()
         proxyGroupMenus[i]->setStyleSheet("* { menu-scrollable: 1 }");
         proxyGroupMenus[i]->menuAction()->setVisible(false);
     }
+    proxyGroupMenusChange();
     trayMenu->addSeparator();
 
     trayMenu->addAction(setAsSystemProxy);
@@ -160,13 +179,16 @@ void MainWindow::createTrayIcon()
 
     subConfigMenu = new QMenu(tr("Config"), this);
     connect(subConfigMenu, &QMenu::aboutToShow, this, &MainWindow::updateSubActions);
+    subActionsGroup = new QActionGroup(this);
     // subscribe action placeholer
     for (int i = 0; i < MaxMenu; ++i)
     {
-        subActions[i] = subConfigMenu->addAction(QString(), this, &MainWindow::configChange);
+        subActions[i] = subConfigMenu->addAction(QString());
+        subActionsGroup->addAction(subActions[i]);
         subActions[i]->setCheckable(true);
         subActions[i]->setVisible(false);
     }
+    connect(subActionsGroup, SIGNAL(triggered(QAction *)), SLOT(configChange(QAction *)));
     // default config
     subActions[0]->setText("config");
     subActions[0]->setData("config");
@@ -185,6 +207,7 @@ void MainWindow::createTrayIcon()
     trayMenu->addMenu(helpMenu);
     trayMenu->addSeparator();
 
+    trayMenu->addAction(mainWindowAction);
     trayMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);
@@ -195,60 +218,66 @@ void MainWindow::createTrayIcon()
 void MainWindow::updateSubActions()
 {
     QList<Subscribe> subs = configurator.getSubscribes();
+    Subscribe currSub = configurator.getCurrentConfig();
     const int count = qMin(subs.size(), int(MaxMenu));
     int i = 0;
     for (; i < count; ++i)
     {
-        qDebug() << subs[i].name;
-        subActions[i + 1]->setText(subs[i].name);
-        subActions[i + 1]->setData(subs[i].name);
-        subActions[i + 1]->setVisible(true);
+        // qDebug() << subs[i].name;
+        subActions[i]->setText(subs[i].name);
+        subActions[i]->setData(subs[i].name);
+        subActions[i]->setVisible(true);
+        if (subs[i].name == currSub.name)
+            subActions[i]->setChecked(true);
     }
     for (; i < int(MaxMenu) - 1; ++i)
         subActions[i + 1]->setVisible(false);
 }
 
-void MainWindow::configChange()
+void MainWindow::configChange(QAction *action)
 {
-    if (const QAction *action = qobject_cast<const QAction *>(sender())) {
-        QString name = action->data().toString();
-        qDebug() << "Current config: " << name;
-        configurator.setCurrentConfig(configurator.getSubscribeByName(name));
-        QString configFilePath = configurator.getClashConfigPath(name);
-        clashCore.restart(configFilePath);
-    }
+    // if (const QAction *action = qobject_cast<const QAction *>(sender())) {
+    QString name = action->data().toString();
+    qDebug() << "Current config: " << name;
+    configurator.setCurrentConfig(configurator.getSubscribeByName(name));
+    QString configFilePath = configurator.getClashConfigPath(name);
+    clashCore.restart(configFilePath);
+    proxyGroupMenusChange();
+    fillOverviewPage();
+    // }
 }
 
 void MainWindow::proxyChange(QAction *action)
 {
     QString proxyName = action->data().toString();
-    qDebug() << proxyName;
+    qDebug() << "Current proxy: " << proxyName;
     QWidget *widget = action->parentWidget();
     if (widget) {
         QMenu *menu = qobject_cast<QMenu *>(widget);
-        qDebug() << menu->title();
+        qDebug() << "Current group: " << menu->title();
         ClashApi::setGroupProxy(menu->title(), proxyName);
     }
 }
 
-void MainWindow::pageChange()
+void MainWindow::pageChange(int id)
 {
-    if (const QPushButton *button = qobject_cast<const QPushButton*>(sender())) {
-        QString page = button->text();
-        qDebug() << "Current page: " << page;
-        if (page.contains("Overview")) {
-            ui->stackedWidget->setCurrentIndex(0);
-        } else if (page.contains("Proxies")) {
-            ui->stackedWidget->setCurrentIndex(1);
-        }
-    }
+    ui->stackedWidget->setCurrentIndex(id);
+    // QString page = button->text();
+    // qDebug() << "Current page: " << page;
+    // if (page.contains("Overview")) {
+    //     ui->stackedWidget->setCurrentIndex(0);
+    // } else if (page.contains("Proxies")) {
+    //     ui->stackedWidget->setCurrentIndex(1);
+    // }
 }
 
 void MainWindow::fillOverviewPage()
 {
-    ui->httpPortLabel->setText(configurator.getHttpPort());
-    ui->socksPortLabel->setText(configurator.getSocksPort());
-    ui->exControlPortLabel->setText(configurator.getExternalControlPort());
+    ui->httpPortLineEdit->setText(configurator.getHttpPort());
+    ui->socksPortLineEdit->setText(configurator.getSocksPort());
+    ui->exCtrlPortLineEdit->setText(configurator.getExternalControlPort());
+    ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
+    ui->logLevelComboBox->setCurrentIndex(configurator.getLogLevel());
 }
 
 void MainWindow::showAboutDialog()

@@ -38,4 +38,6 @@ public:
     QString getHttpPort();
     QString getSocksPort();
     QString getExternalControlPort();
+    bool getAllowLan();
+    int getLogLevel();
 };

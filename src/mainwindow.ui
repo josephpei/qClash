@@ -33,6 +33,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
@@ -52,12 +55,18 @@
           <property name="text">
            <string>Overview</string>
           </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="proxiesButton">
           <property name="text">
            <string>Proxies</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -98,71 +107,88 @@
           <widget class="QWidget" name="overview">
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLabel" name="httpPortTxt">
+             <layout class="QFormLayout" name="formLayout">
+              <item row="1" column="0">
+               <widget class="QLabel" name="httpPortLabel">
                 <property name="text">
                  <string>Http Port</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QLabel" name="httpPortLabel">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="httpPortLineEdit"/>
               </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QLabel" name="socksPortLabelTxt">
+              <item row="2" column="0">
+               <widget class="QLabel" name="socksPortLabel">
                 <property name="text">
                  <string>Socks Port</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QLabel" name="socksPortLabel">
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="socksPortLineEdit"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="exCtrlPortLabel">
+                <property name="text">
+                 <string>Ex Ctronller Port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="exCtrlPortLineEdit"/>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="allowLanLabel">
+                <property name="text">
+                 <string>Allow LAN</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QCheckBox" name="allowLanCheckBox">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QLabel" name="exControlPortTxt">
+              <item row="5" column="0">
+               <widget class="QLabel" name="logLevelLabel">
                 <property name="text">
-                 <string>External Controller Port</string>
+                 <string>Log Level</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QLabel" name="exControlPortLabel">
-                <property name="text">
-                 <string/>
-                </property>
+              <item row="5" column="1">
+               <widget class="QComboBox" name="logLevelComboBox">
+                <item>
+                 <property name="text">
+                  <string>info</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>warning</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>error</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>debug</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>silent</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
