@@ -5,14 +5,16 @@
 #include "./core/clashCore.h"
 
 #include <QMainWindow>
-#include <QSystemTrayIcon>
 #include <QPointer>
 #include <QList>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QActionGroup;
 class QMenu;
+class QButtonGroup;
+class QSystemTrayIcon;
 QT_END_NAMESPACE
 
 QT_BEGIN_NAMESPACE
@@ -31,13 +33,17 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
+    void showMainWindow();
+
     void showAboutDialog();
     void showSubscribeDialog();
     void updateSubActions();
 
-    void trayActivated();
-    void configChange();
+    void proxyGroupMenusChange();
+    void configChange(QAction *);
     void proxyChange(QAction *);
+    void pageChange(int);
+    void fillOverviewPage();
 
 private:
     Ui::MainWindow *ui;
@@ -50,6 +56,7 @@ private:
     QVector<QMenu*> createProxyMenus();
 
     // tray menus & actions
+    QAction *mainWindowAction;
     QAction *quitAction;
     QAction *proxyGlobalMode;
     QAction *proxyRuleMode;
@@ -76,10 +83,13 @@ private:
 
     enum
     {
-        MaxMenu = 9
+        MaxMenu = 99
     };
     QAction *subActions[MaxMenu];
+    QActionGroup *subActionsGroup;
     QMenu *proxyGroupMenus[MaxMenu];
+
+    QButtonGroup *pageButtons;
 
     QPointer<AboutDialog> aboutDialog;
     QPointer<SubscribeDialog> subscribeDialog;

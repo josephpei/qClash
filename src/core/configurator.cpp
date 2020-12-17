@@ -62,7 +62,9 @@ QList<Subscribe> Configurator::getSubscribes()
 {
     QList<QString> data = loadValue("subscribes").value<QList<QString>>();
     QList<Subscribe> subscribes;
-    for (int i = 0; i < data.size(); i++) {
+    subscribes.append(Subscribe("config"));
+    for (int i = 0; i < data.size(); i++)
+    {
         subscribes.append(Subscribe(stringToJson(data[i])));
     }
     return subscribes;
@@ -114,4 +116,26 @@ QString Configurator::getSocksPort()
 QString Configurator::getExternalControlPort()
 {
     return QString(root["external-controller"].as<std::string>().c_str()).split(":")[1];
+}
+
+bool Configurator::getAllowLan()
+{
+    return root["allow-lan"].as<bool>();
+}
+
+int Configurator::getLogLevel()
+{
+    if (!root["log-level"])
+        return 0;
+    QString level = root["log-level"].as<std::string>().c_str();
+    if (level == "info")
+        return 0;
+    else if (level == "warning")
+        return 1;
+    else if (level == "error")
+        return 2;
+    else if (level == "debug")
+        return 3;
+    else if (level == "silent")
+        return 4;
 }
