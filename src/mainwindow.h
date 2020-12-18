@@ -15,6 +15,7 @@ class QActionGroup;
 class QMenu;
 class QButtonGroup;
 class QSystemTrayIcon;
+class QJsonObject;
 QT_END_NAMESPACE
 
 QT_BEGIN_NAMESPACE

@@ -13,6 +13,8 @@ enum ProxyType
     TROJAN
 };
 
+extern QJsonObject LOGLEVEL2INT;
+
 QString jsonToString(const QJsonObject &json);
 QJsonObject stringToJson(const QString str);
 
