@@ -103,6 +103,29 @@ Subscribe Configurator::getSubscribeByName(const QString& name)
     return Subscribe("config");
 }
 
+QJsonObject Configurator::getProxyGroupsRule(const QString& name)
+{
+    proxyGroups = QJsonDocument::fromJson(loadValue("proxyGroupsRule").toString().toUtf8()).object();
+    QJsonObject current;
+    if (!proxyGroups.isEmpty())
+        current = proxyGroups.value(name).toObject();
+    // clean rule, remove same items in default config
+    // saveValue("proxyGroupsRule", QVariant(proxyGroups));
+    return current;
+}
+
+void Configurator::setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy)
+{
+    QJsonObject oldRule = QJsonDocument::fromJson(loadValue("proxyGroupsRule").toString().toUtf8()).object();
+    if (oldRule.isEmpty())
+        oldRule.insert(name, QJsonObject());
+    QJsonValueRef ref = oldRule.find(name).value();
+    QJsonObject current = ref.toObject();
+    current.insert(group, proxy);
+    oldRule[name] = current;
+    saveValue("proxyGroupsRule", QVariant(QJsonDocument(oldRule).toJson()));
+}
+
 QString Configurator::getHttpPort()
 {
     return root["port"].as<std::string>().c_str();
@@ -123,19 +146,9 @@ bool Configurator::getAllowLan()
     return root["allow-lan"].as<bool>();
 }
 
-int Configurator::getLogLevel()
+QString Configurator::getLogLevel()
 {
     if (!root["log-level"])
-        return 0;
-    QString level = root["log-level"].as<std::string>().c_str();
-    if (level == "info")
-        return 0;
-    else if (level == "warning")
-        return 1;
-    else if (level == "error")
-        return 2;
-    else if (level == "debug")
-        return 3;
-    else if (level == "silent")
-        return 4;
+        return "info";
+    return QString(root["log-level"].as<std::string>().c_str());
 }

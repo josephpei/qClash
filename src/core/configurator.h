@@ -2,6 +2,8 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <QSettings>
 #include <yaml-cpp/yaml.h>
 
@@ -15,6 +17,7 @@ class Configurator : public QObject {
 
     QSettings config;
     YAML::Node root;
+    QJsonObject proxyGroups;
 
 public:
     static Configurator& instance();
@@ -35,9 +38,12 @@ public:
     void setCurrentConfig(const Subscribe& subscribe);
     Subscribe getSubscribeByName(const QString &name);
 
+    QJsonObject getProxyGroupsRule(const QString& name);
+    void setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy);
+
     QString getHttpPort();
     QString getSocksPort();
     QString getExternalControlPort();
     bool getAllowLan();
-    int getLogLevel();
+    QString getLogLevel();
 };

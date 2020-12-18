@@ -124,11 +124,17 @@ void MainWindow::createActions()
 
 void MainWindow::proxyGroupMenusChange()
 {
-    YAML::Node root = configurator.loadClashConfig(configurator.getCurrentConfig().name);
+    Subscribe subscribe = configurator.getCurrentConfig();
+    YAML::Node root = configurator.loadClashConfig(subscribe.name);
+    QJsonObject proxyGroupsRule = configurator.getProxyGroupsRule(subscribe.name);
     int i = 0;
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
     {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
+        QString selectProxy;
+        if (proxyGroupsRule.contains(groupName)) {
+            selectProxy = proxyGroupsRule[groupName].toString();
+        }
         proxyGroupMenus[i]->setTitle(groupName);
         proxyGroupMenus[i]->menuAction()->setVisible(true);
         proxyGroupMenus[i]->clear();
@@ -139,6 +145,10 @@ void MainWindow::proxyGroupMenusChange()
             // QAction *proxyAction = new QAction(proxyName, groupMenu);
             QAction *action = proxyGroupMenus[i]->addAction(proxyName);
             action->setCheckable(true);
+            if (proxyName == selectProxy) {
+                action->setChecked(true);
+                ClashApi::setGroupProxy(groupName, proxyName);
+            }
             actions->addAction(action)->setData(proxyName);
         }
         connect(actions, SIGNAL(triggered(QAction *)), SLOT(proxyChange(QAction *)));
@@ -256,6 +266,7 @@ void MainWindow::proxyChange(QAction *action)
         QMenu *menu = qobject_cast<QMenu *>(widget);
         qDebug() << "Current group: " << menu->title();
         ClashApi::setGroupProxy(menu->title(), proxyName);
+        configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, menu->title(), proxyName);
     }
 }
 
@@ -277,7 +288,7 @@ void MainWindow::fillOverviewPage()
     ui->socksPortLineEdit->setText(configurator.getSocksPort());
     ui->exCtrlPortLineEdit->setText(configurator.getExternalControlPort());
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
-    ui->logLevelComboBox->setCurrentIndex(configurator.getLogLevel());
+    ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
 }
 
 void MainWindow::showAboutDialog()

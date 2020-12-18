@@ -1,5 +1,12 @@
 #include "common.h"
 
+QJsonObject LOGLEVEL2INT{
+    {"info", 0},
+    {"warning", 1},
+    {"error", 2},
+    {"debug", 3},
+    {"silent", 4}
+};
 
 QString jsonToString(const QJsonObject &json)
 {
