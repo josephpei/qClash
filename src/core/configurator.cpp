@@ -58,6 +58,13 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.sync();
 }
 
+QString Configurator::getSecret()
+{
+    if (root["secret"])
+        return root["secret"].as<std::string>().c_str();
+    return QString("");
+}
+
 QList<Subscribe> Configurator::getSubscribes()
 {
     QList<QString> data = loadValue("subscribes").value<QList<QString>>();
@@ -126,29 +133,109 @@ void Configurator::setProxyGroupsRule(const QString& name, const QString& group,
     saveValue("proxyGroupsRule", QVariant(QJsonDocument(oldRule).toJson()));
 }
 
-QString Configurator::getHttpPort()
+void Configurator::setStartAtLogin(bool flag)
 {
-    return root["port"].as<std::string>().c_str();
+    saveValue("startAtLogin", flag);
 }
 
-QString Configurator::getSocksPort()
+bool Configurator::getStartAtLogin()
 {
-    return root["socks-port"].as<std::string>().c_str();
+    return loadValue("startAtLogin", false).toBool();
 }
 
-QString Configurator::getExternalControlPort()
+QMap<QString, QString> Configurator::diffConfigs()
 {
-    return QString(root["external-controller"].as<std::string>().c_str()).split(":")[1];
+    QMap<QString, QString> configs;
+
+    QString modeSaved = loadValue("mode", "").toString();
+    QString modeYaml = root["mode"].as<std::string>().c_str();
+    if (!modeSaved.isEmpty() && modeSaved != modeYaml)
+        configs["mode"] = modeSaved;
+
+    int httpPortSaved = loadValue("port", -1).toInt();
+    int httpPortYaml = root["port"].as<int>();
+    if (httpPortSaved != -1 && httpPortSaved != httpPortYaml)
+        configs["port"] = QString::number(httpPortSaved);
+
+    int socksPortSaved = loadValue("socksPort", -1).toInt();
+    int socksPortYaml = root["socks-port"].as<int>();
+    if (socksPortSaved != -1 && socksPortSaved != socksPortYaml)
+        configs["socks-port"] = QString::number(socksPortSaved);
+
+    bool allowLanSaved = loadValue("allowLan", false).toBool();
+    bool allowLanYaml = root["allow-lan"].as<bool>();
+    if (allowLanSaved != allowLanYaml)
+        configs["allow-lan"] = QString::number(allowLanSaved);
+
+    QString logLevelSaved = loadValue("logLevel", "").toString();
+    QString logLevelYaml = root["log-level"].as<std::string>().c_str();
+    if (!logLevelSaved.isEmpty() && logLevelSaved != logLevelYaml)
+        configs["log-level"] = logLevelSaved;
+
+    return configs;
+}
+
+void Configurator::setMode(const QString& mode)
+{
+    saveValue("mode", mode);
+}
+
+QString Configurator::getMode()
+{
+    return loadValue("mode", root["mode"].as<std::string>().c_str()).toString();
+}
+
+void Configurator::setHttpPort(const int& port)
+{
+    saveValue("httpPort", port);
+}
+
+int Configurator::getHttpPort()
+{
+    return loadValue("port", root["port"].as<int>()).toInt();
+}
+
+void Configurator::setSocksPort(const int& port)
+{
+    saveValue("socksPort", port);
+}
+
+int Configurator::getSocksPort()
+{
+    return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
+}
+
+void Configurator::setExternalControlPort(const int& port)
+{
+    saveValue("externalControlPort", port);
+}
+
+int Configurator::getExternalControlPort()
+{
+    return loadValue("externalControlPort", QString(root["external-controller"].as<std::string>().c_str()).split(":")[1].toInt()).toInt();
+}
+
+void Configurator::setAllowLan(bool flag)
+{
+    saveValue("allowLan", flag);
 }
 
 bool Configurator::getAllowLan()
 {
-    return root["allow-lan"].as<bool>();
+    return loadValue("allowLan", root["allow-lan"].as<bool>()).toBool();
+}
+
+void Configurator::setLogLevel(const QString& level)
+{
+    saveValue("logLevel", level);
 }
 
 QString Configurator::getLogLevel()
 {
+    QString level;
     if (!root["log-level"])
-        return "info";
-    return QString(root["log-level"].as<std::string>().c_str());
+        level = "info";
+    else
+        level = QString(root["log-level"].as<std::string>().c_str());
+    return loadValue("logLevel", level).toString();
 }
