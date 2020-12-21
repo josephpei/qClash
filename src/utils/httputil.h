@@ -17,6 +17,10 @@ public:
     QByteArray get(const QUrl &url);
     QByteArray post(const QUrl &url, const QMap<QString, QString> &params);
     QByteArray put(const QUrl &url, const QMap<QString, QString> &params);
+    QByteArray patch(const QUrl &url, const QMap<QString, QString> &params);
+
+    void setSecret(const QString &);
+
 signals:
     void finished(QNetworkReply *reply);
 
@@ -29,4 +33,5 @@ private:
     class Inner;
     friend class Inner;
     Inner *inner;
+    QString secret;
 };

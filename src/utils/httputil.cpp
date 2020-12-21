@@ -3,6 +3,7 @@
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QVariant>
+#include <QBuffer>
 
 class HttpUtil::Inner
 {
@@ -22,6 +23,11 @@ HttpUtil &HttpUtil::instance()
     return h;
 }
 
+void HttpUtil::setSecret(const QString& str)
+{
+    secret = str;
+}
+
 QByteArray HttpUtil::request(const QUrl &url,
                          QNetworkAccessManager::Operation operation,
                          const QByteArray &body,
@@ -29,6 +35,8 @@ QByteArray HttpUtil::request(const QUrl &url,
 {
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
+    if (!secret.isEmpty())
+        request.setRawHeader(QByteArray("Authorization"), QString("Bearer %1").arg(secret).toUtf8());
 
     QNetworkReply *reply = nullptr;
     switch (operation)
@@ -41,6 +49,9 @@ QByteArray HttpUtil::request(const QUrl &url,
         break;
     case QNetworkAccessManager::PutOperation:
         reply = inner->manager->put(request, body);
+        break;
+    case QNetworkAccessManager::CustomOperation:
+        reply = inner->manager->sendCustomRequest(request, "PATCH", body);
         break;
     }
     // sync
@@ -71,7 +82,7 @@ QByteArray HttpUtil::post(const QUrl &url, const QMap<QString, QString> &params)
 
 QByteArray HttpUtil::put(const QUrl &url, const QMap<QString, QString> &params)
 {
-    QByteArray body;
+    // QByteArray body;
     QVariantMap vmap;
     QMapIterator<QString, QString> i(params);
     while (i.hasNext()) {
@@ -81,4 +92,17 @@ QByteArray HttpUtil::put(const QUrl &url, const QMap<QString, QString> &params)
     }
     QJsonDocument json = QJsonDocument::fromVariant(vmap);
     return request(url, QNetworkAccessManager::PutOperation, json.toJson());
+}
+
+QByteArray HttpUtil::patch(const QUrl &url, const QMap<QString, QString> &params)
+{
+    QVariantMap vmap;
+    QMapIterator<QString, QString> i(params);
+    while (i.hasNext()) {
+        i.next();
+        // body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
+        vmap.insert(i.key(), i.value());
+    }
+    QJsonDocument json = QJsonDocument::fromVariant(vmap);
+    return request(url, QNetworkAccessManager::CustomOperation, json.toJson());
 }

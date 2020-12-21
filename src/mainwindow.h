@@ -40,14 +40,21 @@ private slots:
     void showSubscribeDialog();
     void updateSubActions();
 
+    void copyShellCommandClipboard();
+
     void proxyGroupMenusChange();
+    void modeChange(QAction *);
     void configChange(QAction *);
     void proxyChange(QAction *);
+    void allowLanChange(bool flag);
     void pageChange(int);
     void fillOverviewPage();
 
 private:
     Ui::MainWindow *ui;
+
+private:
+    void initClash();
 
 private:
     Configurator& configurator;
@@ -59,6 +66,8 @@ private:
     // tray menus & actions
     QAction *mainWindowAction;
     QAction *quitAction;
+
+    QActionGroup *modeActionsGroup;
     QAction *proxyGlobalMode;
     QAction *proxyRuleMode;
     QAction *proxyDirectMode;

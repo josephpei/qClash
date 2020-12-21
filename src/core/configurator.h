@@ -41,9 +41,22 @@ public:
     QJsonObject getProxyGroupsRule(const QString& name);
     void setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy);
 
-    QString getHttpPort();
-    QString getSocksPort();
-    QString getExternalControlPort();
+    void setStartAtLogin(bool flag);
+    bool getStartAtLogin();
+
+    QString getSecret();
+
+    QMap<QString, QString> diffConfigs();
+    void setMode(const QString& mode);
+    QString getMode();
+    void setHttpPort(const int &port);
+    int getHttpPort();
+    void setSocksPort(const int& port);
+    int getSocksPort();
+    void setExternalControlPort(const int &port);
+    int getExternalControlPort();
+    void setAllowLan(bool flag);
     bool getAllowLan();
+    void setLogLevel(const QString& level);
     QString getLogLevel();
 };

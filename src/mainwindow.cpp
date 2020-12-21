@@ -13,6 +13,7 @@
 #include <QPixmap>
 #include <QFontDatabase>
 #include <QCloseEvent>
+#include <QClipboard>
 #include <QDebug>
 
 
@@ -23,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
     , clashCore(ClashCore::instance())
     , configurator(Configurator::instance())
 {
+    initClash();
+
     int fontId = QFontDatabase::addApplicationFont(":/forkawesome.ttf");
     QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     qDebug() << "fontFamilies size: " << fontFamilies.size();
@@ -55,18 +58,13 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createTrayIcon();
 
+    fillOverviewPage();
+    ui->overviewButton->setChecked(true);
+
     // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
     trayIcon->show();
     this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
-
-    Subscribe subscribe = configurator.getCurrentConfig();
-    qDebug() << "Start with config: " << subscribe.name;
-    configurator.loadClashConfig(subscribe.name);
-    fillOverviewPage();
-    ui->overviewButton->setChecked(true);
-    QString configFilePath = configurator.getClashConfigPath(subscribe.name);
-    clashCore.start(configFilePath);
 }
 
 MainWindow::~MainWindow()
@@ -94,6 +92,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+void MainWindow::initClash()
+{
+    Subscribe subscribe = configurator.getCurrentConfig();
+    qDebug() << "Start with config: " << subscribe.name;
+    configurator.loadClashConfig(subscribe.name);
+    QString configFilePath = configurator.getClashConfigPath(subscribe.name);
+    clashCore.start(configFilePath);
+    qDebug() << "Current configs: " << ClashApi::getConfigs();
+    ClashApi::setSecret(configurator.getSecret());
+}
+
 void MainWindow::createActions()
 {
     mainWindowAction = new QAction(tr("Show MainWindow"), this);
@@ -102,15 +111,41 @@ void MainWindow::createActions()
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
+    QString modeSaved = configurator.getMode().toLower();
+    modeActionsGroup = new QActionGroup(this);
+    modeActionsGroup->setExclusive(true);
     proxyGlobalMode = new QAction(tr("Global"), this);
+    proxyGlobalMode->setData("global");
+    proxyGlobalMode->setCheckable(true);
     proxyRuleMode = new QAction(tr("Rule"), this);
+    proxyRuleMode->setData("rule");
+    proxyRuleMode->setCheckable(true);
     proxyDirectMode = new QAction(tr("Direct"), this);
+    proxyDirectMode->setData("direct");
+    proxyDirectMode->setCheckable(true);
+    modeActionsGroup->addAction(proxyGlobalMode);
+    modeActionsGroup->addAction(proxyRuleMode);
+    modeActionsGroup->addAction(proxyDirectMode);
+    if (modeSaved == "global")
+        proxyGlobalMode->setChecked(true);
+    else if (modeSaved == "rule")
+        proxyRuleMode->setChecked(true);
+    else if (modeSaved == "direct")
+        proxyDirectMode->setChecked(true);
+    connect(modeActionsGroup, SIGNAL(triggered(QAction *)), SLOT(modeChange(QAction *)));
 
     setAsSystemProxy = new QAction(tr("Set as system proxy"), this);
+    setAsSystemProxy->setCheckable(true);
     copyShellCommand = new QAction(tr("Copy shell command"), this);
+    connect(copyShellCommand, &QAction::triggered, this, &MainWindow::copyShellCommandClipboard);
 
     startAtLogin = new QAction(tr("Start at login"), this);
+    startAtLogin->setCheckable(true);
+    startAtLogin->setChecked(configurator.getStartAtLogin());
     allowLan = new QAction(tr("Allow connect from lan"), this);
+    allowLan->setCheckable(true);
+    allowLan->setChecked(configurator.getAllowLan());
+    connect(allowLan, &QAction::triggered, this, &MainWindow::allowLanChange);
 
     manageSubConfig = new QAction(tr("Manage"), this);
     updateSubConfig = new QAction(tr("Update"), this);
@@ -244,6 +279,20 @@ void MainWindow::updateSubActions()
         subActions[i + 1]->setVisible(false);
 }
 
+void MainWindow::copyShellCommandClipboard()
+{
+    QString command = QString("export http_proxy=http://127.0.0.1:%1 https_proxy=http://127.0.0.1:%1")
+                          .arg(configurator.getHttpPort());
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setText(command);
+}
+
+void MainWindow::allowLanChange(bool flag)
+{
+    configurator.setAllowLan(flag);
+    ClashApi::setAllowLan(flag);
+}
+
 void MainWindow::configChange(QAction *action)
 {
     // if (const QAction *action = qobject_cast<const QAction *>(sender())) {
@@ -255,6 +304,13 @@ void MainWindow::configChange(QAction *action)
     proxyGroupMenusChange();
     fillOverviewPage();
     // }
+}
+
+void MainWindow::modeChange(QAction *action)
+{
+    QString mode = action->data().toString();
+    configurator.setMode(mode);
+    ClashApi::setMode(mode);
 }
 
 void MainWindow::proxyChange(QAction *action)
@@ -284,9 +340,9 @@ void MainWindow::pageChange(int id)
 
 void MainWindow::fillOverviewPage()
 {
-    ui->httpPortLineEdit->setText(configurator.getHttpPort());
-    ui->socksPortLineEdit->setText(configurator.getSocksPort());
-    ui->exCtrlPortLineEdit->setText(configurator.getExternalControlPort());
+    ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
+    ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
+    ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
     ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
 }

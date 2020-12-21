@@ -60,9 +60,9 @@ qt5_wrap_ui(${PROJECT_NAME}_FORMS
 )
 
 # set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM TRUE)
-# qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src 
-#   lang/en_US.ts
-#   lang/zh_CN.ts)
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src 
+  lang/en_US.ts
+  lang/zh_CN.ts)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/lang)
 file(GLOB TS_FILES lang/*.ts)
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "lang")
