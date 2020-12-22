@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
   <file alias="forkawesome.ttf">assets/forkawesome-webfont.ttf</file>
+  <file alias="tpl-linux-autostart.desktop">assets/tpl-linux-autostart.desktop</file>
+  <file alias="tpl-macos-autostart.plist">assets/tpl-macos-autostart.plist</file>
 </qresource>
 </RCC>

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=qClash
+Exec=%1
+Icon=qClash.png
+Type=Application
+Terminal=false
+X-GNOME-Autostart-enabled=true

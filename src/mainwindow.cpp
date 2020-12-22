@@ -14,6 +14,7 @@
 #include <QFontDatabase>
 #include <QCloseEvent>
 #include <QClipboard>
+#include <QMessageBox>
 #include <QDebug>
 
 
@@ -95,8 +96,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::initClash()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
-    qDebug() << "Start with config: " << subscribe.name;
-    configurator.loadClashConfig(subscribe.name);
+    try {
+        qDebug() << "Start with config: " << subscribe.name;
+        configurator.loadClashConfig(subscribe.name);
+    } catch (YAML::BadFile error) {
+        QMessageBox::warning(this, "Config File Syntax Error", QString(error.msg.c_str()));
+        subscribe = Subscribe("config");
+        configurator.setCurrentConfig(subscribe);
+        configurator.loadClashConfig(subscribe.name);
+    } catch (YAML::BadFile error) {
+        QMessageBox::warning(this, "Config File Syntax Error", QString(error.msg.c_str()));
+        QApplication::quit();
+    }
     QString configFilePath = configurator.getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
     qDebug() << "Current configs: " << ClashApi::getConfigs();
@@ -136,12 +147,17 @@ void MainWindow::createActions()
 
     setAsSystemProxy = new QAction(tr("Set as system proxy"), this);
     setAsSystemProxy->setCheckable(true);
+    setAsSystemProxy->setChecked(configurator.isSystemProxy());
+    connect(setAsSystemProxy, &QAction::triggered, this, &MainWindow::systemProxyChange);
+
     copyShellCommand = new QAction(tr("Copy shell command"), this);
     connect(copyShellCommand, &QAction::triggered, this, &MainWindow::copyShellCommandClipboard);
 
     startAtLogin = new QAction(tr("Start at login"), this);
     startAtLogin->setCheckable(true);
-    startAtLogin->setChecked(configurator.getStartAtLogin());
+    startAtLogin->setChecked(configurator.isStartAtLogin());
+    connect(startAtLogin, &QAction::triggered, this, &MainWindow::startAtLoginChange);
+
     allowLan = new QAction(tr("Allow connect from lan"), this);
     allowLan->setCheckable(true);
     allowLan->setChecked(configurator.getAllowLan());
@@ -279,12 +295,22 @@ void MainWindow::updateSubActions()
         subActions[i + 1]->setVisible(false);
 }
 
+void MainWindow::systemProxyChange(bool flag)
+{
+    configurator.setSystemProxy(flag);
+}
+
 void MainWindow::copyShellCommandClipboard()
 {
     QString command = QString("export http_proxy=http://127.0.0.1:%1 https_proxy=http://127.0.0.1:%1")
                           .arg(configurator.getHttpPort());
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(command);
+}
+
+void MainWindow::startAtLoginChange(bool autoStart)
+{
+    configurator.setStartAtLogin(autoStart);
 }
 
 void MainWindow::allowLanChange(bool flag)
