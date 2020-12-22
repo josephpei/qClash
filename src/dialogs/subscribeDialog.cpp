@@ -1,6 +1,7 @@
 #include <QtWidgets>
 #include <QDebug>
 #include <QFile>
+#include <QDateTime>
 
 #include "subscribeDialog.h"
 #include "../utils/httputil.h"
@@ -38,7 +39,7 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     // this->tableView->setColumnWidth(1, 255);
 
     QList<Subscribe> subscribes = configurator.getSubscribes();
-    for (int i = 0; i < subscribes.count(); i++) {
+    for (int i = 1; i < subscribes.count(); i++) {
         model->setItem(i, 0, new QStandardItem(subscribes[i].name));
         model->setItem(i, 1, new QStandardItem(subscribes[i].url));
     }

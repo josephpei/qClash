@@ -1,12 +1,12 @@
 #pragma once
-#include <QString>
 #include <QDateTime>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QMetaType>
-    
-enum ProxyType
-{
+#include <QString>
+#include <QDebug>
+
+enum ProxyType {
     SS,
     SSR,
     VMESS,
@@ -15,7 +15,7 @@ enum ProxyType
 
 extern QJsonObject LOGLEVEL2INT;
 
-QString jsonToString(const QJsonObject &json);
+QString jsonToString(const QJsonObject& json);
 QJsonObject stringToJson(const QString str);
 
 struct Subscribe {
@@ -24,11 +24,17 @@ struct Subscribe {
     QDateTime updateTime;
     bool updating;
 
-    Subscribe() { }
-    Subscribe(QString name, QString url = "") : name(name), url(url), updating(false) { }
-    explicit Subscribe(const QJsonObject &json);
+    Subscribe() {}
+    Subscribe(QString name, QString url = "", QDateTime updateTime = QDateTime::currentDateTime())
+        : name(name)
+        , url(url)
+        , updateTime(updateTime)
+        , updating(false)
+    {
+    }
+    explicit Subscribe(const QJsonObject& json);
 
-    Subscribe read(const QJsonObject &json);
+    Subscribe read(const QJsonObject& json);
     QJsonObject write() const;
 };
 

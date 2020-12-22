@@ -11,7 +11,8 @@ private:
 
 public:
     static void setSecret(const QString& secret);
-    static void setGroupProxy(const QString &group, const QString &proxy);
+    static void reloadConfigs(bool force = false, QString path = "");
+    static void setGroupProxy(const QString& group, const QString& proxy);
     static QJsonObject getConfigs();
     static void changeConfigs(const QMap<QString, QString> &configs);
     static void setMode(const QString &mode);
