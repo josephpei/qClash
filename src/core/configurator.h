@@ -22,6 +22,7 @@ class Configurator : public QObject {
 public:
     static Configurator& instance();
 
+    static const QString getAppFilePath();
     static const QString getClashConfigPath();
     static const QString getClashConfigPath(const QString& name);
     static void saveClashConfig(const QString& name, const QString& content);
@@ -41,22 +42,25 @@ public:
     QJsonObject getProxyGroupsRule(const QString& name);
     void setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy);
 
-    void setStartAtLogin(bool flag);
-    bool getStartAtLogin();
+    void setStartAtLogin(bool autoStart);
+    const bool isStartAtLogin();
 
-    QString getSecret();
+    void setSystemProxy(bool flag);
+    const bool isSystemProxy();
+
+    const QString getSecret();
 
     QMap<QString, QString> diffConfigs();
     void setMode(const QString& mode);
-    QString getMode();
+    const QString getMode();
     void setHttpPort(const int &port);
-    int getHttpPort();
+    const int getHttpPort();
     void setSocksPort(const int& port);
-    int getSocksPort();
+    const int getSocksPort();
     void setExternalControlPort(const int &port);
-    int getExternalControlPort();
+    const int getExternalControlPort();
     void setAllowLan(bool flag);
-    bool getAllowLan();
+    const bool getAllowLan();
     void setLogLevel(const QString& level);
-    QString getLogLevel();
+    const QString getLogLevel();
 };

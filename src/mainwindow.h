@@ -46,7 +46,9 @@ private slots:
     void modeChange(QAction *);
     void configChange(QAction *);
     void proxyChange(QAction *);
+    void startAtLoginChange(bool autoStart);
     void allowLanChange(bool flag);
+    void systemProxyChange(bool flag);
     void pageChange(int);
     void fillOverviewPage();
 

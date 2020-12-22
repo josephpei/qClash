@@ -1,15 +1,27 @@
 #include <QStandardPaths>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QProcessEnvironment>
+#include <QGuiApplication>
 
 #include "configurator.h"
+#include "../utils/networkproxy.h"
 
 Configurator &Configurator::instance()
 {
     static Configurator configuratorInstance;
     return configuratorInstance;
+}
+
+const QString Configurator::getAppFilePath()
+{
+    if (QProcessEnvironment::systemEnvironment().contains("APPIMAGE")) {
+        return QProcessEnvironment::systemEnvironment().value("APPIMAGE");
+    }
+    return QGuiApplication::applicationFilePath();
 }
 
 const QString Configurator::getClashConfigPath()
@@ -39,11 +51,7 @@ void Configurator::saveClashConfig(const QString& name, const QString& content)
 YAML::Node Configurator::loadClashConfig(const QString& name)
 {
     QString configFile = Configurator::getClashConfigPath(name);
-    try {
-        root = YAML::LoadFile(configFile.toStdString());
-    } catch (YAML::BadFile err) {
-
-    }
+    root = YAML::LoadFile(configFile.toStdString());
     return root;
 }
 
@@ -58,7 +66,7 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.sync();
 }
 
-QString Configurator::getSecret()
+const QString Configurator::getSecret()
 {
     if (root["secret"])
         return root["secret"].as<std::string>().c_str();
@@ -133,14 +141,79 @@ void Configurator::setProxyGroupsRule(const QString& name, const QString& group,
     saveValue("proxyGroupsRule", QVariant(QJsonDocument(oldRule).toJson()));
 }
 
-void Configurator::setStartAtLogin(bool flag)
+void Configurator::setStartAtLogin(bool autoStart)
 {
-    saveValue("startAtLogin", flag);
+    saveValue("startAtLogin", autoStart);
+    const QString APP_NAME = "qClash";
+    const QString APP_PATH = QDir::toNativeSeparators(getAppFilePath());
+#if defined(Q_OS_WIN)
+    QSettings win_settings(
+        "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+        QSettings::NativeFormat);
+#elif defined(Q_OS_LINUX)
+    QFile srcFile(":/tpl-linux-autostart.desktop");
+    QFile dstFile(QString("%1/.config/autostart/qClash.desktop")
+                      .arg(QDir::homePath()));
+#elif defined(Q_OS_MAC)
+    QFile srcFile(":/tpl-macos-autostart.plist");
+    QFile dstFile(
+        QString("%1/Library/LaunchAgents/com.clash.desktop.launcher.plist")
+            .arg(QDir::homePath()));
+#endif
+
+#if defined(Q_OS_WIN)
+    if (autoStart) {
+        win_settings.setValue(APP_NAME, APP_PATH);
+    } else {
+        win_settings.remove(APP_NAME);
+    }
+#elif defined(Q_OS_LINUX) or defined(Q_OS_MAC)
+    if (autoStart) {
+        QString fileContent;
+        if (srcFile.exists() && srcFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            fileContent = srcFile.readAll();
+            srcFile.close();
+        }
+        QFileInfo dstFileInfo(dstFile);
+        if (!dstFileInfo.dir().exists()) {
+            dstFileInfo.dir().mkpath(".");
+        }
+        if (dstFile.open(QIODevice::WriteOnly)) {
+            dstFile.write(fileContent.arg(APP_PATH).toUtf8());
+            dstFile.close();
+        }
+    } else {
+        if (dstFile.exists()) {
+            dstFile.remove();
+        }
+    }
+#endif
 }
 
-bool Configurator::getStartAtLogin()
+const bool Configurator::isStartAtLogin()
 {
     return loadValue("startAtLogin", false).toBool();
+}
+
+void Configurator::setSystemProxy(bool flag) {
+    saveValue("systemProxy", flag);
+    if (flag) {
+        NetworkProxy httpProxy("http", "127.0.0.1",
+            getHttpPort(), NetworkProxyMode::GLOBAL_MODE);
+        NetworkProxyHelper::setSystemProxy(httpProxy);
+        #ifndef Q_OS_WIN
+        NetworkProxy socksProxy("socks", "127.0.0.1",
+            getSocksPort(), NetworkProxyMode::GLOBAL_MODE);
+        NetworkProxyHelper::setSystemProxy(socksProxy);
+#endif
+    } else {
+        NetworkProxyHelper::resetSystemProxy();
+    }
+}
+
+const bool Configurator::isSystemProxy()
+{
+    return loadValue("systemProxy", false).toBool();
 }
 
 QMap<QString, QString> Configurator::diffConfigs()
@@ -180,7 +253,7 @@ void Configurator::setMode(const QString& mode)
     saveValue("mode", mode);
 }
 
-QString Configurator::getMode()
+const QString Configurator::getMode()
 {
     return loadValue("mode", root["mode"].as<std::string>().c_str()).toString();
 }
@@ -190,7 +263,7 @@ void Configurator::setHttpPort(const int& port)
     saveValue("httpPort", port);
 }
 
-int Configurator::getHttpPort()
+const int Configurator::getHttpPort()
 {
     return loadValue("port", root["port"].as<int>()).toInt();
 }
@@ -200,7 +273,7 @@ void Configurator::setSocksPort(const int& port)
     saveValue("socksPort", port);
 }
 
-int Configurator::getSocksPort()
+const int Configurator::getSocksPort()
 {
     return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
 }
@@ -210,7 +283,7 @@ void Configurator::setExternalControlPort(const int& port)
     saveValue("externalControlPort", port);
 }
 
-int Configurator::getExternalControlPort()
+const int Configurator::getExternalControlPort()
 {
     return loadValue("externalControlPort", QString(root["external-controller"].as<std::string>().c_str()).split(":")[1].toInt()).toInt();
 }
@@ -220,7 +293,7 @@ void Configurator::setAllowLan(bool flag)
     saveValue("allowLan", flag);
 }
 
-bool Configurator::getAllowLan()
+const bool Configurator::getAllowLan()
 {
     return loadValue("allowLan", root["allow-lan"].as<bool>()).toBool();
 }
@@ -230,7 +303,7 @@ void Configurator::setLogLevel(const QString& level)
     saveValue("logLevel", level);
 }
 
-QString Configurator::getLogLevel()
+const QString Configurator::getLogLevel()
 {
     QString level;
     if (!root["log-level"])
