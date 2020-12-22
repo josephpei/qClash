@@ -39,19 +39,29 @@ const QString Configurator::getClashConfigPath(const QString& name)
 void Configurator::saveClashConfig(const QString& name, const QString& content)
 {
     QString filePath = Configurator::getClashConfigPath(name);
-    QFile configFile(filePath);
+    QString tmpFile = "/tmp/" + name + ".yaml";
+    QFile configFile(tmpFile);
+    if (QFile::exists(tmpFile))
+        QFile::remove(tmpFile);
     if (!configFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         // open file failed
         return;
     } else {
         configFile.write(content.toUtf8());
+        if (QFile::exists(filePath))
+            QFile::remove(filePath);
+        QFile::copy(tmpFile, filePath);
     }
 }
 
 YAML::Node Configurator::loadClashConfig(const QString& name)
 {
     QString configFile = Configurator::getClashConfigPath(name);
-    root = YAML::LoadFile(configFile.toStdString());
+    try {
+        root = YAML::LoadFile(configFile.toStdString());
+    } catch (YAML::BadFile error) {
+        throw error;
+    }
     return root;
 }
 

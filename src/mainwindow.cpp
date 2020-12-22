@@ -15,7 +15,6 @@
 #include <QCloseEvent>
 #include <QClipboard>
 #include <QMessageBox>
-#include <QDebug>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -164,9 +163,13 @@ void MainWindow::createActions()
     connect(allowLan, &QAction::triggered, this, &MainWindow::allowLanChange);
 
     manageSubConfig = new QAction(tr("Manage"), this);
-    updateSubConfig = new QAction(tr("Update"), this);
-    autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
     connect(manageSubConfig, &QAction::triggered, this, &MainWindow::showSubscribeDialog);
+
+    updateSubConfig = new QAction(tr("Update"), this);
+    connect(updateSubConfig, &QAction::triggered, this, &MainWindow::updateSubscribes);
+
+    autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
+    autoUpdateSubConfig->setCheckable(true);
 
     about = new QAction(tr("About"), this);
     checkUpdate = new QAction(tr("Check Update"), this);
@@ -306,6 +309,28 @@ void MainWindow::copyShellCommandClipboard()
                           .arg(configurator.getHttpPort());
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(command);
+}
+
+void MainWindow::updateSubscribes()
+{
+    QList<Subscribe> subscribes = configurator.getSubscribes();
+    Subscribe currSub = configurator.getCurrentConfig();
+
+    HttpUtil& http = HttpUtil::instance();
+    QDateTime currTime = QDateTime::currentDateTime();
+    for (int i = 0; i < subscribes.size(); ++i) {
+        if (!subscribes[i].updating && !subscribes[i].url.isEmpty()) {
+            qDebug() << "Update: " << subscribes[i].name;
+            subscribes[i].updateTime = currTime;
+            QByteArray data = http.get(subscribes[i].url);
+            Configurator::saveClashConfig(subscribes[i].name, QString(data));
+            if (currSub.name == subscribes[i].name) {
+                ClashApi::reloadConfigs();
+                proxyGroupMenusChange();
+            }
+        }
+    }
+    configurator.setSubscribes(subscribes);
 }
 
 void MainWindow::startAtLoginChange(bool autoStart)

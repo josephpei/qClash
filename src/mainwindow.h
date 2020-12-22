@@ -41,6 +41,7 @@ private slots:
     void updateSubActions();
 
     void copyShellCommandClipboard();
+    void updateSubscribes();
 
     void proxyGroupMenusChange();
     void modeChange(QAction *);

@@ -11,6 +11,17 @@ void ClashApi::setSecret(const QString& secret)
     http.setSecret(secret);
 }
 
+void ClashApi::reloadConfigs(bool force, QString path)
+{
+    QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
+    QMap<QString, QString> params;
+    if (force)
+        params["force"] = force;
+    if (!path.isEmpty())
+        params["path"] = path;
+    http.put(url, params);
+}
+
 void ClashApi::setGroupProxy(const QString &group, const QString &proxy)
 {
     QUrl url(QString("%1:%2/proxies/%3").arg(baseUrl).arg(configurator.getExternalControlPort()).arg(group));
