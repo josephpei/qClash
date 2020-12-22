@@ -90,6 +90,8 @@ set(${PROJECT_NAME}_SOURCES
   src/dialogs/aboutDialog.cpp
   src/utils/httputil.h
   src/utils/httputil.cpp
+  src/utils/networkproxy.h
+  src/utils/networkproxy.cpp
   src/utils/iconsForkAwesome.h)
 
 set(QCLASH_SRCS
