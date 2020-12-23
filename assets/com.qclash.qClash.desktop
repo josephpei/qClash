@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Exec=qClash
+Icon=qClash
+Terminal=false
+StartupNotify=false
+Name=qClash
+Comment=Clash QT GUI Client.
+Categories=Network;

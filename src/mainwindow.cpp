@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
-    QPixmap logo(":/assets/icons/icon.png");
+    QPixmap logo(":/assets/icons/qClash.png");
     ui->logoLabel->setPixmap(logo);
 
     ui->overviewButton->setFont(font);
@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
     trayIcon->show();
-    this->setWindowIcon(QIcon(":/assets/icons/icon.png"));
+    this->setWindowIcon(QIcon(":/assets/icons/qClash.png"));
 }
 
 MainWindow::~MainWindow()
@@ -276,7 +276,7 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayMenu);
-    trayIcon->setIcon(QIcon(":/assets/icons/icon.svg"));
+    trayIcon->setIcon(QIcon(":/assets/icons/qClash.svg"));
 }
 
 void MainWindow::updateSubActions()
@@ -414,6 +414,7 @@ void MainWindow::showSubscribeDialog()
         subscribeDialog->exec();
     else {
         subscribeDialog = new SubscribeDialog(this);
+        connect(subscribeDialog, SIGNAL(subscribesUpdated()), SLOT(proxyGroupMenusChange()));
         subscribeDialog->exec();
     }
 }

@@ -1,5 +1,4 @@
 #include <QtWidgets>
-#include <QDebug>
 #include <QFile>
 #include <QDateTime>
 
@@ -33,24 +32,28 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
 
     QStandardItemModel *model = new QStandardItemModel;
     tableView->setModel(model);
-    model->setColumnCount(2);
+    model->setColumnCount(3);
     model->setHeaderData(0, Qt::Horizontal, tr("Name"));
     model->setHeaderData(1, Qt::Horizontal, tr("Url"));
-    // this->tableView->setColumnWidth(1, 255);
+    model->setHeaderData(2, Qt::Horizontal, tr("Time"));
+    tableView->horizontalHeader()->resizeSection(1, 420);
 
     QList<Subscribe> subscribes = configurator.getSubscribes();
     for (int i = 1; i < subscribes.count(); i++) {
-        model->setItem(i, 0, new QStandardItem(subscribes[i].name));
-        model->setItem(i, 1, new QStandardItem(subscribes[i].url));
+        model->setItem(i-1, 0, new QStandardItem(subscribes[i].name));
+        model->setItem(i-1, 1, new QStandardItem(subscribes[i].url));
+        model->setItem(i-1, 2, new QStandardItem(subscribes[i].updateTime.toString("yyyy-MM-dd hh:mm:ss")));
     }
 
     vLayout->addWidget(tableView);
     vLayout->addWidget(btnFrame);
     setLayout(vLayout);
+    resize(700, 300);
 
     connect(tableView->model(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), SLOT(updateCell(QModelIndex, QModelIndex)));
     connect(subNewBtn, &QPushButton::clicked, this, &SubscribeDialog::showSubNewDlg);
     connect(subDelBtn, &QPushButton::clicked, this, &SubscribeDialog::delSubscribe);
+    connect(subUpdateBtn, &QPushButton::clicked, this, &SubscribeDialog::updateSubscribes);
 }
 
 void SubscribeDialog::showSubNewDlg()
@@ -79,6 +82,7 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
     model->setItem(count, 0, new QStandardItem(subName));
     model->setItem(count, 1, new QStandardItem(subUrl));
+    model->setItem(count, 2, new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss")));
 }
 
 void SubscribeDialog::delSubscribe()
@@ -89,10 +93,30 @@ void SubscribeDialog::delSubscribe()
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
 
     QList<Subscribe> subscribes = configurator.getSubscribes();
-    subscribes.removeAt(index.row());
+    subscribes.removeAt(index.row() + 1);
     configurator.setSubscribes(subscribes);
 
     model->removeRow(index.row());
+}
+
+void SubscribeDialog::updateSubscribes()
+{
+    QList<Subscribe> subscribes = configurator.getSubscribes();
+    Subscribe currSub = configurator.getCurrentConfig();
+
+    HttpUtil& http = HttpUtil::instance();
+    QDateTime currTime = QDateTime::currentDateTime();
+    for (int i = 0; i < subscribes.size(); ++i) {
+        if (!subscribes[i].updating && !subscribes[i].url.isEmpty()) {
+            qDebug() << "Update: " << subscribes[i].name;
+            subscribes[i].updateTime = currTime;
+            QByteArray data = http.get(subscribes[i].url);
+            Configurator::saveClashConfig(subscribes[i].name, QString(data));
+        }
+    }
+    configurator.setSubscribes(subscribes);
+    emit subscribesUpdated();
+    // TODO: update tableview
 }
 
 void SubscribeDialog::updateCell(const QModelIndex & indexA, const QModelIndex & indexB)
