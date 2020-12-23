@@ -24,11 +24,15 @@ class SubscribeDialog : public QDialog
 public:
     explicit SubscribeDialog(QWidget *parent = nullptr);
 
+signals:
+    void subscribesUpdated();
+
 private slots:
     void showSubNewDlg();
     void addSubscribe(const Subscribe &newSubscribe);
     void delSubscribe();
-    void updateCell(const QModelIndex & indexA, const QModelIndex & indexB);
+    void updateSubscribes();
+    void updateCell(const QModelIndex& indexA, const QModelIndex& indexB);
 
 private:
     Configurator& configurator;

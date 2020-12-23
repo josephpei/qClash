@@ -87,9 +87,9 @@ QList<Subscribe> Configurator::getSubscribes()
 {
     QList<QString> data = loadValue("subscribes").value<QList<QString>>();
     QList<Subscribe> subscribes;
-    subscribes.append(Subscribe("config"));
-    for (int i = 0; i < data.size(); i++)
-    {
+    if (data.isEmpty())
+        subscribes.append(Subscribe("config"));
+    for (int i = 0; i < data.size(); i++) {
         subscribes.append(Subscribe(stringToJson(data[i])));
     }
     return subscribes;

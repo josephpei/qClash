@@ -59,15 +59,6 @@ qt5_wrap_ui(${PROJECT_NAME}_FORMS
   src/mainwindow.ui
 )
 
-# set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM TRUE)
-qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src 
-  lang/en_US.ts
-  lang/zh_CN.ts)
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/lang)
-file(GLOB TS_FILES lang/*.ts)
-set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "lang")
-qt5_add_translation(${PROJECT_NAME}_QM_FILES ${TS_FILES})
-
 qt5_add_resources(${PROJECT_NAME}_RESOURCES
   resources.qrc
 )
@@ -100,6 +91,19 @@ set(QCLASH_SRCS
   ${${PROJECT_NAME}_RESOURCES}
   ${${PROJECT_NAME}_FORMS}
   src/main.cpp)
+
+set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM TRUE)
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/lang)
+file(GLOB TS_FILES lang/*.ts)
+set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "lang")
+
+option (UPDATE_TRANSLATIONS "Update source translation lang/*.ts files")
+if (UPDATE_TRANSLATIONS)
+  qt5_create_translation(${PROJECT_NAME}_QM_FILES ${${PROJECT_NAME}_SOURCES} ${TS_FILES})
+else (UPDATE_TRANSLATIONS)
+  qt5_add_translation(${PROJECT_NAME}_QM_FILES ${TS_FILES})
+endif ()
+add_custom_target(translations_target ALL DEPENDS ${${PROJECT_NAME}_QM_FILES})
 
 if(WIN32)
   add_executable(${PROJECT_NAME} ${QCLASH_SRCS} ${CMAKE_SOURCE_DIR}/assets/qclash_icons.qrc
@@ -177,6 +181,23 @@ endfunction()
 
 auto_test(utils http)
 
+if (WIN32)
+  set(QCLASH_LANG_INSTALL_DIR "lang")
+elseif (APPLE)
+  set(QCLASH_LANG_INSTALL_DIR "../Resources")
+elseif (UNIX)
+  set(CMAKE_INSTALL_PREFIX "/opt/qClash")
+  set(QCLASH_LANG_INSTALL_DIR "lang")
+endif()
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(DIRECTORY ./config/ DESTINATION ${CMAKE_INSTALL_PREFIX}/config/)
+install(FILES ${${PROJECT_NAME}_QM_FILES} DESTINATION ${QCLASH_LANG_INSTALL_DIR})
+
+add_subdirectory(assets)
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "josephpei josephpei@gmail.com")
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5network5")
 include(CPack)

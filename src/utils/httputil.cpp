@@ -56,6 +56,7 @@ QByteArray HttpUtil::request(const QUrl &url,
     }
     // sync
     // eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+    // TODO: add error / timeout control
     QEventLoop loop;
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
