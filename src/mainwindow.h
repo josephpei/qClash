@@ -7,7 +7,6 @@
 #include <QMainWindow>
 #include <QPointer>
 #include <QList>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -16,6 +15,7 @@ class QMenu;
 class QButtonGroup;
 class QSystemTrayIcon;
 class QJsonObject;
+class QTimer;
 QT_END_NAMESPACE
 
 QT_BEGIN_NAMESPACE
@@ -48,6 +48,7 @@ private slots:
     void configChange(QAction *);
     void proxyChange(QAction *);
     void startAtLoginChange(bool autoStart);
+    void autoUpdateSubConfigChange(bool autoUpdate);
     void allowLanChange(bool flag);
     void systemProxyChange(bool flag);
     void pageChange(int);
@@ -62,9 +63,10 @@ private:
 private:
     Configurator& configurator;
 
+    QTimer* timer;
+
     void createActions();
     void createTrayIcon();
-    QVector<QMenu*> createProxyMenus();
 
     // tray menus & actions
     QAction *mainWindowAction;
