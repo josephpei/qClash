@@ -9,6 +9,7 @@
 #include <QActionGroup>
 #include <QButtonGroup>
 #include <QMenu>
+#include <QTimer>
 #include <QSystemTrayIcon>
 #include <QPixmap>
 #include <QFontDatabase>
@@ -20,6 +21,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , timer(new QTimer)
     , pageButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
     , configurator(Configurator::instance())
@@ -111,6 +113,9 @@ void MainWindow::initClash()
     clashCore.start(configFilePath);
     qDebug() << "Current configs: " << ClashApi::getConfigs();
     ClashApi::setSecret(configurator.getSecret());
+
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateSubscribes);
+    timer->start(12*60*60*1000);
 }
 
 void MainWindow::createActions()
@@ -170,6 +175,7 @@ void MainWindow::createActions()
 
     autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
     autoUpdateSubConfig->setCheckable(true);
+    connect(autoUpdateSubConfig, &QAction::triggered, this, &MainWindow::autoUpdateSubConfigChange);
 
     about = new QAction(tr("About"), this);
     checkUpdate = new QAction(tr("Check Update"), this);
@@ -336,6 +342,16 @@ void MainWindow::updateSubscribes()
 void MainWindow::startAtLoginChange(bool autoStart)
 {
     configurator.setStartAtLogin(autoStart);
+}
+
+void MainWindow::autoUpdateSubConfigChange(bool autoUpdate)
+{
+    if (autoUpdate) {
+
+    } else {
+        if (timer->isActive())
+            timer->stop();
+    }
 }
 
 void MainWindow::allowLanChange(bool flag)
