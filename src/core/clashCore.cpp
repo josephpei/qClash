@@ -17,9 +17,11 @@ ClashCore::ClashCore()
     QDir dir(clashConfigPath);
     if (!dir.exists()) {
         dir.mkpath(clashConfigPath);
-        QFile::copy("./config/clash.yaml", clashConfigPath + "config.yaml");
-        QFile::copy("./config/Country.mmdb", clashConfigPath + "Country.mmdb");
     }
+    if (!QFile::exists(clashConfigPath + "config.yaml"))
+        QFile::copy("./config/clash.yaml", clashConfigPath + "config.yaml");
+    if (!QFile::exists(clashConfigPath + "Country.mmdb"))
+        QFile::copy("./config/Country.mmdb", clashConfigPath + "Country.mmdb");
 
     clashProcess = new QProcess;
 }
