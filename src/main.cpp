@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(QStringLiteral(QCLASH_VERSION));
 
     QTranslator translator;
-    translator.load(QLocale::system().name(), "./lang");
+    QString langPath = QApplication::applicationDirPath() + "/lang";
+    translator.load(QLocale::system().name(), langPath);
     app.installTranslator(&translator);
     MainWindow w;
     w.show();
