@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     trayIcon->show();
     this->setWindowIcon(QIcon(":/assets/icons/qClash.png"));
+    this->setWindowTitle(QString("qClash %1").arg(QCLASH_VERSION));
 }
 
 MainWindow::~MainWindow()

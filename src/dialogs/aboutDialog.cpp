@@ -1,10 +1,13 @@
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QPixmap>
 
 #include "aboutDialog.h"
+#include "BuildConfig.h"
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent),
-    vLayout(new QVBoxLayout),
+    layout(new QHBoxLayout),
+    logoLabel(new QLabel),
     aboutLabel(new QLabel)
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -12,17 +15,23 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent),
 
     const QString aboutText = QString(
         "<p style=\"white-space: pre-wrap;\">"
-        "An gui client for clash.\n\n"
-        "</p>");
+        "An gui client for clash.\n"
+        "Version %1\n"
+        "</p>").arg(QCLASH_VERSION);
+
+    QPixmap logo(":/assets/icons/qClash.png");
+    logoLabel->setPixmap(logo);
 
     aboutLabel->setTextFormat(Qt::RichText);
     aboutLabel->setText(aboutText);
-    vLayout->addWidget(aboutLabel);
-    setLayout(vLayout);
+
+    layout->addWidget(logoLabel);
+    layout->addWidget(aboutLabel);
+    setLayout(layout);
 }
 
 AboutDialog::~AboutDialog()
 {
-    delete vLayout;
+    delete layout;
     delete aboutLabel;
 }

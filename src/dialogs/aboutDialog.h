@@ -3,7 +3,7 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QVBoxLayout;
+class QHBoxLayout;
 class QLabel;
 QT_END_NAMESPACE
 
@@ -16,6 +16,7 @@ public:
     ~AboutDialog() override;
 
 private:
-    QVBoxLayout *vLayout;
-    QLabel *aboutLabel;
+    QHBoxLayout *layout;
+    QLabel* logoLabel;
+    QLabel* aboutLabel;
 };
