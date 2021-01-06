@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationName(QStringLiteral("qClash"));
     app.setApplicationVersion(QStringLiteral(QCLASH_VERSION));
+    app.setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
     QString langPath = QApplication::applicationDirPath() + "/lang";
