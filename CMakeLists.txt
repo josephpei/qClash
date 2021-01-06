@@ -15,7 +15,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Options are: None, Debug, Release, RelWithDebInfo, MinSizeRel." FORCE)
 endif()
 
-project(qClash VERSION 0.1.0)
+project(qClash VERSION 0.1.1)
 
 if (DEFINED VERSION_SUFIX AND NOT "${VERSION_SUFIX}" STREQUAL "")
     set(QCLASH_VERSION_SUFIX "-${VERSION_SUFIX}")
@@ -83,6 +83,8 @@ set(${PROJECT_NAME}_SOURCES
   src/utils/httputil.cpp
   src/utils/networkproxy.h
   src/utils/networkproxy.cpp
+  src/utils/utility.h
+  src/utils/utility.cpp
   src/utils/iconsForkAwesome.h)
 
 set(QCLASH_SRCS
@@ -200,5 +202,5 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "josephpei josephpei@gmail.com")
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5network5")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5gui5 libqt5widgets5 libqt5network5 libqt5svg5 libyaml-cpp0.6")
 include(CPack)
