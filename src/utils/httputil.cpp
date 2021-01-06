@@ -4,6 +4,8 @@
 #include <QJsonDocument>
 #include <QVariant>
 #include <QBuffer>
+#include <QTimer>
+#include <QDebug>
 
 class HttpUtil::Inner
 {
@@ -31,9 +33,14 @@ void HttpUtil::setSecret(const QString& str)
 QByteArray HttpUtil::request(const QUrl &url,
                          QNetworkAccessManager::Operation operation,
                          const QByteArray &body,
-                         uint offset)
+                         uint timeout)
 {
+    QTimer timer;
+    timer.setSingleShot(true);
+
     QNetworkRequest request(url);
+    // request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
+    // request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     if (!secret.isEmpty())
         request.setRawHeader(QByteArray("Authorization"), QString("Bearer %1").arg(secret).toUtf8());
@@ -58,8 +65,25 @@ QByteArray HttpUtil::request(const QUrl &url,
     // eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
     // TODO: add error / timeout control
     QEventLoop loop;
+    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    if (timeout > 0)
+        timer.start(timeout);
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
+
+    // Timeout handler
+    if (timeout > 0 && !timer.isActive()) {
+        disconnect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        reply->abort();
+        qWarning() << "Timeout when requesting " << url;
+    }
+    // Network error handler
+    if (reply->error() != QNetworkReply::NoError) {
+        qCritical() << "Error occurred during requesting " << url
+                    << "; Error: " << reply->error();
+        return QByteArray();
+    }
+
     auto data = reply->readAll();
     reply->deleteLater();
     return data;

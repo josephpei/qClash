@@ -24,6 +24,7 @@ SubscribeNewDialog::SubscribeNewDialog(QWidget *parent)
     vLayout->addWidget(formGroupBox);
     vLayout->addWidget(buttonBox);
     setLayout(vLayout);
+    setMinimumWidth(450);
     show();
 }
 

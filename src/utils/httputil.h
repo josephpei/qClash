@@ -13,7 +13,7 @@ public:
     QByteArray request(const QUrl &url,
                        QNetworkAccessManager::Operation operation = QNetworkAccessManager::GetOperation,
                        const QByteArray &body = QByteArray(),
-                       uint offset = 0);
+                       uint timeout = 5000);
     QByteArray get(const QUrl &url);
     QByteArray post(const QUrl &url, const QMap<QString, QString> &params);
     QByteArray put(const QUrl &url, const QMap<QString, QString> &params);

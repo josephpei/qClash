@@ -329,6 +329,8 @@ void MainWindow::updateSubscribes()
             qDebug() << "Update: " << subscribes[i].name;
             subscribes[i].updateTime = currTime;
             QByteArray data = http.get(subscribes[i].url);
+            if (data.isEmpty())
+                continue;
             Configurator::saveClashConfig(subscribes[i].name, QString(data));
             if (currSub.name == subscribes[i].name) {
                 ClashApi::reloadConfigs();

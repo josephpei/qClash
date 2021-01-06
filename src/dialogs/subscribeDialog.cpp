@@ -1,6 +1,7 @@
 #include <QtWidgets>
 #include <QFile>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include "subscribeDialog.h"
 #include "../utils/httputil.h"
@@ -69,15 +70,20 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
 {
     QList<Subscribe> subscribes = configurator.getSubscribes();
     int count = subscribes.count();
-    subscribes.append(newSubscribe);
-    configurator.setSubscribes(subscribes);
 
     QString subName = newSubscribe.name;
     QString subUrl = newSubscribe.url;
     // QMessageBox::information(this, "Add Subscribe", subName + subUrl);
     HttpUtil &http = HttpUtil::instance();
     QByteArray data = http.get(subUrl);
-    Configurator::saveClashConfig(subName, QString(data));
+    if (!data.isEmpty()) {
+        Configurator::saveClashConfig(subName, QString(data));
+        subscribes.append(newSubscribe);
+        configurator.setSubscribes(subscribes);
+    } else {
+        QMessageBox::warning(this, "Netork Error", "Remote config download failed, try again?");
+        return;
+    }
 
     QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
     model->setItem(count, 0, new QStandardItem(subName));
