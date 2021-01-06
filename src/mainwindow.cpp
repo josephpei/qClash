@@ -175,6 +175,7 @@ void MainWindow::createActions()
 
     autoUpdateSubConfig = new QAction(tr("Auto Update"), this);
     autoUpdateSubConfig->setCheckable(true);
+    autoUpdateSubConfig->setChecked(configurator.isAutoUpdate());
     connect(autoUpdateSubConfig, &QAction::triggered, this, &MainWindow::autoUpdateSubConfigChange);
 
     about = new QAction(tr("About"), this);
@@ -348,8 +349,10 @@ void MainWindow::startAtLoginChange(bool autoStart)
 
 void MainWindow::autoUpdateSubConfigChange(bool autoUpdate)
 {
+    configurator.setAutoUpdate(autoUpdate);
     if (autoUpdate) {
-
+        if (!timer->isActive())
+            timer->start();
     } else {
         if (timer->isActive())
             timer->stop();

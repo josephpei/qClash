@@ -205,13 +205,24 @@ const bool Configurator::isStartAtLogin()
     return loadValue("startAtLogin", false).toBool();
 }
 
-void Configurator::setSystemProxy(bool flag) {
+void Configurator::setAutoUpdate(bool autoUpdate)
+{
+    saveValue("autoUpdate", autoUpdate);
+}
+
+const bool Configurator::isAutoUpdate()
+{
+    return loadValue("autoUpdate", true).toBool();
+}
+
+void Configurator::setSystemProxy(bool flag)
+{
     saveValue("systemProxy", flag);
     if (flag) {
         NetworkProxy httpProxy("http", "127.0.0.1",
             getHttpPort(), NetworkProxyMode::GLOBAL_MODE);
         NetworkProxyHelper::setSystemProxy(httpProxy);
-        #ifndef Q_OS_WIN
+#ifndef Q_OS_WIN
         NetworkProxy socksProxy("socks", "127.0.0.1",
             getSocksPort(), NetworkProxyMode::GLOBAL_MODE);
         NetworkProxyHelper::setSystemProxy(socksProxy);

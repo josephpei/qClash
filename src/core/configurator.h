@@ -45,6 +45,9 @@ public:
     void setStartAtLogin(bool autoStart);
     const bool isStartAtLogin();
 
+    void setAutoUpdate(bool autoUpdate);
+    const bool isAutoUpdate();
+
     void setSystemProxy(bool flag);
     const bool isSystemProxy();
 
