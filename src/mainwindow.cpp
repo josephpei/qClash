@@ -1,8 +1,10 @@
 #include "mainwindow.h"
+#include "BuildConfig.h"
 #include "./ui_mainwindow.h"
 #include "./core/configurator.h"
 #include "./core/clashApi.h"
 #include "./utils/iconsForkAwesome.h"
+#include "./utils/utility.h"
 #include <string>
 
 #include <QAction>
@@ -43,11 +45,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->logoLabel->setPixmap(logo);
 
     ui->overviewButton->setFont(font);
-    QString overviewStr = QString("%1 %2").arg(QChar(0xf0e4)).arg(tr("Overview"));
+    QString overviewStr = QString("%1 %2").arg(ICON_FK_TACHOMETER).arg(tr("Overview"));
     ui->overviewButton->setText(overviewStr);
     pageButtons->addButton(ui->overviewButton);
     ui->proxiesButton->setFont(font);
-    QString proxiesStr = QString("%1 %2").arg(QChar(0xf1d8)).arg(tr("Proxies"));
+    QString proxiesStr = QString("%1 %2").arg(ICON_FK_PAPER_PLANE).arg(tr("Proxies"));
     ui->proxiesButton->setText(proxiesStr);
     pageButtons->addButton(ui->proxiesButton);
 
@@ -179,8 +181,10 @@ void MainWindow::createActions()
     connect(autoUpdateSubConfig, &QAction::triggered, this, &MainWindow::autoUpdateSubConfigChange);
 
     about = new QAction(tr("About"), this);
-    checkUpdate = new QAction(tr("Check Update"), this);
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
+    
+    checkUpdate = new QAction(tr("Check Update"), this);
+    connect(checkUpdate, &QAction::triggered, this, &MainWindow::checkLatestRelease);
 }
 
 void MainWindow::proxyGroupMenusChange()
@@ -426,6 +430,16 @@ void MainWindow::showAboutDialog()
     else {
         aboutDialog = new AboutDialog(this);
         aboutDialog->show();
+    }
+}
+
+void MainWindow::checkLatestRelease()
+{
+    QString version = Utility::getLatestVersion();
+    if (Utility::isVersionNewer(QCLASH_VERSION, version)) {
+        QMessageBox::information(this, "Latest Version", QString("Found newer version %1").arg(version));
+    } else {
+        qDebug() << "You use the latest version, enjoy youself!";
     }
 }
 

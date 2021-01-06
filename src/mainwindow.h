@@ -37,6 +37,8 @@ private slots:
     void showMainWindow();
 
     void showAboutDialog();
+    void checkLatestRelease();
+
     void showSubscribeDialog();
     void updateSubActions();
 
