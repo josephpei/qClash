@@ -12,4 +12,6 @@ private:
 public:
     static const QString getLatestVersion();
     static bool isVersionNewer(const QString& currentVersion, const QString& version);
+
+    static void downloadLatestCountryMMDB(const QNetworkProxy* proxy);
 };

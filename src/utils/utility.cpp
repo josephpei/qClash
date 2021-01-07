@@ -3,6 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QFile>
+#include <QStandardPaths>
 
 HttpUtil &Utility::http = HttpUtil::instance();
 
@@ -48,4 +50,27 @@ QList<int> Utility::getVersion(QString version)
         _version.append(v.toInt());
     }
     return _version;
+}
+
+void Utility::downloadLatestCountryMMDB(const QNetworkProxy *proxy)
+{
+    // https://dev.maxmind.com/geoip/geoip2/geolite2/
+    // https://github.com/alecthw/mmdb_china_ip_list
+    QString url("https://raw.githubusercontent.com/alecthw/mmdb_china_ip_list/release/Country.mmdb");
+    QByteArray data = http.get(url, 500000, proxy);
+    if (data.isEmpty())
+        return;
+    QString filename = "/tmp/Country.mmdb";
+    if (QFile::exists(filename))
+        QFile::remove(filename);
+    QFile mmdb(filename);
+    if (!mmdb.open(QIODevice::WriteOnly)) {
+        return;
+    } else {
+        mmdb.write(data);
+        QString oldfile = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/.config/clash/Country.mmdb";
+        if (QFile::exists(oldfile))
+            QFile::remove(oldfile);
+        QFile::copy(filename, oldfile);
+    }
 }

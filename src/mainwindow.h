@@ -56,6 +56,8 @@ private slots:
     void pageChange(int);
     void fillOverviewPage();
 
+    void downloadLastestCountryMMDB();
+
 private:
     Ui::MainWindow *ui;
 
@@ -88,6 +90,7 @@ private:
     QAction *manageSubConfig;
     QAction *updateSubConfig;
     QAction *autoUpdateSubConfig;
+    QAction* downloadCoutryMMDB;
 
     QAction *about;
     QAction *checkUpdate;

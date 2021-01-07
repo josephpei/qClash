@@ -33,7 +33,8 @@ void HttpUtil::setSecret(const QString& str)
 QByteArray HttpUtil::request(const QUrl &url,
                          QNetworkAccessManager::Operation operation,
                          const QByteArray &body,
-                         uint timeout)
+                         uint timeout,
+                         const QNetworkProxy *proxy)
 {
     QTimer timer;
     timer.setSingleShot(true);
@@ -44,6 +45,11 @@ QByteArray HttpUtil::request(const QUrl &url,
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     if (!secret.isEmpty())
         request.setRawHeader(QByteArray("Authorization"), QString("Bearer %1").arg(secret).toUtf8());
+    QNetworkProxy noproxy;
+    noproxy.setType(QNetworkProxy::NoProxy);
+    inner->manager->setProxy(noproxy);
+    if (proxy != nullptr)
+        inner->manager->setProxy(*proxy);
 
     QNetworkReply *reply = nullptr;
     switch (operation)
@@ -89,9 +95,9 @@ QByteArray HttpUtil::request(const QUrl &url,
     return data;
 }
 
-QByteArray HttpUtil::get(const QUrl &url)
+QByteArray HttpUtil::get(const QUrl &url, uint timeout, const QNetworkProxy *proxy)
 {
-    return request(url);
+    return request(url, QNetworkAccessManager::GetOperation, QByteArray(), timeout, proxy);
 }
 
 QByteArray HttpUtil::post(const QUrl &url, const QMap<QString, QString> &params)

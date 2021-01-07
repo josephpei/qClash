@@ -181,6 +181,9 @@ void MainWindow::createActions()
     autoUpdateSubConfig->setChecked(configurator.isAutoUpdate());
     connect(autoUpdateSubConfig, &QAction::triggered, this, &MainWindow::autoUpdateSubConfigChange);
 
+    downloadCoutryMMDB = new QAction(tr("Update IP DB"), this);
+    connect(downloadCoutryMMDB, &QAction::triggered, this, &MainWindow::downloadLastestCountryMMDB);
+
     about = new QAction(tr("About"), this);
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
     
@@ -274,6 +277,7 @@ void MainWindow::createTrayIcon()
     subConfigMenu->addAction(manageSubConfig);
     subConfigMenu->addAction(updateSubConfig);
     subConfigMenu->addAction(autoUpdateSubConfig);
+    subConfigMenu->addAction(downloadCoutryMMDB);
     trayMenu->addMenu(subConfigMenu);
     trayMenu->addSeparator();
 
@@ -422,6 +426,17 @@ void MainWindow::fillOverviewPage()
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
     ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
+}
+
+void MainWindow::downloadLastestCountryMMDB()
+{
+    QNetworkProxy proxy;
+    if (clashCore.isRunning()) {
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName("127.0.0.1");
+        proxy.setPort(configurator.getHttpPort());
+    }
+    Utility::downloadLatestCountryMMDB(&proxy);
 }
 
 void MainWindow::showAboutDialog()
