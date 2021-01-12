@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QApplication>
 
 ClashCore::ClashCore()
 {
@@ -18,10 +19,11 @@ ClashCore::ClashCore()
     if (!dir.exists()) {
         dir.mkpath(clashConfigPath);
     }
+    QString appPath = QApplication::applicationDirPath();
     if (!QFile::exists(clashConfigPath + "config.yaml"))
-        QFile::copy("./config/clash.yaml", clashConfigPath + "config.yaml");
+        QFile::copy(appPath + "/config/clash.yaml", clashConfigPath + "config.yaml");
     if (!QFile::exists(clashConfigPath + "Country.mmdb"))
-        QFile::copy("./config/Country.mmdb", clashConfigPath + "Country.mmdb");
+        QFile::copy(appPath + "/config/Country.mmdb", clashConfigPath + "Country.mmdb");
 
     clashProcess = new QProcess;
 }
