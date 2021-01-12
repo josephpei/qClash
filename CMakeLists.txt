@@ -55,6 +55,7 @@ link_libraries(${YAML_CPP_LIBRARIES})
 ################################################################################
 # main library sources
 ################################################################################
+set(CMAKE_AUTOUIC ON)
 qt5_wrap_ui(${PROJECT_NAME}_FORMS
   src/mainwindow.ui
 )
