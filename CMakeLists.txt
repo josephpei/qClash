@@ -15,7 +15,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Options are: None, Debug, Release, RelWithDebInfo, MinSizeRel." FORCE)
 endif()
 
-project(qClash VERSION 0.1.2)
+project(qClash VERSION 0.1.3)
 
 if (DEFINED VERSION_SUFIX AND NOT "${VERSION_SUFIX}" STREQUAL "")
     set(QCLASH_VERSION_SUFIX "-${VERSION_SUFIX}")
@@ -28,6 +28,7 @@ configure_file(src/BuildConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/BuildConfig.h)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -55,17 +56,13 @@ link_libraries(${YAML_CPP_LIBRARIES})
 ################################################################################
 # main library sources
 ################################################################################
-set(CMAKE_AUTOUIC ON)
-qt5_wrap_ui(${PROJECT_NAME}_FORMS
-  src/mainwindow.ui
-)
-
 qt5_add_resources(${PROJECT_NAME}_RESOURCES
   resources.qrc
 )
 set(${PROJECT_NAME}_SOURCES
   src/mainwindow.h
   src/mainwindow.cpp
+  src/mainwindow.ui
   src/core/configurator.h
   src/core/configurator.cpp
   src/core/clashCore.h
@@ -92,7 +89,6 @@ set(QCLASH_SRCS
   ${${PROJECT_NAME}_SOURCES}
   ${${PROJECT_NAME}_QM_FILES}
   ${${PROJECT_NAME}_RESOURCES}
-  ${${PROJECT_NAME}_FORMS}
   src/main.cpp)
 
 set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM TRUE)
