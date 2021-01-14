@@ -4,74 +4,74 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="226"/>
+        <location filename="../src/mainwindow.ui" line="14"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="228"/>
+        <location filename="../src/mainwindow.ui" line="56"/>
         <location filename="../src/mainwindow.cpp" line="48"/>
         <source>Overview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="229"/>
+        <location filename="../src/mainwindow.ui" line="66"/>
         <location filename="../src/mainwindow.cpp" line="52"/>
         <source>Proxies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="230"/>
+        <location filename="../src/mainwindow.ui" line="114"/>
         <source>Http Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="231"/>
+        <location filename="../src/mainwindow.ui" line="124"/>
         <source>Socks Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="232"/>
+        <location filename="../src/mainwindow.ui" line="134"/>
         <source>Ex Ctronller Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="233"/>
+        <location filename="../src/mainwindow.ui" line="144"/>
         <source>Allow LAN</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="235"/>
+        <location filename="../src/mainwindow.ui" line="158"/>
         <source>Log Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="236"/>
+        <location filename="../src/mainwindow.ui" line="166"/>
         <source>info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="237"/>
+        <location filename="../src/mainwindow.ui" line="171"/>
         <source>warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="238"/>
+        <location filename="../src/mainwindow.ui" line="176"/>
         <source>error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="239"/>
+        <location filename="../src/mainwindow.ui" line="181"/>
         <source>debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="240"/>
+        <location filename="../src/mainwindow.ui" line="186"/>
         <source>silent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../build/ui_mainwindow.h" line="242"/>
+        <location filename="../src/mainwindow.ui" line="206"/>
         <source>Proxies List</source>
         <translation type="unfinished"></translation>
     </message>
