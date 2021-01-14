@@ -16,9 +16,9 @@ public:
                        uint timeout = 5000,
                        const QNetworkProxy* proxy = nullptr);
     QByteArray get(const QUrl &url, uint timeout = 5000, const QNetworkProxy *proxy = nullptr);
-    QByteArray post(const QUrl &url, const QMap<QString, QString> &params);
-    QByteArray put(const QUrl &url, const QMap<QString, QString> &params);
-    QByteArray patch(const QUrl &url, const QMap<QString, QString> &params);
+    QByteArray post(const QUrl &url, const QVariantMap &params);
+    QByteArray put(const QUrl &url, const QVariantMap &params);
+    QByteArray patch(const QUrl &url, const QVariantMap &params);
 
     void setSecret(const QString &);
 

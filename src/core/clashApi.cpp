@@ -14,7 +14,7 @@ void ClashApi::setSecret(const QString& secret)
 void ClashApi::reloadConfigs(bool force, QString path)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     if (force)
         params["force"] = force;
     if (!path.isEmpty())
@@ -25,7 +25,7 @@ void ClashApi::reloadConfigs(bool force, QString path)
 void ClashApi::setGroupProxy(const QString &group, const QString &proxy)
 {
     QUrl url(QString("%1:%2/proxies/%3").arg(baseUrl).arg(configurator.getExternalControlPort()).arg(group));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["name"] = proxy;
 
     QByteArray resp = http.put(url, params);
@@ -39,7 +39,7 @@ QJsonObject ClashApi::getConfigs()
     return QJsonDocument::fromJson(resp).object();
 }
 
-void ClashApi::changeConfigs(const QMap<QString, QString> &configs)
+void ClashApi::changeConfigs(const QVariantMap &configs)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
     QByteArray resp = http.patch(url, configs);
@@ -48,7 +48,7 @@ void ClashApi::changeConfigs(const QMap<QString, QString> &configs)
 void ClashApi::setMode(const QString& mode)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["mode"] = mode;
     QByteArray resp = http.patch(url, params);
     qDebug() << resp;
@@ -57,7 +57,7 @@ void ClashApi::setMode(const QString& mode)
 void ClashApi::setHttpPort(const int port)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["port"] = port;
 
     QByteArray resp = http.patch(url, params);
@@ -67,7 +67,7 @@ void ClashApi::setHttpPort(const int port)
 void ClashApi::setSocksPort(const int port)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["socks-port"] = port;
 
     QByteArray resp = http.patch(url, params);
@@ -76,8 +76,8 @@ void ClashApi::setSocksPort(const int port)
 void ClashApi::setAllowLan(const bool flag)
 {
     QUrl url(QString("%1:%2/configs/").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
-    params["allow-lan"] = flag ? "true" : "false";
+    QVariantMap params;
+    params["allow-lan"] = flag;
 
     QByteArray resp = http.patch(url, params);
     qDebug() << resp;
@@ -86,7 +86,7 @@ void ClashApi::setAllowLan(const bool flag)
 void ClashApi::setProxyMode(const QString& mode)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["mode"] = mode;
 
     QByteArray resp = http.patch(url, params);
@@ -96,7 +96,7 @@ void ClashApi::setProxyMode(const QString& mode)
 void ClashApi::setLogLevel(const QString& level)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
-    QMap<QString, QString> params;
+    QVariantMap params;
     params["log-level"] = level;
 
     QByteArray resp = http.patch(url, params);

@@ -42,7 +42,10 @@ QByteArray HttpUtil::request(const QUrl &url,
     QNetworkRequest request(url);
     // request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
     // request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
+    if (operation == QNetworkAccessManager::CustomOperation)
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/json; charset=UTF-8"));
+    else
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     if (!secret.isEmpty())
         request.setRawHeader(QByteArray("Authorization"), QString("Bearer %1").arg(secret).toUtf8());
     QNetworkProxy noproxy;
@@ -100,40 +103,26 @@ QByteArray HttpUtil::get(const QUrl &url, uint timeout, const QNetworkProxy *pro
     return request(url, QNetworkAccessManager::GetOperation, QByteArray(), timeout, proxy);
 }
 
-QByteArray HttpUtil::post(const QUrl &url, const QMap<QString, QString> &params)
-{
-    QByteArray body;
-    QMapIterator<QString, QString> i(params);
-    while (i.hasNext()) {
-        i.next();
-        body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
-    }
-    return request(url, QNetworkAccessManager::PostOperation, body);
-}
-
-QByteArray HttpUtil::put(const QUrl &url, const QMap<QString, QString> &params)
+QByteArray HttpUtil::post(const QUrl &url, const QVariantMap &params)
 {
     // QByteArray body;
-    QVariantMap vmap;
-    QMapIterator<QString, QString> i(params);
-    while (i.hasNext()) {
-        i.next();
-        // body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
-        vmap.insert(i.key(), i.value());
-    }
-    QJsonDocument json = QJsonDocument::fromVariant(vmap);
-    return request(url, QNetworkAccessManager::PutOperation, json.toJson());
+    // QMapIterator<QString, QString> i(params);
+    // while (i.hasNext()) {
+    //     i.next();
+    //     body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
+    // }
+    QJsonDocument json = QJsonDocument::fromVariant(params);
+    return request(url, QNetworkAccessManager::PostOperation, json.toJson(QJsonDocument::Compact));
 }
 
-QByteArray HttpUtil::patch(const QUrl &url, const QMap<QString, QString> &params)
+QByteArray HttpUtil::put(const QUrl &url, const QVariantMap &params)
 {
-    QVariantMap vmap;
-    QMapIterator<QString, QString> i(params);
-    while (i.hasNext()) {
-        i.next();
-        // body += QUrl::toPercentEncoding(i.key()) + '=' + QUrl::toPercentEncoding(i.value()) + '&';
-        vmap.insert(i.key(), i.value());
-    }
-    QJsonDocument json = QJsonDocument::fromVariant(vmap);
-    return request(url, QNetworkAccessManager::CustomOperation, json.toJson());
+    QJsonDocument json = QJsonDocument::fromVariant(params);
+    return request(url, QNetworkAccessManager::PutOperation, json.toJson(QJsonDocument::Compact));
+}
+
+QByteArray HttpUtil::patch(const QUrl &url, const QVariantMap &params)
+{
+    QJsonDocument json = QJsonDocument::fromVariant(params);
+    return request(url, QNetworkAccessManager::CustomOperation, json.toJson(QJsonDocument::Compact));
 }
