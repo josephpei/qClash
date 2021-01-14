@@ -38,7 +38,7 @@ enable_testing()
 
 set(QtMinVersion "5.9.0")
 
-find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Network LinguistTools)
+find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Network WebSockets LinguistTools)
 find_package(Qt5Test REQUIRED)
 if (WIN32)
     find_package(Qt5 ${QT_MIN_VERSION} REQUIRED WinExtras)
@@ -81,6 +81,8 @@ set(${PROJECT_NAME}_SOURCES
   src/utils/httputil.cpp
   src/utils/networkproxy.h
   src/utils/networkproxy.cpp
+  src/utils/wsclient.h
+  src/utils/wsclient.cpp
   src/utils/utility.h
   src/utils/utility.cpp
   src/utils/iconsForkAwesome.h)
@@ -173,6 +175,7 @@ function(auto_test subsystem module)
     Qt5::Core
     Qt5::Widgets
     Qt5::Network
+    Qt5::WebSockets
     Qt5::Test)
   add_test(
     NAME test_${module}
