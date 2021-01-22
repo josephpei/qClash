@@ -14,7 +14,7 @@ A rule based proxy For Linux/Win/Mac base on [Clash](https://github.com/Dreamacr
 
 You can download from [release](https://github.com/josephpei/qClash/releases) page
 
-You also need `clash` in your path.
+You also need `clash` in your path. The default config is `$HOME/.config/clash/config.yaml` which you can edit.
 
 Basic usage just like `ClashX` on Mac.
 
