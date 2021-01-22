@@ -15,6 +15,11 @@ void WsClient::onConnected()
     connect(&ws, &QWebSocket::textMessageReceived, this, &WsClient::onTextMessageReceived);
 }
 
+void WsClient::onDisconnected()
+{
+
+}
+
 void WsClient::onTextMessageReceived(QString message)
 {
     qDebug() << "Message received: " << message;

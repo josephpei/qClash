@@ -131,6 +131,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
   Qt5::Widgets
   Qt5::Network
+  Qt5::WebSockets
   SingleApplication
   yaml-cpp)
 
@@ -202,5 +203,5 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "josephpei josephpei@gmail.com")
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5gui5, libqt5widgets5, libqt5network5, libqt5svg5, libyaml-cpp0.6")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5gui5, libqt5widgets5, libqt5network5, libqt5websockets5, libqt5svg5, libyaml-cpp0.6")
 include(CPack)
