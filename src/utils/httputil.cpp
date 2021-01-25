@@ -95,6 +95,7 @@ QByteArray HttpUtil::request(const QUrl &url,
 
     auto data = reply->readAll();
     reply->deleteLater();
+    qDebug() << "Url: " << url << ", Response: " << data;
     return data;
 }
 

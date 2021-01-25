@@ -14,7 +14,8 @@ public:
     static void reloadConfigs(bool force = false, QString path = "");
     static void setGroupProxy(const QString& group, const QString& proxy);
     static QJsonObject getConfigs();
-    static void changeConfigs(const QVariantMap &configs);
+    static QJsonObject getProxies();
+    static void changeConfigs(const QVariantMap& configs);
     static void setMode(const QString &mode);
     static void setHttpPort(const int port);
     static void setSocksPort(const int port);

@@ -18,6 +18,7 @@
 #include <QCloseEvent>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QSignalBlocker>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -195,12 +196,14 @@ void MainWindow::proxyGroupMenusChange()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
     YAML::Node root = configurator.loadClashConfig(subscribe.name);
+    QJsonObject proxies = ClashApi::getProxies();
     QJsonObject proxyGroupsRule = configurator.getProxyGroupsRule(subscribe.name);
     int i = 0;
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
     {
         QString groupName = (*iter)["name"].as<std::string>().c_str();
-        QString selectProxy;
+        QJsonObject proxySelector = proxies.value(groupName).toObject();
+        QString selectProxy = proxySelector.value("now").toString();
         if (proxyGroupsRule.contains(groupName)) {
             selectProxy = proxyGroupsRule[groupName].toString();
         }
@@ -215,8 +218,10 @@ void MainWindow::proxyGroupMenusChange()
             QAction *action = proxyGroupMenus[i]->addAction(proxyName);
             action->setCheckable(true);
             if (proxyName == selectProxy) {
+                // const QSignalBlocker blocker(action);
                 action->setChecked(true);
-                ClashApi::setGroupProxy(groupName, proxyName);
+                if (proxySelector.value("type").toString().toLower() != "urltest")
+                    ClashApi::setGroupProxy(groupName, proxyName);
             }
             actions->addAction(action)->setData(proxyName);
         }
