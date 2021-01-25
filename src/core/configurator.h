@@ -22,14 +22,14 @@ class Configurator : public QObject {
 public:
     static Configurator& instance();
 
-    static const QString getAppFilePath();
-    static const QString getClashConfigPath();
-    static const QString getClashConfigPath(const QString& name);
+    static QString getAppFilePath();
+    static QString getClashConfigPath();
+    static QString getClashConfigPath(const QString& name);
     static void saveClashConfig(const QString& name, const QString& content);
     
     YAML::Node loadClashConfig(const QString& name);
 
-    const QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
+    QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
     void saveValue(const QString& key, const QVariant& value);
 
     QList<Subscribe> getSubscribes();
@@ -43,27 +43,27 @@ public:
     void setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy);
 
     void setStartAtLogin(bool autoStart);
-    const bool isStartAtLogin();
+    bool isStartAtLogin();
 
     void setAutoUpdate(bool autoUpdate);
-    const bool isAutoUpdate();
+    bool isAutoUpdate();
 
     void setSystemProxy(bool flag);
-    const bool isSystemProxy();
+    bool isSystemProxy();
 
-    const QString getSecret();
+    QString getSecret();
 
     QMap<QString, QString> diffConfigs();
     void setMode(const QString& mode);
-    const QString getMode();
+    QString getMode();
     void setHttpPort(const int &port);
-    const int getHttpPort();
+    int getHttpPort();
     void setSocksPort(const int& port);
-    const int getSocksPort();
+    int getSocksPort();
     void setExternalControlPort(const int &port);
-    const int getExternalControlPort();
+    int getExternalControlPort();
     void setAllowLan(bool flag);
-    const bool getAllowLan();
+    bool getAllowLan();
     void setLogLevel(const QString& level);
-    const QString getLogLevel();
+    QString getLogLevel();
 };

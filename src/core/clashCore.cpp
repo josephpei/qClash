@@ -8,8 +8,10 @@
 
 ClashCore::ClashCore()
 {
-#ifdef Q_OS_WIN
-    clashFilePath = "D:/PortableApp/clash/clash.exe";
+#ifdef Q_OS_WIN64
+    clashFilePath = "clash-windows-amd64.exe";
+#elif defined(Q_OS_WIN32)
+    clashFilePath = "clash-windows-386.exe"
 #elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     clashFilePath = "clash";
 #endif

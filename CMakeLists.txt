@@ -1,14 +1,16 @@
 cmake_minimum_required(VERSION 3.6.0)
 
 if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+  file(TO_CMAKE_PATH "$ENV{VCPKG_ROOT}" ENV_VCPKG_ROOT)
+  set(CMAKE_TOOLCHAIN_FILE "${ENV_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       CACHE STRING "")
 endif()
 
 if(DEFINED ENV{QT_ROOT})
   #list(APPEND CMAKE_MODULE_PATH $ENV{QT_ROOT}/lib/cmake)
   #set(Qt5_DIR $ENV{QT_ROOT}/lib/cmake/Qt5)
-  set(CMAKE_PREFIX_PATH $ENV{QT_ROOT})
+  file(TO_CMAKE_PATH "$ENV{QT_ROOT}" ENV_QT_ROOT)
+  set(CMAKE_PREFIX_PATH ${ENV_QT_ROOT})
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -38,7 +40,7 @@ enable_testing()
 
 set(QtMinVersion "5.9.0")
 
-find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Network WebSockets LinguistTools)
+find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Svg Network WebSockets LinguistTools)
 find_package(Qt5Test REQUIRED)
 if (WIN32)
     find_package(Qt5 ${QT_MIN_VERSION} REQUIRED WinExtras)
@@ -132,6 +134,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   Qt5::Widgets
   Qt5::Network
   Qt5::WebSockets
+  Qt5::Svg
   SingleApplication
   yaml-cpp)
 

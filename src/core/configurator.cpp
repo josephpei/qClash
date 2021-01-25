@@ -16,7 +16,7 @@ Configurator &Configurator::instance()
     return configuratorInstance;
 }
 
-const QString Configurator::getAppFilePath()
+QString Configurator::getAppFilePath()
 {
     if (QProcessEnvironment::systemEnvironment().contains("APPIMAGE")) {
         return QProcessEnvironment::systemEnvironment().value("APPIMAGE");
@@ -24,13 +24,13 @@ const QString Configurator::getAppFilePath()
     return QGuiApplication::applicationFilePath();
 }
 
-const QString Configurator::getClashConfigPath()
+QString Configurator::getClashConfigPath()
 {
     QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     return homePath + "/.config/clash/";
 }
 
-const QString Configurator::getClashConfigPath(const QString& name)
+QString Configurator::getClashConfigPath(const QString& name)
 {
     QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     return homePath + "/.config/clash/" + name + ".yaml";
@@ -39,7 +39,8 @@ const QString Configurator::getClashConfigPath(const QString& name)
 void Configurator::saveClashConfig(const QString& name, const QString& content)
 {
     QString filePath = Configurator::getClashConfigPath(name);
-    QString tmpFile = "/tmp/" + name + ".yaml";
+    QString tmpPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    QString tmpFile = tmpPath + "/" + name + ".yaml";
     QFile configFile(tmpFile);
     if (QFile::exists(tmpFile))
         QFile::remove(tmpFile);
@@ -59,13 +60,13 @@ YAML::Node Configurator::loadClashConfig(const QString& name)
     QString configFile = Configurator::getClashConfigPath(name);
     try {
         root = YAML::LoadFile(configFile.toStdString());
-    } catch (YAML::BadFile error) {
-        throw error;
+    } catch (YAML::BadFile& error) {
+        throw YAML::BadFile();
     }
     return root;
 }
 
-const QVariant Configurator::loadValue(const QString &key, const QVariant &defaultValue)
+QVariant Configurator::loadValue(const QString &key, const QVariant &defaultValue)
 {
     return config.value(key, defaultValue);
 }
@@ -76,7 +77,7 @@ void Configurator::saveValue(const QString &key, const QVariant &value)
     config.sync();
 }
 
-const QString Configurator::getSecret()
+QString Configurator::getSecret()
 {
     if (root["secret"])
         return root["secret"].as<std::string>().c_str();
@@ -85,12 +86,12 @@ const QString Configurator::getSecret()
 
 QList<Subscribe> Configurator::getSubscribes()
 {
-    QList<QString> data = loadValue("subscribes").value<QList<QString>>();
+    auto data = loadValue("subscribes").value<QList<QString>>();
     QList<Subscribe> subscribes;
     if (data.isEmpty())
         subscribes.append(Subscribe("config"));
-    for (int i = 0; i < data.size(); i++) {
-        subscribes.append(Subscribe(stringToJson(data[i])));
+    for (auto & i : data) {
+        subscribes.append(Subscribe(stringToJson(i)));
     }
     return subscribes;
 }
@@ -98,15 +99,15 @@ QList<Subscribe> Configurator::getSubscribes()
 void Configurator::setSubscribes(const QList<Subscribe> &subscribes)
 {
     QList<QString> data;
-    for (int i = 0; i < subscribes.size(); ++i) {
-        data.append(jsonToString(subscribes[i].write()));
+    for (const auto & subscribe : subscribes) {
+        data.append(jsonToString(subscribe.write()));
     }
     saveValue("subscribes", QVariant::fromValue(data));
 }
 
 Subscribe Configurator::getCurrentConfig()
 {
-    QString data = loadValue("currentConfig").value<QString>();
+    auto data = loadValue("currentConfig").value<QString>();
     if (data.isEmpty()) {
         return Subscribe("config");
     }
@@ -121,9 +122,9 @@ void Configurator::setCurrentConfig(const Subscribe& subscribe)
 Subscribe Configurator::getSubscribeByName(const QString& name)
 {
     QList<Subscribe> subscribes = getSubscribes();
-    for (int i = 0; i < subscribes.size(); ++i) {
-        if (subscribes[i].name == name)
-            return subscribes[i];
+    for (auto & subscribe : subscribes) {
+        if (subscribe.name == name)
+            return subscribe;
     }
     return Subscribe("config");
 }
@@ -200,7 +201,7 @@ void Configurator::setStartAtLogin(bool autoStart)
 #endif
 }
 
-const bool Configurator::isStartAtLogin()
+bool Configurator::isStartAtLogin()
 {
     return loadValue("startAtLogin", false).toBool();
 }
@@ -210,7 +211,7 @@ void Configurator::setAutoUpdate(bool autoUpdate)
     saveValue("autoUpdate", autoUpdate);
 }
 
-const bool Configurator::isAutoUpdate()
+bool Configurator::isAutoUpdate()
 {
     return loadValue("autoUpdate", true).toBool();
 }
@@ -232,7 +233,7 @@ void Configurator::setSystemProxy(bool flag)
     }
 }
 
-const bool Configurator::isSystemProxy()
+bool Configurator::isSystemProxy()
 {
     return loadValue("systemProxy", false).toBool();
 }
@@ -274,7 +275,7 @@ void Configurator::setMode(const QString& mode)
     saveValue("mode", mode);
 }
 
-const QString Configurator::getMode()
+QString Configurator::getMode()
 {
     return loadValue("mode", root["mode"].as<std::string>().c_str()).toString();
 }
@@ -284,7 +285,7 @@ void Configurator::setHttpPort(const int& port)
     saveValue("httpPort", port);
 }
 
-const int Configurator::getHttpPort()
+int Configurator::getHttpPort()
 {
     return loadValue("port", root["port"].as<int>()).toInt();
 }
@@ -294,7 +295,7 @@ void Configurator::setSocksPort(const int& port)
     saveValue("socksPort", port);
 }
 
-const int Configurator::getSocksPort()
+int Configurator::getSocksPort()
 {
     return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
 }
@@ -304,7 +305,7 @@ void Configurator::setExternalControlPort(const int& port)
     saveValue("externalControlPort", port);
 }
 
-const int Configurator::getExternalControlPort()
+int Configurator::getExternalControlPort()
 {
     return loadValue("externalControlPort", QString(root["external-controller"].as<std::string>().c_str()).split(":")[1].toInt()).toInt();
 }
@@ -314,7 +315,7 @@ void Configurator::setAllowLan(bool flag)
     saveValue("allowLan", flag);
 }
 
-const bool Configurator::getAllowLan()
+bool Configurator::getAllowLan()
 {
     return loadValue("allowLan", root["allow-lan"].as<bool>()).toBool();
 }
@@ -324,7 +325,7 @@ void Configurator::setLogLevel(const QString& level)
     saveValue("logLevel", level);
 }
 
-const QString Configurator::getLogLevel()
+QString Configurator::getLogLevel()
 {
     QString level;
     if (!root["log-level"])

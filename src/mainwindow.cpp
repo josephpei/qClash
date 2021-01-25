@@ -104,16 +104,16 @@ void MainWindow::initClash()
     try {
         qDebug() << "Start with config: " << subscribe.name;
         configurator.loadClashConfig(subscribe.name);
-    } catch (YAML::BadFile error) {
+    } catch (YAML::BadFile &error) {
         QMessageBox::warning(this, "Config File Syntax Error", QString(error.msg.c_str()));
         subscribe = Subscribe("config");
         configurator.setCurrentConfig(subscribe);
         configurator.loadClashConfig(subscribe.name);
-    } catch (YAML::BadFile error) {
+    } catch (YAML::Exception &error) {
         QMessageBox::warning(this, "Config File Syntax Error", QString(error.msg.c_str()));
         QApplication::quit();
     }
-    QString configFilePath = configurator.getClashConfigPath(subscribe.name);
+    QString configFilePath = Configurator::getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
     qDebug() << "Current configs: " << ClashApi::getConfigs();
     ClashApi::setSecret(configurator.getSecret());
