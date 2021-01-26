@@ -11,7 +11,11 @@ int main(int argc, char *argv[])
 {
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
+#ifdef Q_OS_WIN
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+#else
     QSettings::setDefaultFormat(QSettings::NativeFormat);
+#endif
     QApplication::setOrganizationName("qClash");
     QApplication::setApplicationName("qClash");
 

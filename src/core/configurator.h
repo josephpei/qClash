@@ -15,7 +15,7 @@ class Configurator : public QObject {
 
     Configurator() = default;
 
-    QSettings config;
+//    QSettings config;
     YAML::Node root;
     QJsonObject proxyGroups;
 

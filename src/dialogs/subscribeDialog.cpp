@@ -69,7 +69,7 @@ void SubscribeDialog::showSubNewDlg()
 void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
 {
     QList<Subscribe> subscribes = configurator.getSubscribes();
-    int count = subscribes.count();
+    int count = subscribes.count() - 1;
 
     QString subName = newSubscribe.name;
     QString subUrl = newSubscribe.url;
@@ -85,7 +85,7 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
         return;
     }
 
-    QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
+    auto *model = (QStandardItemModel*)this->tableView->model();
     model->setItem(count, 0, new QStandardItem(subName));
     model->setItem(count, 1, new QStandardItem(subUrl));
     model->setItem(count, 2, new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss")));
@@ -96,7 +96,7 @@ void SubscribeDialog::delSubscribe()
     QModelIndex index = this->tableView->currentIndex();
     if (!index.isValid())
         return;
-    QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
+    auto *model = (QStandardItemModel*)this->tableView->model();
 
     QList<Subscribe> subscribes = configurator.getSubscribes();
     subscribes.removeAt(index.row() + 1);
@@ -130,7 +130,7 @@ void SubscribeDialog::updateCell(const QModelIndex & indexA, const QModelIndex &
     int col = indexA.column();
     int row = indexB.row();
     QList<Subscribe> subscribes = configurator.getSubscribes();
-    QStandardItemModel *model = (QStandardItemModel*)this->tableView->model();
+    auto *model = (QStandardItemModel*)this->tableView->model();
     QString str = model->data(model->index(row, col)).toString();
     if (col > 1)
         return;

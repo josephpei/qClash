@@ -68,11 +68,13 @@ YAML::Node Configurator::loadClashConfig(const QString& name)
 
 QVariant Configurator::loadValue(const QString &key, const QVariant &defaultValue)
 {
+    QSettings config;
     return config.value(key, defaultValue);
 }
 
 void Configurator::saveValue(const QString &key, const QVariant &value)
 {
+    QSettings config;
     config.setValue(key, value);
     config.sync();
 }
