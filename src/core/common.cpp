@@ -13,7 +13,7 @@ QString jsonToString(const QJsonObject &json)
     return QString(QJsonDocument(json).toJson(QJsonDocument::Compact));
 }
 
-QJsonObject stringToJson(const QString str)
+QJsonObject stringToJson(const QString& str)
 {
     QJsonObject json;
 

@@ -8,7 +8,7 @@ public:
     static ClashCore &instance();
     ClashCore(const ClashCore &) = delete;
     void operator=(const ClashCore &) = delete;
-    ~ClashCore();
+    ~ClashCore() override;
 
     QString getVersion();
     bool isRunning();

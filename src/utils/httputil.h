@@ -9,6 +9,8 @@ class HttpUtil : public QObject {
     Q_OBJECT
 public:
     static HttpUtil &instance();
+    HttpUtil(const HttpUtil &) = delete;
+    HttpUtil &operator=(HttpUtil rhs) = delete;
 
     QByteArray request(const QUrl &url,
                        QNetworkAccessManager::Operation operation = QNetworkAccessManager::GetOperation,
@@ -27,8 +29,6 @@ signals:
 
 private:
     explicit HttpUtil(QObject *parent = nullptr);
-    HttpUtil(const HttpUtil &) = delete;
-    HttpUtil &operator=(HttpUtil rhs) = delete;
 
 private:
     class Inner;

@@ -10,7 +10,7 @@ private:
     static QList<int> getVersion(QString version);
 
 public:
-    static const QString getLatestVersion();
+    static QString getLatestVersion();
     static bool isVersionNewer(const QString& currentVersion, const QString& version);
 
     static void downloadLatestCountryMMDB(const QNetworkProxy* proxy);

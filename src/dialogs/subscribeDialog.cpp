@@ -31,7 +31,7 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     tableView->horizontalHeader()->setSectionsClickable(false);
     tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    QStandardItemModel *model = new QStandardItemModel;
+    auto *model = new QStandardItemModel;
     tableView->setModel(model);
     model->setColumnCount(3);
     model->setHeaderData(0, Qt::Horizontal, tr("Name"));

@@ -17,9 +17,9 @@ public:
     static QJsonObject getProxies();
     static void changeConfigs(const QVariantMap& configs);
     static void setMode(const QString &mode);
-    static void setHttpPort(const int port);
-    static void setSocksPort(const int port);
-    static void setAllowLan(const bool flag);
+    static void setHttpPort(int port);
+    static void setSocksPort(int port);
+    static void setAllowLan(bool flag);
     static void setProxyMode(const QString& mode);
     static void setLogLevel(const QString& level);
 };

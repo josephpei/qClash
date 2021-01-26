@@ -8,7 +8,7 @@
 
 HttpUtil &Utility::http = HttpUtil::instance();
 
-const QString Utility::getLatestVersion()
+QString Utility::getLatestVersion()
 {
     QString url("https://api.github.com/repos/josephpei/qClash/releases");
     QByteArray releaseJsonStr = http.get(url);
@@ -46,7 +46,7 @@ QList<int> Utility::getVersion(QString version)
     if (version.startsWith('v') || version.startsWith('v')) {
         version = version.mid(1);
     }
-    for (QString v : version.split('.')) {
+    for (const QString& v : version.split('.')) {
         _version.append(v.toInt());
     }
     return _version;

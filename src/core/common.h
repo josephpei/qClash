@@ -16,16 +16,16 @@ enum ProxyType {
 extern QJsonObject LOGLEVEL2INT;
 
 QString jsonToString(const QJsonObject& json);
-QJsonObject stringToJson(const QString str);
+QJsonObject stringToJson(const QString& str);
 
 struct Subscribe {
     QString name;
     QString url;
     QDateTime updateTime;
-    bool updating;
+    bool updating{};
 
-    Subscribe() {}
-    Subscribe(QString name, QString url = "", QDateTime updateTime = QDateTime::currentDateTime())
+    Subscribe() = default;
+    explicit Subscribe(QString name, QString url = "", QDateTime updateTime = QDateTime::currentDateTime())
         : name(name)
         , url(url)
         , updateTime(updateTime)

@@ -10,7 +10,7 @@
 class HttpUtil::Inner
 {
 public:
-    Inner(HttpUtil *h) : manager(new QNetworkAccessManager(h)) {}
+    explicit Inner(HttpUtil *h) : manager(new QNetworkAccessManager(h)) {}
     QNetworkAccessManager *manager;
 };
 
