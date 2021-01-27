@@ -308,7 +308,6 @@ void MainWindow::updateSubActions()
     int i = 0;
     for (; i < count; ++i)
     {
-        // qDebug() << subs[i].name;
         subActions[i]->setText(subs[i].name);
         subActions[i]->setData(subs[i].name);
         subActions[i]->setVisible(true);

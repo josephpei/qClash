@@ -66,7 +66,7 @@ void SubscribeDialog::showSubNewDlg()
     }
 }
 
-void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
+void SubscribeDialog::addSubscribe(const Subscribe& newSubscribe)
 {
     QList<Subscribe> subscribes = configurator.getSubscribes();
     int count = subscribes.count() - 1;
@@ -74,7 +74,7 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
     QString subName = newSubscribe.name;
     QString subUrl = newSubscribe.url;
     // QMessageBox::information(this, "Add Subscribe", subName + subUrl);
-    HttpUtil &http = HttpUtil::instance();
+    HttpUtil& http = HttpUtil::instance();
     QByteArray data = http.get(subUrl);
     if (!data.isEmpty()) {
         Configurator::saveClashConfig(subName, QString(data));
@@ -84,11 +84,11 @@ void SubscribeDialog::addSubscribe(const Subscribe &newSubscribe)
         QMessageBox::warning(this, "Netork Error", "Remote config download failed, try again?");
         return;
     }
-
-    auto *model = (QStandardItemModel*)this->tableView->model();
-    model->setItem(count, 0, new QStandardItem(subName));
-    model->setItem(count, 1, new QStandardItem(subUrl));
-    model->setItem(count, 2, new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss")));
+    auto* model = (QStandardItemModel*)this->tableView->model();
+    QList<QStandardItem*> item;
+    item << new QStandardItem(subName) << new QStandardItem(subUrl)
+         << new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss"));
+    model->appendRow(item);
 }
 
 void SubscribeDialog::delSubscribe()
@@ -135,9 +135,9 @@ void SubscribeDialog::updateCell(const QModelIndex & indexA, const QModelIndex &
     if (col > 1)
         return;
     if (col == 0)
-        subscribes[row].name = str;
+        subscribes[row+1].name = str;
     if (col == 1)
-        subscribes[row].url = str;
+        subscribes[row+1].url = str;
     configurator.setSubscribes(subscribes);
 }
 

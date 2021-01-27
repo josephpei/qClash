@@ -33,7 +33,11 @@ void SubscribeNewDialog::subscribeNewClicked()
     // QStringList subscribe;
     // subscribe << this->subName->text() << this->subUrl->text();
     // emit newSubscribe(subscribe);
-    Subscribe subscribe(this->subName->text(), this->subUrl->text());
-    emit newSubscribe(subscribe);
-    accept();
+    QString name = subName->text();
+    QString url = subUrl->text();
+    if (!name.isEmpty() && name != "config" && !url.isEmpty()) {
+        Subscribe subscribe(name, url);
+        emit newSubscribe(subscribe);
+        accept();
+    }
 }
