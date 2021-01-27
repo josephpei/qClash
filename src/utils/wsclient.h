@@ -10,13 +10,15 @@ public:
 
 signals:
     void closed();
+    void trafficReceived(const QString& message);
 
 private slots:
     void onConnected();
     void onDisconnected();
-    void onTextMessageReceived(QString message);
+    void onTextMessageReceived(const QString& message);
 
     void reconnect();
+    void reset(const QUrl& url);
 
 private:
     QWebSocket ws;

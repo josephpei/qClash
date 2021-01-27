@@ -6,8 +6,8 @@ WsClient::WsClient(const QUrl& url, QObject* parent)
     , url(url)
 {
     connect(&ws, &QWebSocket::connected, this, &WsClient::onConnected);
-    connect(&ws, &QWebSocket::disconnected, this, &WsClient::closed);
-    ws.open(QUrl(url));
+    connect(&ws, &QWebSocket::disconnected, this, &WsClient::onDisconnected);
+    ws.open(url);
 }
 
 void WsClient::onConnected()
@@ -17,16 +17,24 @@ void WsClient::onConnected()
 
 void WsClient::onDisconnected()
 {
-
+    qDebug() << "ws disconnected";
+    reconnect();
 }
 
-void WsClient::onTextMessageReceived(QString message)
+void WsClient::onTextMessageReceived(const QString& message)
 {
-    qDebug() << "Message received: " << message;
+    // qDebug() << "Message received: " << message;
+    emit trafficReceived(message);
 }
 
 void WsClient::reconnect()
 {
     ws.abort();
-    ws.open(QUrl(url));
+    ws.open(url);
+}
+
+void WsClient::reset(const QUrl& url)
+{
+    ws.abort();
+    ws.open(url);
 }

@@ -74,3 +74,15 @@ void Utility::downloadLatestCountryMMDB(const QNetworkProxy *proxy)
         QFile::copy(filename, oldfile);
     }
 }
+
+QString Utility::netSpeedStr(int n)
+{
+    static QStringList speed = { "B/s", "KB/s", "MB/s", "GB/s" };
+    float f = n;
+    int count = 0;
+    while (f > 1000 && count < speed.size() - 1) {
+        f /= 1024;
+        count++;
+    }
+    return QString::number(f, 'f', 2) + speed.at(count);
+}

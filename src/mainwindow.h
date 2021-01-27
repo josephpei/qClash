@@ -3,6 +3,7 @@
 #include "./dialogs/aboutDialog.h"
 #include "./dialogs/subscribeDialog.h"
 #include "./core/clashCore.h"
+#include "./utils/wsclient.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -55,6 +56,7 @@ private slots:
     void systemProxyChange(bool flag);
     void pageChange(int);
     void fillOverviewPage();
+    void showNetTraffic(const QString& traffic);
 
     void downloadLastestCountryMMDB();
 
@@ -115,5 +117,6 @@ private:
     QPointer<SubscribeDialog> subscribeDialog;
 
     ClashCore &clashCore;
+    WsClient* wsClient;
 };
 #endif // MAINWINDOW_H

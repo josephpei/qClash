@@ -66,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
     fillOverviewPage();
     ui->overviewButton->setChecked(true);
 
+    wsClient = new WsClient(QUrl(QString("ws://127.0.0.1:%1/traffic").arg(configurator.getExternalControlPort())), this);
+    connect(wsClient, &WsClient::trafficReceived, this, &MainWindow::showNetTraffic);
+
     // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
     trayIcon->show();
@@ -430,6 +433,16 @@ void MainWindow::fillOverviewPage()
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
     ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
+}
+
+void MainWindow::showNetTraffic(const QString& traffic)
+{
+    auto doc = QJsonDocument::fromJson(traffic.toUtf8());
+    auto json = doc.object();
+    QString up = Utility::netSpeedStr(json.value("up").toInt());
+    QString down = Utility::netSpeedStr(json.value("down").toInt());
+    QString msg = QString("Up: %1 Down: %2").arg(up).arg(down);
+    ui->statusbar->showMessage(msg);
 }
 
 void MainWindow::downloadLastestCountryMMDB()
