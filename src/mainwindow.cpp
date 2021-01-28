@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , timer(new QTimer)
     , pageButtons(new QButtonGroup)
+    , modeButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
     , configurator(Configurator::instance())
 {
@@ -60,6 +61,12 @@ MainWindow::MainWindow(QWidget *parent)
     });
     // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
 
+    modeButtons->addButton(ui->directButton);
+    modeButtons->addButton(ui->ruleButton);
+    modeButtons->addButton(ui->globalButton);
+    modeButtons->setExclusive(true);
+    // connect(modeButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &MainWindow::btnModeChange);
+
     createActions();
     createTrayIcon();
 
@@ -67,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->overviewButton->setChecked(true);
 
     wsClient = new WsClient(QUrl(QString("ws://127.0.0.1:%1/traffic").arg(configurator.getExternalControlPort())), this);
-    connect(wsClient, &WsClient::trafficReceived, this, &MainWindow::showNetTraffic);
+    connect(wsClient, &WsClient::wsMessageReceived, this, &MainWindow::showNetTraffic);
 
     // connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayActivated);
 
@@ -148,13 +155,14 @@ void MainWindow::createActions()
     modeActionsGroup->addAction(proxyGlobalMode);
     modeActionsGroup->addAction(proxyRuleMode);
     modeActionsGroup->addAction(proxyDirectMode);
-    if (modeSaved == "global")
+    if (modeSaved == "global") {
         proxyGlobalMode->setChecked(true);
-    else if (modeSaved == "rule")
+    } else if (modeSaved == "rule") {
         proxyRuleMode->setChecked(true);
-    else if (modeSaved == "direct")
+    } else if (modeSaved == "direct") {
         proxyDirectMode->setChecked(true);
-    connect(modeActionsGroup, SIGNAL(triggered(QAction *)), SLOT(modeChange(QAction *)));
+    }
+    connect(modeActionsGroup, SIGNAL(triggered(QAction*)), SLOT(modeChange(QAction*)));
 
     setAsSystemProxy = new QAction(tr("Set as system proxy"), this);
     setAsSystemProxy->setCheckable(true);
@@ -190,7 +198,7 @@ void MainWindow::createActions()
 
     about = new QAction(tr("About"), this);
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
-    
+
     checkUpdate = new QAction(tr("Check Update"), this);
     connect(checkUpdate, &QAction::triggered, this, &MainWindow::checkLatestRelease);
 }
@@ -321,6 +329,20 @@ void MainWindow::updateSubActions()
         subActions[i + 1]->setVisible(false);
 }
 
+void MainWindow::updateSubComboBox()
+{
+    QList<Subscribe> subs = configurator.getSubscribes();
+    Subscribe currSub = configurator.getCurrentConfig();
+    int index = -1;
+    ui->configComboBox->clear();
+    for (int i = 0; i < subs.size(); ++i) {
+        ui->configComboBox->addItem(subs[i].name, subs[i].name);
+        if (currSub.name == subs[i].name)
+            index = i;
+    }
+    ui->configComboBox->setCurrentIndex(index);
+}
+
 void MainWindow::systemProxyChange(bool flag)
 {
     configurator.setSystemProxy(flag);
@@ -377,6 +399,7 @@ void MainWindow::autoUpdateSubConfigChange(bool autoUpdate)
 
 void MainWindow::allowLanChange(bool flag)
 {
+    ui->allowLanCheckBox->setChecked(flag);
     configurator.setAllowLan(flag);
     ClashApi::setAllowLan(flag);
 }
@@ -386,17 +409,23 @@ void MainWindow::configChange(QAction *action)
     // if (const QAction *action = qobject_cast<const QAction *>(sender())) {
     QString name = action->data().toString();
     qDebug() << "Current config: " << name;
+    doConfigChange(name);
+    // }
+}
+
+void MainWindow::doConfigChange(const QString& name)
+{
     configurator.setCurrentConfig(configurator.getSubscribeByName(name));
     QString configFilePath = configurator.getClashConfigPath(name);
     clashCore.restart(configFilePath);
     proxyGroupMenusChange();
     fillOverviewPage();
-    // }
 }
 
 void MainWindow::modeChange(QAction *action)
 {
     QString mode = action->data().toString();
+    modeButtons->buttons()[PROXYMODE2INT[mode].toInt()]->setChecked(true);
     configurator.setMode(mode);
     ClashApi::setMode(mode);
 }
@@ -428,6 +457,8 @@ void MainWindow::pageChange(int id)
 
 void MainWindow::fillOverviewPage()
 {
+    updateSubComboBox();
+    modeButtons->buttons()[PROXYMODE2INT[configurator.getMode()].toInt()]->setChecked(true);
     ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
     ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
@@ -483,6 +514,7 @@ void MainWindow::showSubscribeDialog()
     else {
         subscribeDialog = new SubscribeDialog(this);
         connect(subscribeDialog, SIGNAL(subscribesUpdated()), SLOT(proxyGroupMenusChange()));
+        connect(subscribeDialog, SIGNAL(newSubscribeAdded()), SLOT(updateSubComboBox()));
         subscribeDialog->exec();
     }
 }

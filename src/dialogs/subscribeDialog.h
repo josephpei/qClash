@@ -26,6 +26,7 @@ public:
 
 signals:
     void subscribesUpdated();
+    void newSubscribeAdded();
 
 private slots:
     void showSubNewDlg();

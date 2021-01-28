@@ -14,6 +14,8 @@ enum ProxyType {
 };
 
 extern QJsonObject LOGLEVEL2INT;
+extern QString INT2PROXYMODE[3];
+extern QJsonObject PROXYMODE2INT;
 
 QString jsonToString(const QJsonObject& json);
 QJsonObject stringToJson(const QString& str);

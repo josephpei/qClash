@@ -89,6 +89,8 @@ void SubscribeDialog::addSubscribe(const Subscribe& newSubscribe)
     item << new QStandardItem(subName) << new QStandardItem(subUrl)
          << new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss"));
     model->appendRow(item);
+
+    emit newSubscribeAdded();
 }
 
 void SubscribeDialog::delSubscribe()

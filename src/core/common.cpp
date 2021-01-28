@@ -8,6 +8,18 @@ QJsonObject LOGLEVEL2INT{
     {"silent", 4}
 };
 
+QString INT2PROXYMODE[3] {
+    "global",
+    "rule",
+    "direct"
+};
+
+QJsonObject PROXYMODE2INT {
+    {"global", 0},
+    {"rule", 1},
+    {"direct", 2}
+};
+
 QString jsonToString(const QJsonObject &json)
 {
     return QString(QJsonDocument(json).toJson(QJsonDocument::Compact));

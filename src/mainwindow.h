@@ -42,6 +42,7 @@ private slots:
 
     void showSubscribeDialog();
     void updateSubActions();
+    void updateSubComboBox();
 
     void copyShellCommandClipboard();
     void updateSubscribes();
@@ -65,6 +66,7 @@ private:
 
 private:
     void initClash();
+    void doConfigChange(const QString& name);
 
 private:
     Configurator& configurator;
@@ -112,6 +114,7 @@ private:
     QMenu *proxyGroupMenus[MaxMenu];
 
     QButtonGroup *pageButtons;
+    QButtonGroup* modeButtons;
 
     QPointer<AboutDialog> aboutDialog;
     QPointer<SubscribeDialog> subscribeDialog;

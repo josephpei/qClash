@@ -10,7 +10,7 @@ public:
 
 signals:
     void closed();
-    void trafficReceived(const QString& message);
+    void wsMessageReceived(const QString& message);
 
 private slots:
     void onConnected();

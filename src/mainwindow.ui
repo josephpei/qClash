@@ -109,57 +109,99 @@
             <item>
              <layout class="QFormLayout" name="formLayout">
               <item row="1" column="0">
+               <widget class="QLabel" name="configLabel">
+                <property name="text">
+                 <string>Config</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="configComboBox"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="modeLabel">
+                <property name="text">
+                 <string>Proxy Mode</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <layout class="QHBoxLayout" name="modeHLayout">
+                <item>
+                 <widget class="QRadioButton" name="directButton">
+                  <property name="text">
+                   <string>Global</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="ruleButton">
+                  <property name="text">
+                   <string>Rule</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="globalButton">
+                  <property name="text">
+                   <string>Direct</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="0">
                <widget class="QLabel" name="httpPortLabel">
                 <property name="text">
                  <string>Http Port</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
+              <item row="3" column="1">
                <widget class="QLineEdit" name="httpPortLineEdit"/>
               </item>
-              <item row="2" column="0">
+              <item row="4" column="0">
                <widget class="QLabel" name="socksPortLabel">
                 <property name="text">
                  <string>Socks Port</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
+              <item row="4" column="1">
                <widget class="QLineEdit" name="socksPortLineEdit"/>
               </item>
-              <item row="3" column="0">
+              <item row="5" column="0">
                <widget class="QLabel" name="exCtrlPortLabel">
                 <property name="text">
                  <string>Ex Ctronller Port</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="5" column="1">
                <widget class="QLineEdit" name="exCtrlPortLineEdit"/>
               </item>
-              <item row="4" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="allowLanLabel">
                 <property name="text">
                  <string>Allow LAN</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="6" column="1">
                <widget class="QCheckBox" name="allowLanCheckBox">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="logLevelLabel">
                 <property name="text">
                  <string>Log Level</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
+              <item row="7" column="1">
                <widget class="QComboBox" name="logLevelComboBox">
                 <item>
                  <property name="text">
@@ -186,6 +228,13 @@
                   <string>silent</string>
                  </property>
                 </item>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QLabel" name="instructionLabel">
+                <property name="text">
+                 <string>This page just display parameters, please use tray menu to control!</string>
+                </property>
                </widget>
               </item>
              </layout>

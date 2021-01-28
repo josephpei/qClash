@@ -24,7 +24,7 @@ void WsClient::onDisconnected()
 void WsClient::onTextMessageReceived(const QString& message)
 {
     // qDebug() << "Message received: " << message;
-    emit trafficReceived(message);
+    emit wsMessageReceived(message);
 }
 
 void WsClient::reconnect()
