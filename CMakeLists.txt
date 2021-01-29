@@ -73,6 +73,8 @@ set(${PROJECT_NAME}_SOURCES
   src/core/clashApi.cpp
   src/core/common.h
   src/core/common.cpp
+  src/widgets/flowlayout.h
+  src/widgets/flowlayout.cpp
   src/dialogs/subscribeDialog.h
   src/dialogs/subscribeDialog.cpp
   src/dialogs/subscribeNewDialog.cpp

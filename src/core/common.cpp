@@ -1,5 +1,13 @@
 #include "common.h"
 
+QString INT2LOGLEVEL[5] {
+    "info",
+    "warning",
+    "error",
+    "debug",
+    "silent"
+};
+
 QJsonObject LOGLEVEL2INT{
     {"info", 0},
     {"warning", 1},

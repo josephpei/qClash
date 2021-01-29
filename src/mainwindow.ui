@@ -116,7 +116,39 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="configComboBox"/>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QComboBox" name="configComboBox"/>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="configManageButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>28</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset theme="document-send"/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="modeLabel">
@@ -128,7 +160,7 @@
               <item row="2" column="1">
                <layout class="QHBoxLayout" name="modeHLayout">
                 <item>
-                 <widget class="QRadioButton" name="directButton">
+                 <widget class="QRadioButton" name="globalButton">
                   <property name="text">
                    <string>Global</string>
                   </property>
@@ -142,7 +174,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="globalButton">
+                 <widget class="QRadioButton" name="directButton">
                   <property name="text">
                    <string>Direct</string>
                   </property>
@@ -230,32 +262,11 @@
                 </item>
                </widget>
               </item>
-              <item row="8" column="1">
-               <widget class="QLabel" name="instructionLabel">
-                <property name="text">
-                 <string>This page just display parameters, please use tray menu to control!</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="proxies">
-           <widget class="QLabel" name="label">
-            <property name="geometry">
-             <rect>
-              <x>30</x>
-              <y>10</y>
-              <width>71</width>
-              <height>18</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Proxies List</string>
-            </property>
-           </widget>
-          </widget>
+          <widget class="QWidget" name="proxies"/>
          </widget>
         </item>
        </layout>

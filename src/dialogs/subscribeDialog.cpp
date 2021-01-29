@@ -90,7 +90,7 @@ void SubscribeDialog::addSubscribe(const Subscribe& newSubscribe)
          << new QStandardItem(newSubscribe.updateTime.toString("yyyy-MM-dd hh:mm:ss"));
     model->appendRow(item);
 
-    emit newSubscribeAdded();
+    emit subscribeAdded(newSubscribe);
 }
 
 void SubscribeDialog::delSubscribe()
@@ -100,11 +100,14 @@ void SubscribeDialog::delSubscribe()
         return;
     auto *model = (QStandardItemModel*)this->tableView->model();
 
-    QList<Subscribe> subscribes = configurator.getSubscribes();
-    subscribes.removeAt(index.row() + 1);
-    configurator.setSubscribes(subscribes);
+    // QList<Subscribe> subscribes = configurator.getSubscribes();
+    // subscribes.removeAt(index.row() + 1);
+    // configurator.setSubscribes(subscribes);
+    Subscribe subscribe = configurator.delSubscribeByIndex(index.row() + 1);
 
     model->removeRow(index.row());
+
+    emit subscribeDeleted(index.row() + 1);
 }
 
 void SubscribeDialog::updateSubscribes()

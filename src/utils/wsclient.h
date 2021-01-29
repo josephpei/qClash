@@ -19,6 +19,7 @@ private slots:
 
     void reconnect();
     void reset(const QUrl& url);
+    void abort();
 
 private:
     QWebSocket ws;

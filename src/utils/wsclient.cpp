@@ -38,3 +38,8 @@ void WsClient::reset(const QUrl& url)
     ws.abort();
     ws.open(url);
 }
+
+void WsClient::abort()
+{
+    ws.abort();
+}

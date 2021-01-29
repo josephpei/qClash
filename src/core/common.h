@@ -13,6 +13,7 @@ enum ProxyType {
     TROJAN
 };
 
+extern QString INT2LOGLEVEL[5];
 extern QJsonObject LOGLEVEL2INT;
 extern QString INT2PROXYMODE[3];
 extern QJsonObject PROXYMODE2INT;

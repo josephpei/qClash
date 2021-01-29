@@ -4,6 +4,7 @@
 #include "./dialogs/subscribeDialog.h"
 #include "./core/clashCore.h"
 #include "./utils/wsclient.h"
+#include "./widgets/flowlayout.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -42,21 +43,27 @@ private slots:
 
     void showSubscribeDialog();
     void updateSubActions();
-    void updateSubComboBox();
+    void initConfigComboBox();
+    void configComboBoxAdd(const Subscribe& subscribe);
+    void configComboBoxDel(int index);
 
     void copyShellCommandClipboard();
     void updateSubscribes();
 
     void proxyGroupMenusChange();
     void modeChange(QAction *);
-    void configChange(QAction *);
-    void proxyChange(QAction *);
+    void modeChange(int index);
+    void configChange(QAction*);
+    void configChange(int index);
+    void proxyChange(QAction*);
     void startAtLoginChange(bool autoStart);
     void autoUpdateSubConfigChange(bool autoUpdate);
     void allowLanChange(bool flag);
     void systemProxyChange(bool flag);
+    void logLevelChange(int index);
     void pageChange(int);
     void fillOverviewPage();
+    void reloadProxiesPage();
     void showNetTraffic(const QString& traffic);
 
     void downloadLastestCountryMMDB();
@@ -66,10 +73,15 @@ private:
 
 private:
     void initClash();
+    void setupMainWindow();
+    void setupProxiesPage();
     void doConfigChange(const QString& name);
 
 private:
     Configurator& configurator;
+    QJsonObject proxies;
+    bool configHasChanged;
+    QVBoxLayout* proxiesLayout;
 
     QTimer* timer;
 

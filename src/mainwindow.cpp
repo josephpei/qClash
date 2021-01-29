@@ -19,6 +19,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QSignalBlocker>
+#include <QScrollArea>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -29,49 +30,15 @@ MainWindow::MainWindow(QWidget *parent)
     , modeButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
     , configurator(Configurator::instance())
+    , configHasChanged(true)
+    , proxiesLayout(nullptr)
 {
     initClash();
 
-    int fontId = QFontDatabase::addApplicationFont(":/forkawesome.ttf");
-    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
-    qDebug() << "fontFamilies size: " << fontFamilies.size();
-    QFont font;
-    font.setFamily(fontFamilies.at(0));
-    font.setPointSize(16);
-    // font.setFamily("forkawesome");
-    // font.setPixelSize(32);
-
-    ui->setupUi(this);
-
-    QPixmap logo(":/assets/icons/qClash.png");
-    ui->logoLabel->setPixmap(logo);
-
-    ui->overviewButton->setFont(font);
-    QString overviewStr = QString("%1 %2").arg(ICON_FK_TACHOMETER).arg(tr("Overview"));
-    ui->overviewButton->setText(overviewStr);
-    pageButtons->addButton(ui->overviewButton);
-    ui->proxiesButton->setFont(font);
-    QString proxiesStr = QString("%1 %2").arg(ICON_FK_PAPER_PLANE).arg(tr("Proxies"));
-    ui->proxiesButton->setText(proxiesStr);
-    pageButtons->addButton(ui->proxiesButton);
-
-    pageButtons->setExclusive(true);
-    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), [=](int id) {
-        ui->stackedWidget->setCurrentIndex(qAbs(id) - 2);
-    });
-    // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
-
-    modeButtons->addButton(ui->directButton);
-    modeButtons->addButton(ui->ruleButton);
-    modeButtons->addButton(ui->globalButton);
-    modeButtons->setExclusive(true);
-    // connect(modeButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &MainWindow::btnModeChange);
+    setupMainWindow();
 
     createActions();
     createTrayIcon();
-
-    fillOverviewPage();
-    ui->overviewButton->setChecked(true);
 
     wsClient = new WsClient(QUrl(QString("ws://127.0.0.1:%1/traffic").arg(configurator.getExternalControlPort())), this);
     connect(wsClient, &WsClient::wsMessageReceived, this, &MainWindow::showNetTraffic);
@@ -207,7 +174,7 @@ void MainWindow::proxyGroupMenusChange()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
     YAML::Node root = configurator.loadClashConfig(subscribe.name);
-    QJsonObject proxies = ClashApi::getProxies();
+    proxies = ClashApi::getProxies();
     QJsonObject proxyGroupsRule = configurator.getProxyGroupsRule(subscribe.name);
     int i = 0;
     for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
@@ -329,7 +296,7 @@ void MainWindow::updateSubActions()
         subActions[i + 1]->setVisible(false);
 }
 
-void MainWindow::updateSubComboBox()
+void MainWindow::initConfigComboBox()
 {
     QList<Subscribe> subs = configurator.getSubscribes();
     Subscribe currSub = configurator.getCurrentConfig();
@@ -343,6 +310,15 @@ void MainWindow::updateSubComboBox()
     ui->configComboBox->setCurrentIndex(index);
 }
 
+void MainWindow::configComboBoxAdd(const Subscribe& subscribe)
+{
+    ui->configComboBox->addItem(subscribe.name, subscribe.name);
+}
+
+void MainWindow::configComboBoxDel(int index)
+{
+    ui->configComboBox->removeItem(index);
+}
 void MainWindow::systemProxyChange(bool flag)
 {
     configurator.setSystemProxy(flag);
@@ -399,9 +375,18 @@ void MainWindow::autoUpdateSubConfigChange(bool autoUpdate)
 
 void MainWindow::allowLanChange(bool flag)
 {
-    ui->allowLanCheckBox->setChecked(flag);
+    if (ui->allowLanCheckBox->isChecked() != flag)
+        ui->allowLanCheckBox->setChecked(flag);
+    if (allowLan->isChecked() != flag)
+        allowLan->setChecked(flag);
     configurator.setAllowLan(flag);
     ClashApi::setAllowLan(flag);
+}
+
+void MainWindow::logLevelChange(int index)
+{
+    qDebug() << "Curent log level: " << INT2LOGLEVEL[index];
+    ClashApi::setLogLevel(INT2LOGLEVEL[index]);
 }
 
 void MainWindow::configChange(QAction *action)
@@ -413,6 +398,12 @@ void MainWindow::configChange(QAction *action)
     // }
 }
 
+void MainWindow::configChange(int index)
+{
+    qDebug() << "Current config: " << ui->configComboBox->itemText(index);
+    doConfigChange(ui->configComboBox->itemText(index));
+}
+
 void MainWindow::doConfigChange(const QString& name)
 {
     configurator.setCurrentConfig(configurator.getSubscribeByName(name));
@@ -420,14 +411,38 @@ void MainWindow::doConfigChange(const QString& name)
     clashCore.restart(configFilePath);
     proxyGroupMenusChange();
     fillOverviewPage();
+    reloadProxiesPage();
 }
 
 void MainWindow::modeChange(QAction *action)
 {
     QString mode = action->data().toString();
+    qDebug() << "Current mode: " << mode;
     modeButtons->buttons()[PROXYMODE2INT[mode].toInt()]->setChecked(true);
     configurator.setMode(mode);
     ClashApi::setMode(mode);
+}
+
+void MainWindow::modeChange(int index)
+{
+    qDebug() << "Current mode: " << INT2PROXYMODE[index];
+    configurator.setMode(INT2PROXYMODE[index]);
+    ClashApi::setMode(INT2PROXYMODE[index]);
+    switch (index)
+    {
+    case 0:
+        proxyGlobalMode->setChecked(true);
+        break;
+    case 1:
+        proxyRuleMode->setChecked(true);
+        break;
+    case 2:
+        proxyDirectMode->setChecked(true);
+        break;
+
+    default:
+        break;
+    }
 }
 
 void MainWindow::proxyChange(QAction *action)
@@ -455,14 +470,110 @@ void MainWindow::pageChange(int id)
     // }
 }
 
+void MainWindow::setupMainWindow()
+{
+    int fontId = QFontDatabase::addApplicationFont(":/forkawesome.ttf");
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    // qDebug() << "fontFamilies size: " << fontFamilies.size();
+    QFont font;
+    font.setFamily(fontFamilies.at(0));
+    font.setPointSize(16);
+    // font.setFamily("forkawesome");
+    // font.setPixelSize(32);
+
+    ui->setupUi(this);
+
+    QPixmap logo(":/assets/icons/qClash.png");
+    ui->logoLabel->setPixmap(logo);
+
+    ui->overviewButton->setFont(font);
+    QString overviewStr = QString("%1 %2").arg(ICON_FK_TACHOMETER).arg(tr("Overview"));
+    ui->overviewButton->setText(overviewStr);
+    pageButtons->addButton(ui->overviewButton, 0);
+    ui->proxiesButton->setFont(font);
+    QString proxiesStr = QString("%1 %2").arg(ICON_FK_PAPER_PLANE).arg(tr("Proxies"));
+    ui->proxiesButton->setText(proxiesStr);
+    pageButtons->addButton(ui->proxiesButton, 1);
+
+    pageButtons->setExclusive(true);
+    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), [=](int id) {
+        ui->stackedWidget->setCurrentIndex(id);
+    });
+    // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
+
+    modeButtons->addButton(ui->globalButton, 0);
+    modeButtons->addButton(ui->ruleButton, 1);
+    modeButtons->addButton(ui->directButton, 2);
+    modeButtons->setExclusive(true);
+    connect(modeButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, QOverload<int>::of(&MainWindow::modeChange));
+
+    initConfigComboBox();
+    fillOverviewPage();
+    setupProxiesPage();
+    ui->overviewButton->setChecked(true);
+    connect(ui->configComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, QOverload<int>::of(&MainWindow::configChange));
+    
+    connect(ui->configManageButton, &QPushButton::clicked, this, &MainWindow::showSubscribeDialog);
+
+    connect(ui->allowLanCheckBox, &QCheckBox::stateChanged, this, &MainWindow::allowLanChange);
+
+    connect(ui->logLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::logLevelChange);
+}
+
+void MainWindow::setupProxiesPage()
+{
+    QVBoxLayout* vLayout = new QVBoxLayout();
+    QScrollArea* scrollArea = new QScrollArea(ui->proxies);
+    QWidget* scrollWidget = new QWidget(scrollArea);
+    // proxiesLayout = new FlowLayout(scrollWidget);
+    proxiesLayout = new QVBoxLayout(scrollWidget);
+    proxies = ClashApi::getProxies();
+    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
+        QString name = it.key();
+        QJsonObject obj = it.value().toObject();
+        QString type = obj.value("type").toString();
+        if (type == "Shadowsocks" || type == "Vmess") {
+            QString text = name + "\n" + obj.value("type").toString();
+            proxiesLayout->addWidget(new QPushButton(text));
+        }
+    }
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(scrollWidget);
+    vLayout->addWidget(scrollArea);
+    ui->proxies->setLayout(vLayout);
+}
+
+void MainWindow::reloadProxiesPage()
+{
+    qDebug() << "Reload proxies page";
+    QLayoutItem* item;
+    while ((item = proxiesLayout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+    proxiesLayout->update();
+    // proxies = ClashApi::getProxies();
+    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
+        QString name = it.key();
+        QJsonObject obj = it.value().toObject();
+        QString type = obj.value("type").toString();
+        if (type == "Shadowsocks" || type == "Vmess") {
+            QString text = name + "\n" + obj.value("type").toString();
+            proxiesLayout->addWidget(new QPushButton(text));
+        }
+    }
+    // proxiesLayout->update();
+}
+
 void MainWindow::fillOverviewPage()
 {
-    updateSubComboBox();
+    // updateSubComboBox();
     modeButtons->buttons()[PROXYMODE2INT[configurator.getMode()].toInt()]->setChecked(true);
     ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
     ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
+    QSignalBlocker logBlocker(ui->logLevelComboBox);
     ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
 }
 
@@ -514,7 +625,8 @@ void MainWindow::showSubscribeDialog()
     else {
         subscribeDialog = new SubscribeDialog(this);
         connect(subscribeDialog, SIGNAL(subscribesUpdated()), SLOT(proxyGroupMenusChange()));
-        connect(subscribeDialog, SIGNAL(newSubscribeAdded()), SLOT(updateSubComboBox()));
+        connect(subscribeDialog, SIGNAL(subscribeAdded(const Subscribe&)), SLOT(configComboBoxAdd(const Subscribe&)));
+        connect(subscribeDialog, SIGNAL(subscribeDeleted(int)), SLOT(configComboBoxDel(int)));
         subscribeDialog->exec();
     }
 }

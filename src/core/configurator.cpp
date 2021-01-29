@@ -131,6 +131,18 @@ Subscribe Configurator::getSubscribeByName(const QString& name)
     return Subscribe("config");
 }
 
+Subscribe Configurator::delSubscribeByIndex(int index)
+{
+    QList<Subscribe> subscribes = getSubscribes();
+    Subscribe sub = subscribes[index];
+    QString file = getClashConfigPath(sub.name);
+    if (QFile::exists(file))
+        QFile::remove(file);
+    subscribes.removeAt(index);
+    setSubscribes(subscribes);
+    return sub;
+}
+
 QJsonObject Configurator::getProxyGroupsRule(const QString& name)
 {
     proxyGroups = QJsonDocument::fromJson(loadValue("proxyGroupsRule").toString().toUtf8()).object();

@@ -38,6 +38,7 @@ public:
     Subscribe getCurrentConfig();
     void setCurrentConfig(const Subscribe& subscribe);
     Subscribe getSubscribeByName(const QString &name);
+    Subscribe delSubscribeByIndex(int index);
 
     QJsonObject getProxyGroupsRule(const QString& name);
     void setProxyGroupsRule(const QString& name, const QString& group, const QString& proxy);
