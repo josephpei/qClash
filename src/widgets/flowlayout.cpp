@@ -63,9 +63,8 @@ QLayoutItem *FlowLayout::takeAt(int index)
 
 void FlowLayout::clear()
 {
-    for (int i = 0; i < itemList.size(); ++i) {
-        auto item = takeAt(i);
-        item->widget()->hide();
+    QLayoutItem* item;
+    while ((item = itemList.takeAt(0)) != nullptr) {
         delete item->widget();
         delete item;
     }

@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QStandardPaths>
+#include <QTcpServer>
 
 HttpUtil &Utility::http = HttpUtil::instance();
 
@@ -85,4 +86,15 @@ QString Utility::netSpeedStr(int n)
         count++;
     }
     return QString::number(f, 'f', 2) + speed.at(count);
+}
+
+bool Utility::isPortUsed(int port)
+{
+    auto server = new QTcpServer;
+    bool result = true;
+    if (server->listen(QHostAddress::Any, port)) {
+        result = false;
+    }
+    server->close();
+    return result;
 }

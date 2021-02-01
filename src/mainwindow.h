@@ -72,7 +72,7 @@ private:
     Ui::MainWindow *ui;
 
 private:
-    void initClash();
+    bool initClash();
     void setupMainWindow();
     void setupProxiesPage();
     void doConfigChange(const QString& name);
@@ -81,7 +81,8 @@ private:
     Configurator& configurator;
     QJsonObject proxies;
     bool configHasChanged;
-    QVBoxLayout* proxiesLayout;
+    // QVBoxLayout* proxiesLayout;
+    FlowLayout* proxiesLayout;
 
     QTimer* timer;
 

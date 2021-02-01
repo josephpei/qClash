@@ -16,4 +16,6 @@ public:
     static void downloadLatestCountryMMDB(const QNetworkProxy* proxy);
 
     static QString netSpeedStr(int n);
+
+    static bool isPortUsed(int port);
 };

@@ -33,7 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
     , configHasChanged(true)
     , proxiesLayout(nullptr)
 {
-    initClash();
+    if (!initClash()) {
+        QMessageBox::critical(nullptr, "Port is used!", "socks or http port is used, please check whether another clash is running!");
+        ::exit(1);
+    }
 
     setupMainWindow();
 
@@ -75,7 +78,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::initClash()
+bool MainWindow::initClash()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
     try {
@@ -90,6 +93,11 @@ void MainWindow::initClash()
         QMessageBox::warning(this, "Config File Syntax Error", QString(error.msg.c_str()));
         QApplication::quit();
     }
+    // test port is used
+    if (Utility::isPortUsed(configurator.getSocksPort()) || Utility::isPortUsed(configurator.getHttpPort())) {
+        return false;
+    }
+
     QString configFilePath = Configurator::getClashConfigPath(subscribe.name);
     clashCore.start(configFilePath);
     qDebug() << "Current configs: " << ClashApi::getConfigs();
@@ -97,6 +105,7 @@ void MainWindow::initClash()
 
     connect(timer, &QTimer::timeout, this, &MainWindow::updateSubscribes);
     timer->start(12*60*60*1000);
+    return true;
 }
 
 void MainWindow::createActions()
@@ -525,8 +534,8 @@ void MainWindow::setupProxiesPage()
     QVBoxLayout* vLayout = new QVBoxLayout();
     QScrollArea* scrollArea = new QScrollArea(ui->proxies);
     QWidget* scrollWidget = new QWidget(scrollArea);
-    // proxiesLayout = new FlowLayout(scrollWidget);
-    proxiesLayout = new QVBoxLayout(scrollWidget);
+    proxiesLayout = new FlowLayout(scrollWidget);
+    // proxiesLayout = new QVBoxLayout(scrollWidget);
     proxies = ClashApi::getProxies();
     for (auto it = proxies.begin(); it != proxies.end(); ++it) {
         QString name = it.key();
