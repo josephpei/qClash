@@ -17,7 +17,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Options are: None, Debug, Release, RelWithDebInfo, MinSizeRel." FORCE)
 endif()
 
-project(qClash VERSION 0.1.3)
+project(qClash VERSION 0.2.0)
 
 if (DEFINED VERSION_SUFIX AND NOT "${VERSION_SUFIX}" STREQUAL "")
     set(QCLASH_VERSION_SUFIX "-${VERSION_SUFIX}")
