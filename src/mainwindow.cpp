@@ -284,7 +284,7 @@ void MainWindow::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayMenu);
-    trayIcon->setIcon(QIcon(":/assets/icons/qClash.svg"));
+    trayIcon->setIcon(QIcon(":/assets/icons/qClash.png"));
 }
 
 void MainWindow::updateSubActions()
