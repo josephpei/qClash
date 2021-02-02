@@ -42,6 +42,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     createActions();
     createTrayIcon();
+    connect(trayIcon, &QSystemTrayIcon::activated, [=](QSystemTrayIcon::ActivationReason reason) {
+        switch (reason)
+        {
+        case QSystemTrayIcon::Trigger:
+            showMainWindow();
+            break;
+
+        default:
+            break;
+        }
+    });
 
     wsClient = new WsClient(QUrl(QString("ws://127.0.0.1:%1/traffic").arg(configurator.getExternalControlPort())), this);
     connect(wsClient, &WsClient::wsMessageReceived, this, &MainWindow::showNetTraffic);
@@ -63,6 +74,9 @@ void MainWindow::showMainWindow()
 {
     if (!isVisible())
         show();
+    setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+    raise();
+    activateWindow();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -619,7 +633,13 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::checkLatestRelease()
 {
-    QString version = Utility::getLatestVersion();
+    QNetworkProxy proxy;
+    if (clashCore.isRunning()) {
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName("127.0.0.1");
+        proxy.setPort(configurator.getHttpPort());
+    }
+    QString version = Utility::getLatestVersion(&proxy);
     if (Utility::isVersionNewer(QCLASH_VERSION, version)) {
         QMessageBox::information(this, "Latest Version", QString("Found newer version %1").arg(version));
     } else {

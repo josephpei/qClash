@@ -10,10 +10,10 @@ private:
     static QList<int> getVersion(QString version);
 
 public:
-    static QString getLatestVersion();
+    static QString getLatestVersion(const QNetworkProxy* proxy = nullptr);
     static bool isVersionNewer(const QString& currentVersion, const QString& version);
 
-    static void downloadLatestCountryMMDB(const QNetworkProxy* proxy);
+    static void downloadLatestCountryMMDB(const QNetworkProxy* proxy = nullptr);
 
     static QString netSpeedStr(int n);
 

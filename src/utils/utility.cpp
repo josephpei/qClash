@@ -9,10 +9,10 @@
 
 HttpUtil &Utility::http = HttpUtil::instance();
 
-QString Utility::getLatestVersion()
+QString Utility::getLatestVersion(const QNetworkProxy* proxy)
 {
     QString url("https://api.github.com/repos/josephpei/qClash/releases");
-    QByteArray releaseJsonStr = http.get(url);
+    QByteArray releaseJsonStr = http.get(url, 5000, proxy);
     if (releaseJsonStr.isEmpty())
         return QString();
     QJsonObject latestRelease;

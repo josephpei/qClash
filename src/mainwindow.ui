@@ -144,7 +144,8 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="document-send"/>
+                   <iconset theme="document-send">
+                    <normaloff>.</normaloff>.</iconset>
                   </property>
                  </widget>
                 </item>
@@ -205,7 +206,7 @@
               <item row="5" column="0">
                <widget class="QLabel" name="exCtrlPortLabel">
                 <property name="text">
-                 <string>Ex Ctronller Port</string>
+                 <string>Ex Controller Port</string>
                 </property>
                </widget>
               </item>
