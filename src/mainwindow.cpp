@@ -113,7 +113,10 @@ bool MainWindow::initClash()
     }
 
     QString configFilePath = Configurator::getClashConfigPath(subscribe.name);
-    clashCore.start(configFilePath);
+    if (!clashCore.start(configFilePath)) {
+        QMessageBox::critical(nullptr, "Clash Not Found!", "Please add clash to your path!");
+        ::exit(1);
+    }
     qDebug() << "Current configs: " << ClashApi::getConfigs();
     ClashApi::setSecret(configurator.getSecret());
 
