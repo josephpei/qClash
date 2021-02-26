@@ -211,7 +211,9 @@ void MainWindow::proxyGroupMenusChange()
         if (proxyGroupsRule.contains(groupName)) {
             selectProxy = proxyGroupsRule[groupName].toString();
         }
-        proxyGroupMenus[i]->setTitle(groupName);
+        QString groupProxyName = selectProxy.size() > 10 ? selectProxy.left(10) + "..." : selectProxy;
+        proxyGroupMenus[i]->setTitle(groupName + "\t" + groupProxyName);
+        // proxyGroupMenus[i]->setToolTip(selectProxy);
         proxyGroupMenus[i]->menuAction()->setVisible(true);
         proxyGroupMenus[i]->clear();
         QActionGroup *actions = new QActionGroup(proxyGroupMenus[i]);
@@ -478,9 +480,10 @@ void MainWindow::proxyChange(QAction *action)
     QWidget *widget = action->parentWidget();
     if (widget) {
         QMenu *menu = qobject_cast<QMenu *>(widget);
-        qDebug() << "Current group: " << menu->title();
-        ClashApi::setGroupProxy(menu->title(), proxyName);
-        configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, menu->title(), proxyName);
+        QString group = menu->title().split('\t')[0];
+        qDebug() << "Current group: " << group;
+        ClashApi::setGroupProxy(group, proxyName);
+        configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, group, proxyName);
     }
 }
 
