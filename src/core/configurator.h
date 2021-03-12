@@ -54,6 +54,8 @@ public:
 
     QString getSecret();
 
+    QDateTime getUpdateTime();
+
     QMap<QString, QString> diffConfigs();
     void setMode(const QString& mode);
     QString getMode();

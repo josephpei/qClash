@@ -84,13 +84,13 @@ private:
     // QVBoxLayout* proxiesLayout;
     FlowLayout* proxiesLayout;
 
-    QTimer* timer;
+    QTimer* periodicTimer;
+    QTimer* startTimer;
 
     void createActions();
     void createTrayIcon();
 
     // tray menus & actions
-    QAction *mainWindowAction;
     QAction *quitAction;
 
     QActionGroup *modeActionsGroup;

@@ -25,7 +25,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , timer(new QTimer)
+    , periodicTimer(new QTimer)
+    , startTimer(new QTimer)
     , pageButtons(new QButtonGroup)
     , modeButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
@@ -120,16 +121,17 @@ bool MainWindow::initClash()
     qDebug() << "Current configs: " << ClashApi::getConfigs();
     ClashApi::setSecret(configurator.getSecret());
 
-    connect(timer, &QTimer::timeout, this, &MainWindow::updateSubscribes);
-    timer->start(12*60*60*1000);
+    connect(periodicTimer, &QTimer::timeout, this, &MainWindow::updateSubscribes);
+    periodicTimer->start(12*60*60*1000);
+
+    if (configurator.getUpdateTime().secsTo(QDateTime::currentDateTime()) > 24*60*60) {
+        startTimer->singleShot(10 * 1000, this, SLOT(updateSubscribes()));
+    }
     return true;
 }
 
 void MainWindow::createActions()
 {
-    mainWindowAction = new QAction(tr("Show MainWindow"), this);
-    connect(mainWindowAction, &QAction::triggered, this, &MainWindow::showMainWindow);
-
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
@@ -298,7 +300,6 @@ void MainWindow::createTrayIcon()
     trayMenu->addMenu(helpMenu);
     trayMenu->addSeparator();
 
-    trayMenu->addAction(mainWindowAction);
     trayMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);
@@ -393,11 +394,11 @@ void MainWindow::autoUpdateSubConfigChange(bool autoUpdate)
 {
     configurator.setAutoUpdate(autoUpdate);
     if (autoUpdate) {
-        if (!timer->isActive())
-            timer->start();
+        if (!periodicTimer->isActive())
+            periodicTimer->start();
     } else {
-        if (timer->isActive())
-            timer->stop();
+        if (periodicTimer->isActive())
+            periodicTimer->stop();
     }
 }
 
@@ -423,6 +424,15 @@ void MainWindow::configChange(QAction *action)
     QString name = action->data().toString();
     qDebug() << "Current config: " << name;
     doConfigChange(name);
+    QList<Subscribe> subscribes = configurator.getSubscribes();
+    int i = 0;
+    for (; i < subscribes.size(); ++i)  {
+        if (subscribes[i].name == name)
+            break;
+    }
+    ui->configComboBox->blockSignals(true);
+    ui->configComboBox->setCurrentIndex(i);
+    ui->configComboBox->blockSignals(false);
     // }
 }
 

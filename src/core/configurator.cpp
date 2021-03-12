@@ -86,6 +86,19 @@ QString Configurator::getSecret()
     return QString("");
 }
 
+QDateTime Configurator::getUpdateTime()
+{
+    QList<Subscribe> subscribes = getSubscribes();
+    QDateTime time = QDateTime::currentDateTime();
+    for (auto & subscribe : subscribes) {
+        if (subscribe.name != "config") {
+            time = subscribe.updateTime;
+            break;
+        }
+    }
+    return time;
+}
+
 QList<Subscribe> Configurator::getSubscribes()
 {
     auto data = loadValue("subscribes").value<QList<QString>>();
