@@ -57,11 +57,11 @@ public:
     QMap<QString, QString> diffConfigs();
     void setMode(const QString& mode);
     QString getMode();
-    void setHttpPort(const int &port);
+    void setHttpPort(int port);
     int getHttpPort();
-    void setSocksPort(const int& port);
+    void setSocksPort(int port);
     int getSocksPort();
-    void setExternalControlPort(const int &port);
+    void setExternalControlPort(int port);
     int getExternalControlPort();
     void setAllowLan(bool flag);
     bool getAllowLan();

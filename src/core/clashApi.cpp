@@ -59,7 +59,7 @@ void ClashApi::setMode(const QString& mode)
     QByteArray resp = http.patch(url, params);
 }
 
-void ClashApi::setHttpPort(const int port)
+void ClashApi::setHttpPort(int port)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
     QVariantMap params;
@@ -68,7 +68,7 @@ void ClashApi::setHttpPort(const int port)
     QByteArray resp = http.patch(url, params);
 }
 
-void ClashApi::setSocksPort(const int port)
+void ClashApi::setSocksPort(int port)
 {
     QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
     QVariantMap params;
@@ -77,7 +77,7 @@ void ClashApi::setSocksPort(const int port)
     QByteArray resp = http.patch(url, params);
 }
 
-void ClashApi::setAllowLan(const bool flag)
+void ClashApi::setAllowLan(bool flag)
 {
     QUrl url(QString("%1:%2/configs/").arg(baseUrl).arg(configurator.getExternalControlPort()));
     QVariantMap params;

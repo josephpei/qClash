@@ -294,7 +294,7 @@ QString Configurator::getMode()
     return loadValue("mode", root["mode"].as<std::string>().c_str()).toString();
 }
 
-void Configurator::setHttpPort(const int& port)
+void Configurator::setHttpPort(int port)
 {
     saveValue("httpPort", port);
 }
@@ -304,7 +304,7 @@ int Configurator::getHttpPort()
     return loadValue("port", root["port"].as<int>()).toInt();
 }
 
-void Configurator::setSocksPort(const int& port)
+void Configurator::setSocksPort(int port)
 {
     saveValue("socksPort", port);
 }
@@ -314,7 +314,7 @@ int Configurator::getSocksPort()
     return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
 }
 
-void Configurator::setExternalControlPort(const int& port)
+void Configurator::setExternalControlPort(int port)
 {
     saveValue("externalControlPort", port);
 }
