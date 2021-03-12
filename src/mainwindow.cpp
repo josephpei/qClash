@@ -494,6 +494,8 @@ void MainWindow::proxyChange(QAction *action)
         qDebug() << "Current group: " << group;
         ClashApi::setGroupProxy(group, proxyName);
         configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, group, proxyName);
+        QString proxy = proxyName.size() > 10 ? proxyName.left(10) + "..." : proxyName;
+        menu->setTitle(group + "\t" + proxy);
     }
 }
 
