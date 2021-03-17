@@ -25,7 +25,7 @@ public:
     explicit SubscribeDialog(QWidget *parent = nullptr);
 
 signals:
-    void subscribesUpdated();
+    void subscribesUpdate();
     void subscribeAdded(const Subscribe& subscribe);
     void subscribeDeleted(int index);
 
@@ -34,6 +34,7 @@ private slots:
     void addSubscribe(const Subscribe &newSubscribe);
     void delSubscribe();
     void updateSubscribes();
+    void updateTable(const QList<Subscribe>& subscribes);
     void updateCell(const QModelIndex& indexA, const QModelIndex& indexB);
 
 private:

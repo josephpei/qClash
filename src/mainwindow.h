@@ -35,6 +35,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+signals:
+    void mSubscribesUpdated(const QList<Subscribe>&);
+
 private slots:
     void showMainWindow();
 

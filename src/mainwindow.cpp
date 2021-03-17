@@ -371,10 +371,12 @@ void MainWindow::updateSubscribes()
     for (int i = 0; i < subscribes.size(); ++i) {
         if (!subscribes[i].updating && !subscribes[i].url.isEmpty()) {
             qDebug() << "Update: " << subscribes[i].name;
-            subscribes[i].updateTime = currTime;
             QByteArray data = http.get(subscribes[i].url);
-            if (data.isEmpty())
+            if (data.isEmpty()) {
+                qWarning() << "Update " << subscribes[i].name << " failed!";
                 continue;
+            }
+            subscribes[i].updateTime = currTime;
             Configurator::saveClashConfig(subscribes[i].name, QString(data));
             if (currSub.name == subscribes[i].name) {
                 ClashApi::reloadConfigs();
@@ -383,6 +385,7 @@ void MainWindow::updateSubscribes()
         }
     }
     configurator.setSubscribes(subscribes);
+    emit mSubscribesUpdated(subscribes);
 }
 
 void MainWindow::startAtLoginChange(bool autoStart)
@@ -671,7 +674,8 @@ void MainWindow::showSubscribeDialog()
         subscribeDialog->exec();
     else {
         subscribeDialog = new SubscribeDialog(this);
-        connect(subscribeDialog, SIGNAL(subscribesUpdated()), SLOT(proxyGroupMenusChange()));
+        connect(this, SIGNAL(mSubscribesUpdated(const QList<Subscribe>&)), subscribeDialog, SLOT(updateTable(const QList<Subscribe>&)));
+        connect(subscribeDialog, SIGNAL(subscribesUpdate()), SLOT(updateSubscribes()));
         connect(subscribeDialog, SIGNAL(subscribeAdded(const Subscribe&)), SLOT(configComboBoxAdd(const Subscribe&)));
         connect(subscribeDialog, SIGNAL(subscribeDeleted(int)), SLOT(configComboBoxDel(int)));
         subscribeDialog->exec();

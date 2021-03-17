@@ -39,12 +39,7 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     model->setHeaderData(2, Qt::Horizontal, tr("Time"));
     tableView->horizontalHeader()->resizeSection(1, 420);
 
-    QList<Subscribe> subscribes = configurator.getSubscribes();
-    for (int i = 1; i < subscribes.count(); i++) {
-        model->setItem(i-1, 0, new QStandardItem(subscribes[i].name));
-        model->setItem(i-1, 1, new QStandardItem(subscribes[i].url));
-        model->setItem(i-1, 2, new QStandardItem(subscribes[i].updateTime.toString("yyyy-MM-dd hh:mm:ss")));
-    }
+    updateTable(configurator.getSubscribes());
 
     vLayout->addWidget(tableView);
     vLayout->addWidget(btnFrame);
@@ -55,6 +50,17 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     connect(subNewBtn, &QPushButton::clicked, this, &SubscribeDialog::showSubNewDlg);
     connect(subDelBtn, &QPushButton::clicked, this, &SubscribeDialog::delSubscribe);
     connect(subUpdateBtn, &QPushButton::clicked, this, &SubscribeDialog::updateSubscribes);
+}
+
+void SubscribeDialog::updateTable(const QList<Subscribe>& subscribes)
+{
+    // QList<Subscribe> subscribes = configurator.getSubscribes();
+    auto* model = (QStandardItemModel*)this->tableView->model();
+    for (int i = 1; i < subscribes.count(); i++) {
+        model->setItem(i-1, 0, new QStandardItem(subscribes[i].name));
+        model->setItem(i-1, 1, new QStandardItem(subscribes[i].url));
+        model->setItem(i-1, 2, new QStandardItem(subscribes[i].updateTime.toString("yyyy-MM-dd hh:mm:ss")));
+    }
 }
 
 void SubscribeDialog::showSubNewDlg()
@@ -112,22 +118,7 @@ void SubscribeDialog::delSubscribe()
 
 void SubscribeDialog::updateSubscribes()
 {
-    QList<Subscribe> subscribes = configurator.getSubscribes();
-    Subscribe currSub = configurator.getCurrentConfig();
-
-    HttpUtil& http = HttpUtil::instance();
-    QDateTime currTime = QDateTime::currentDateTime();
-    for (int i = 0; i < subscribes.size(); ++i) {
-        if (!subscribes[i].updating && !subscribes[i].url.isEmpty()) {
-            qDebug() << "Update: " << subscribes[i].name;
-            subscribes[i].updateTime = currTime;
-            QByteArray data = http.get(subscribes[i].url);
-            Configurator::saveClashConfig(subscribes[i].name, QString(data));
-        }
-    }
-    configurator.setSubscribes(subscribes);
-    emit subscribesUpdated();
-    // TODO: update tableview
+    emit subscribesUpdate();
 }
 
 void SubscribeDialog::updateCell(const QModelIndex & indexA, const QModelIndex & indexB)
