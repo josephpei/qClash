@@ -18,4 +18,6 @@ public:
     static QString netSpeedStr(int n);
 
     static bool isPortUsed(int port);
+
+    static bool isBase64(QString s);
 };

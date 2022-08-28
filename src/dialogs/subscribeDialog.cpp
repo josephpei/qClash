@@ -46,7 +46,7 @@ SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     setLayout(vLayout);
     resize(700, 300);
 
-    connect(tableView->model(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), SLOT(updateCell(QModelIndex, QModelIndex)));
+    connect(tableView->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(updateCell(QModelIndex,QModelIndex)));
     connect(subNewBtn, &QPushButton::clicked, this, &SubscribeDialog::showSubNewDlg);
     connect(subDelBtn, &QPushButton::clicked, this, &SubscribeDialog::delSubscribe);
     connect(subUpdateBtn, &QPushButton::clicked, this, &SubscribeDialog::updateSubscribes);

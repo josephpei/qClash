@@ -38,13 +38,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #include(CTest)
 enable_testing()
 
-set(QtMinVersion "5.9.0")
+option(USE_QT6 "Enable this if you want to use Qt6, instead of Qt5" no)
 
-find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Svg Network WebSockets LinguistTools)
-find_package(Qt5Test REQUIRED)
-if (WIN32)
+if(USE_QT6)
+    set(QtMinVersion "6.2.0")
+    find_package(Qt6 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Svg Network WebSockets LinguistTools)
+    find_package(Qt6Test REQUIRED)
+    if (WIN32)
+      find_package(Qt6 ${QT_MIN_VERSION} REQUIRED WinExtras)
+    endif()
+else(USE_QT6)
+  set(QtMinVersion "5.9.0")
+  find_package(Qt5 ${QtMinVersion} REQUIRED COMPONENTS Core Widgets Svg Network WebSockets LinguistTools)
+  find_package(Qt5Test REQUIRED)
+  if (WIN32)
     find_package(Qt5 ${QT_MIN_VERSION} REQUIRED WinExtras)
-endif()
+  endif()
+endif(USE_QT6)
 
 # singleton app
 set(QAPPLICATION_CLASS QApplication CACHE STRING "Inheritance class for SingleApplication")
@@ -61,35 +71,20 @@ link_libraries(${YAML_CPP_LIBRARIES})
 qt5_add_resources(${PROJECT_NAME}_RESOURCES
   resources.qrc
 )
-set(${PROJECT_NAME}_SOURCES
+file(GLOB ${PROJECT_NAME}_SOURCES
   src/mainwindow.h
   src/mainwindow.cpp
   src/mainwindow.ui
-  src/core/configurator.h
-  src/core/configurator.cpp
-  src/core/clashCore.h
-  src/core/clashCore.cpp
-  src/core/clashApi.h
-  src/core/clashApi.cpp
-  src/core/common.h
-  src/core/common.cpp
-  src/widgets/flowlayout.h
-  src/widgets/flowlayout.cpp
-  src/dialogs/subscribeDialog.h
-  src/dialogs/subscribeDialog.cpp
-  src/dialogs/subscribeNewDialog.cpp
-  src/dialogs/subscribeNewDialog.h
-  src/dialogs/aboutDialog.h
-  src/dialogs/aboutDialog.cpp
-  src/utils/httputil.h
-  src/utils/httputil.cpp
-  src/utils/networkproxy.h
-  src/utils/networkproxy.cpp
-  src/utils/wsclient.h
-  src/utils/wsclient.cpp
-  src/utils/utility.h
-  src/utils/utility.cpp
-  src/utils/iconsForkAwesome.h)
+  src/core/*.h
+  src/core/*.cpp
+  src/widgets/*.h
+  src/widgets/*.cpp
+  src/dialogs/*.h
+  src/dialogs/*.cpp
+  src/utils/*.h
+  src/utils/*.cpp
+)
+#list(FILTER ${PROJECT_NAME}_SOURCES EXCLUDE REGEX ".*third_party.*")
 
 set(QCLASH_SRCS
   ${${PROJECT_NAME}_SOURCES}
@@ -116,14 +111,15 @@ if(WIN32)
     ${CMAKE_SOURCE_DIR}/assets/qclash_windows_icons.rc)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 elseif(APPLE)
+  set(MACOSX_BUNDLE TRUE)
   set(MACOSX_BUNDLE_EXECUTABLE_NAME "qClash")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.qclash")
   set(MACOSX_BUNDLE_ICON_FILE "qClash.icns")
   set(MACOSX_BUNDLE_INFO_STRING "Clash GUI Client")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
-  set(MACOSX_BUNDLE_LONG_VERSION_STRING ${KSNIP_VERSION})
+  set(MACOSX_BUNDLE_LONG_VERSION_STRING ${QCLASH_VERSION})
 
-  set(MACOSX_ICON ${CMAKE_SOURCE_DIR}/assets/qClash.icns)
+  set(MACOSX_ICON ${CMAKE_SOURCE_DIR}/assets/icons/qClash.icns)
   set_source_files_properties(${MACOSX_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
   add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${QCLASH_SRCS}
@@ -178,6 +174,7 @@ function(auto_test subsystem module)
     ${${PROJECT_NAME}_SOURCES}
     test/${subsystem}/${module}_test.cpp)
   target_link_libraries(test_${module} PRIVATE
+    yaml-cpp
     Qt5::Core
     Qt5::Widgets
     Qt5::Network
@@ -198,7 +195,8 @@ elseif (UNIX)
   set(CMAKE_INSTALL_PREFIX "/opt/qClash")
   set(QCLASH_LANG_INSTALL_DIR "/opt/qClash/lang")
 endif()
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+include(GNUInstallDirs)
+#install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY ./config/ DESTINATION ${CMAKE_INSTALL_PREFIX}/config/)
 install(FILES ${${PROJECT_NAME}_QM_FILES} DESTINATION ${QCLASH_LANG_INSTALL_DIR})
 

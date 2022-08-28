@@ -12,8 +12,10 @@ ClashCore::ClashCore()
     clashFilePath = "clash-windows-amd64.exe";
 #elif defined(Q_OS_WIN32)
     clashFilePath = "clash-windows-386.exe"
-#elif defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#elif defined(Q_OS_LINUX)
     clashFilePath = "clash";
+#elif defined(Q_OS_MAC)
+    clashFilePath = "/usr/local/bin/clash";
 #endif
 
     QString clashConfigPath = Configurator::getClashConfigPath();

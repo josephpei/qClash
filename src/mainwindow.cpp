@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     createActions();
     createTrayIcon();
-    connect(trayIcon, &QSystemTrayIcon::activated, [=](QSystemTrayIcon::ActivationReason reason) {
+    connect(trayIcon, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason) {
         switch (reason)
         {
         case QSystemTrayIcon::Trigger:
@@ -233,7 +233,7 @@ void MainWindow::proxyGroupMenusChange()
             }
             actions->addAction(action)->setData(proxyName);
         }
-        connect(actions, SIGNAL(triggered(QAction *)), SLOT(proxyChange(QAction *)));
+        connect(actions, SIGNAL(triggered(QAction*)), SLOT(proxyChange(QAction*)));
         ++i;
     }
 
@@ -280,7 +280,7 @@ void MainWindow::createTrayIcon()
         subActions[i]->setCheckable(true);
         subActions[i]->setVisible(false);
     }
-    connect(subActionsGroup, SIGNAL(triggered(QAction *)), SLOT(configChange(QAction *)));
+    connect(subActionsGroup, SIGNAL(triggered(QAction*)), SLOT(configChange(QAction*)));
     // default config
     subActions[0]->setText("config");
     subActions[0]->setData("config");
@@ -459,7 +459,7 @@ void MainWindow::modeChange(QAction *action)
 {
     QString mode = action->data().toString();
     qDebug() << "Current mode: " << mode;
-    modeButtons->buttons()[PROXYMODE2INT[mode].toInt()]->setChecked(true);
+    modeButtons->buttons().value(PROXYMODE2INT[mode].toInt())->setChecked(true);
     configurator.setMode(mode);
     ClashApi::setMode(mode);
 }
@@ -531,16 +531,16 @@ void MainWindow::setupMainWindow()
     ui->logoLabel->setPixmap(logo);
 
     ui->overviewButton->setFont(font);
-    QString overviewStr = QString("%1 %2").arg(ICON_FK_TACHOMETER).arg(tr("Overview"));
+    QString overviewStr = QString("%1 %2").arg(ICON_FK_TACHOMETER, tr("Overview"));
     ui->overviewButton->setText(overviewStr);
     pageButtons->addButton(ui->overviewButton, 0);
     ui->proxiesButton->setFont(font);
-    QString proxiesStr = QString("%1 %2").arg(ICON_FK_PAPER_PLANE).arg(tr("Proxies"));
+    QString proxiesStr = QString("%1 %2").arg(ICON_FK_PAPER_PLANE, tr("Proxies"));
     ui->proxiesButton->setText(proxiesStr);
     pageButtons->addButton(ui->proxiesButton, 1);
 
     pageButtons->setExclusive(true);
-    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), [=](int id) {
+    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, [=](int id) {
         ui->stackedWidget->setCurrentIndex(id);
     });
     // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
@@ -612,7 +612,7 @@ void MainWindow::reloadProxiesPage()
 void MainWindow::fillOverviewPage()
 {
     // updateSubComboBox();
-    modeButtons->buttons()[PROXYMODE2INT[configurator.getMode()].toInt()]->setChecked(true);
+    modeButtons->buttons().value(PROXYMODE2INT[configurator.getMode()].toInt())->setChecked(true);
     ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
     ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
@@ -627,7 +627,7 @@ void MainWindow::showNetTraffic(const QString& traffic)
     auto json = doc.object();
     QString up = Utility::netSpeedStr(json.value("up").toInt());
     QString down = Utility::netSpeedStr(json.value("down").toInt());
-    QString msg = QString("Up: %1 Down: %2").arg(up).arg(down);
+    QString msg = QString("Up: %1 Down: %2").arg(up, down);
     ui->statusbar->showMessage(msg);
 }
 
@@ -674,9 +674,9 @@ void MainWindow::showSubscribeDialog()
         subscribeDialog->exec();
     else {
         subscribeDialog = new SubscribeDialog(this);
-        connect(this, SIGNAL(mSubscribesUpdated(const QList<Subscribe>&)), subscribeDialog, SLOT(updateTable(const QList<Subscribe>&)));
+        connect(this, SIGNAL(mSubscribesUpdated(QList<Subscribe>)), subscribeDialog, SLOT(updateTable(QList<Subscribe>)));
         connect(subscribeDialog, SIGNAL(subscribesUpdate()), SLOT(updateSubscribes()));
-        connect(subscribeDialog, SIGNAL(subscribeAdded(const Subscribe&)), SLOT(configComboBoxAdd(const Subscribe&)));
+        connect(subscribeDialog, SIGNAL(subscribeAdded(Subscribe)), SLOT(configComboBoxAdd(Subscribe)));
         connect(subscribeDialog, SIGNAL(subscribeDeleted(int)), SLOT(configComboBoxDel(int)));
         subscribeDialog->exec();
     }

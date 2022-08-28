@@ -113,14 +113,14 @@ NetworkProxy NetworkProxyHelper::getSystemProxyMacOs()
 {
     NetworkProxy proxy;
     QString stdOutput;
-    for (QString ni : NETWORK_INTERFACES) {
+    for (const QString &ni : NETWORK_INTERFACES) {
         QProcess p;
         p.start("networksetup", QStringList { "-getautoproxyurl", ni });
         p.waitForFinished();
         stdOutput = p.readAllStandardOutput();
         if (!stdOutput.startsWith("** Error:")) {
             QStringList sl = stdOutput.split('\n');
-            for (QString s : sl) {
+            for (const QString &s : sl) {
                 if (s.startsWith("Enabled: Yes")) {
                     proxy.setMode(NetworkProxyMode::PAC_MODE);
                 } else if (s.startsWith("URL: ")) {
@@ -134,14 +134,14 @@ NetworkProxy NetworkProxyHelper::getSystemProxyMacOs()
         stdOutput = p.readAllStandardOutput();
         if (!stdOutput.startsWith("** Error:")) {
             QStringList sl = stdOutput.split('\n');
-            for (QString s : sl) {
+            for (const QString &s : sl) {
                 if (s.startsWith("Enabled: Yes")) {
                     proxy.setMode(NetworkProxyMode::GLOBAL_MODE);
                     proxy.setProtocol("http");
                 } else if (proxy.getProtocol() == "http" && s.startsWith("Server: ")) {
                     proxy.setHost(s.mid(8));
                 } else if (proxy.getProtocol() == "http" && s.startsWith("Port: ")) {
-                    proxy.setPort(s.mid(6).toInt());
+                    proxy.setPort(s.midRef(6).toInt());
                 }
             }
         }
@@ -150,14 +150,14 @@ NetworkProxy NetworkProxyHelper::getSystemProxyMacOs()
         stdOutput = p.readAllStandardOutput();
         if (!stdOutput.startsWith("** Error:")) {
             QStringList sl = stdOutput.split('\n');
-            for (QString s : sl) {
+            for (const QString &s : sl) {
                 if (s.startsWith("Enabled: Yes")) {
                     proxy.setMode(NetworkProxyMode::GLOBAL_MODE);
                     proxy.setProtocol("socks");
                 } else if (proxy.getProtocol() == "socks" && s.startsWith("Server: ")) {
                     proxy.setHost(s.mid(8));
                 } else if (proxy.getProtocol() == "socks" && s.startsWith("Port: ")) {
-                    proxy.setPort(s.mid(6).toInt());
+                    proxy.setPort(s.midRef(6).toInt());
                 }
             }
         }
@@ -175,7 +175,7 @@ void NetworkProxyHelper::setSystemProxyMacOs(const NetworkProxy& proxy)
     if (proxy.getMode() == NetworkProxyMode::GLOBAL_MODE) {
         QString settingKey = SETTING_KEYS.value(protocol);
         QProcess p;
-        for (QString ni : NETWORK_INTERFACES) {
+        for (const QString &ni : NETWORK_INTERFACES) {
             p.start("networksetup",
                 QStringList { QString("-set%1proxy").arg(settingKey), ni,
                     proxy.getHost(), QString::number(proxy.getPort()) });
@@ -190,7 +190,7 @@ void NetworkProxyHelper::setSystemProxyMacOs(const NetworkProxy& proxy)
 
 void NetworkProxyHelper::resetSystemProxyMacOs()
 {
-    for (QString ni : NETWORK_INTERFACES) {
+    for (const QString &ni : NETWORK_INTERFACES) {
         QProcess p;
         p.start("networksetup", QStringList { "-setautoproxystate", ni, "off" });
         p.waitForFinished();

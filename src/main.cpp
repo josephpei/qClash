@@ -6,6 +6,7 @@
 #include <QTranslator>
 #include <QMetaType>
 #include <QSettings>
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +28,17 @@ int main(int argc, char *argv[])
     app.setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
-    QString langPath = QApplication::applicationDirPath() + "/lang";
+    QString langPath;
+#if defined(Q_OS_MAC)
+    QDir resDir = QApplication::applicationDirPath();
+    if (resDir.dirName() == "MacOS") {
+        resDir.cdUp();
+        resDir.cd("Resources");
+    }
+    langPath = resDir.absolutePath() + "/lang";
+#else
+    langPath = QApplication::applicationDirPath() + "/lang";
+#endif
     translator.load(QLocale::system().name(), langPath);
     app.installTranslator(&translator);
     MainWindow w;

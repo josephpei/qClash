@@ -9,6 +9,7 @@
 
 #include "configurator.h"
 #include "../utils/networkproxy.h"
+#include "../utils/utility.h"
 
 Configurator &Configurator::instance()
 {
@@ -36,18 +37,22 @@ QString Configurator::getClashConfigPath(const QString& name)
     return homePath + "/.config/clash/" + name + ".yaml";
 }
 
-void Configurator::saveClashConfig(const QString& name, const QString& content)
+void Configurator::saveClashConfig(const QString& name, const QString& data)
 {
     QString filePath = Configurator::getClashConfigPath(name);
     QString tmpPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     QString tmpFile = tmpPath + "/" + name + ".yaml";
     QFile configFile(tmpFile);
+    QString content = data;
     if (QFile::exists(tmpFile))
         QFile::remove(tmpFile);
     if (!configFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         // open file failed
         return;
     } else {
+        if (Utility::isBase64(content)) {
+            content = QString(QByteArray::fromBase64(content.toUtf8()));
+        }
         configFile.write(content.toUtf8());
         if (QFile::exists(filePath))
             QFile::remove(filePath);
@@ -60,8 +65,12 @@ YAML::Node Configurator::loadClashConfig(const QString& name)
     QString configFile = Configurator::getClashConfigPath(name);
     try {
         root = YAML::LoadFile(configFile.toStdString());
+        if (root["mixed-port"])
+            isMixedPort = true;
+        else
+            isMixedPort = false;
     } catch (YAML::BadFile& error) {
-        throw YAML::BadFile();
+        throw error;
     }
     return root;
 }
@@ -314,6 +323,8 @@ void Configurator::setHttpPort(int port)
 
 int Configurator::getHttpPort()
 {
+    if(isMixedPort)
+        return loadValue("mixed-port", root["mixed-port"].as<int>()).toInt();
     return loadValue("port", root["port"].as<int>()).toInt();
 }
 
@@ -324,6 +335,8 @@ void Configurator::setSocksPort(int port)
 
 int Configurator::getSocksPort()
 {
+    if(isMixedPort)
+        return loadValue("mixed-port", root["mixed-port"].as<int>()).toInt();
     return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
 }
 

@@ -98,3 +98,13 @@ bool Utility::isPortUsed(int port)
     server->close();
     return result;
 }
+
+bool Utility::isBase64(QString s)
+{
+    QRegExp rx("[^a-zA-Z0-9+/=]");
+    if(rx.indexIn(s)==-1 && (s.length()%4) == 0 && s.length()>=4){
+        return true;
+    }
+
+    return false;
+}

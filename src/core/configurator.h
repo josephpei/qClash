@@ -19,6 +19,9 @@ class Configurator : public QObject {
     YAML::Node root;
     QJsonObject proxyGroups;
 
+private:
+    bool isMixedPort;
+
 public:
     static Configurator& instance();
 
