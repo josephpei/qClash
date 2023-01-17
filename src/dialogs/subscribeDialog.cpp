@@ -5,7 +5,7 @@
 
 #include "subscribeDialog.h"
 #include "../utils/httputil.h"
-#include "../core/configurator.h"
+//#include "../core/configurator.h"
 
 SubscribeDialog::SubscribeDialog(QWidget *parent) : QDialog(parent),
     configurator(Configurator::instance())
@@ -75,7 +75,7 @@ void SubscribeDialog::showSubNewDlg()
 void SubscribeDialog::addSubscribe(const Subscribe& newSubscribe)
 {
     QList<Subscribe> subscribes = configurator.getSubscribes();
-    int count = subscribes.count() - 1;
+//    int count = subscribes.count() - 1;
 
     QString subName = newSubscribe.name;
     QString subUrl = newSubscribe.url;

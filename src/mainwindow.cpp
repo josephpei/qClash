@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , periodicTimer(new QTimer)
-    , startTimer(new QTimer)
     , pageButtons(new QButtonGroup)
     , modeButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
@@ -125,7 +124,7 @@ bool MainWindow::initClash()
     periodicTimer->start(12*60*60*1000);
 
     if (configurator.getUpdateTime().secsTo(QDateTime::currentDateTime()) > 24*60*60) {
-        startTimer->singleShot(10 * 1000, this, SLOT(updateSubscribes()));
+        QTimer::singleShot(10 * 1000, this, SLOT(updateSubscribes()));
     }
     return true;
 }
@@ -188,8 +187,8 @@ void MainWindow::createActions()
     autoUpdateSubConfig->setChecked(configurator.isAutoUpdate());
     connect(autoUpdateSubConfig, &QAction::triggered, this, &MainWindow::autoUpdateSubConfigChange);
 
-    downloadCoutryMMDB = new QAction(tr("Update IP DB"), this);
-    connect(downloadCoutryMMDB, &QAction::triggered, this, &MainWindow::downloadLastestCountryMMDB);
+    downloadCountryMmdb = new QAction(tr("Update IP DB"), this);
+    connect(downloadCountryMmdb, &QAction::triggered, this, &MainWindow::downloadLastestCountryMMDB);
 
     about = new QAction(tr("About"), this);
     connect(about, &QAction::triggered, this, &MainWindow::showAboutDialog);
@@ -290,7 +289,7 @@ void MainWindow::createTrayIcon()
     subConfigMenu->addAction(manageSubConfig);
     subConfigMenu->addAction(updateSubConfig);
     subConfigMenu->addAction(autoUpdateSubConfig);
-    subConfigMenu->addAction(downloadCoutryMMDB);
+    subConfigMenu->addAction(downloadCountryMmdb);
     trayMenu->addMenu(subConfigMenu);
     trayMenu->addSeparator();
 

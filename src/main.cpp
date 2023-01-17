@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
     qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
     SingleApplication app(argc, argv);
 
-    app.setApplicationName(QStringLiteral("qClash"));
-    app.setApplicationVersion(QStringLiteral(QCLASH_VERSION));
-    app.setQuitOnLastWindowClosed(false);
+    QApplication::setApplicationName(QStringLiteral("qClash"));
+    QApplication::setApplicationVersion(QStringLiteral(QCLASH_VERSION));
+    QApplication::setQuitOnLastWindowClosed(false);
 
     QTranslator translator;
     QString langPath;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     langPath = QApplication::applicationDirPath() + "/lang";
 #endif
     translator.load(QLocale::system().name(), langPath);
-    app.installTranslator(&translator);
+    QApplication::installTranslator(&translator);
     MainWindow w;
     w.show();
     QObject::connect(&app, &SingleApplication::instanceStarted, &w, &QMainWindow::raise);

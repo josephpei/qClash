@@ -63,15 +63,11 @@ void Configurator::saveClashConfig(const QString& name, const QString& data)
 YAML::Node Configurator::loadClashConfig(const QString& name)
 {
     QString configFile = Configurator::getClashConfigPath(name);
-    try {
-        root = YAML::LoadFile(configFile.toStdString());
-        if (root["mixed-port"])
-            isMixedPort = true;
-        else
-            isMixedPort = false;
-    } catch (YAML::BadFile& error) {
-        throw error;
-    }
+    root = YAML::LoadFile(configFile.toStdString());
+    if (root["mixed-port"])
+        isMixedPort = true;
+    else
+        isMixedPort = false;
     return root;
 }
 
@@ -92,7 +88,7 @@ QString Configurator::getSecret()
 {
     if (root["secret"])
         return root["secret"].as<std::string>().c_str();
-    return QString("");
+    return {""};
 }
 
 QDateTime Configurator::getUpdateTime()

@@ -3,7 +3,7 @@
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QVariant>
-#include <QBuffer>
+//#include <QBuffer>
 #include <QTimer>
 #include <QDebug>
 
@@ -80,16 +80,16 @@ QByteArray HttpUtil::request(const QUrl &url,
     loop.exec();
 
     // Timeout handler
-    if (timeout > 0 && !timer.isActive()) {
+    if (reply && timeout > 0 && !timer.isActive()) {
         disconnect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
         reply->abort();
         qWarning() << "Timeout when requesting " << url;
     }
     // Network error handler
-    if (reply->error() != QNetworkReply::NoError) {
+    if (reply && reply->error() != QNetworkReply::NoError) {
         qCritical() << "Error occurred during requesting " << url
                     << "; Error: " << reply->error();
-        return QByteArray();
+        return {};
     }
 
     auto data = reply->readAll();

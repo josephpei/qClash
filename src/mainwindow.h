@@ -88,7 +88,6 @@ private:
     FlowLayout* proxiesLayout;
 
     QTimer* periodicTimer;
-    QTimer* startTimer;
 
     void createActions();
     void createTrayIcon();
@@ -110,7 +109,7 @@ private:
     QAction *manageSubConfig;
     QAction *updateSubConfig;
     QAction *autoUpdateSubConfig;
-    QAction* downloadCoutryMMDB;
+    QAction* downloadCountryMmdb;
 
     QAction *about;
     QAction *checkUpdate;
