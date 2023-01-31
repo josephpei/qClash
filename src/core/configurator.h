@@ -17,6 +17,7 @@ class Configurator : public QObject {
 
 //    QSettings config;
     YAML::Node root;
+    QJsonObject clashConfigs;
     QJsonObject proxyGroups;
 
 private:
@@ -31,6 +32,7 @@ public:
     static void saveClashConfig(const QString& name, const QString& content);
     
     YAML::Node loadClashConfig(const QString& name);
+    QJsonObject getClashConfigs();
 
     QVariant loadValue(const QString& key, const QVariant& defaultValue = {});
     void saveValue(const QString& key, const QVariant& value);

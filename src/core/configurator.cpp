@@ -10,6 +10,7 @@
 #include "configurator.h"
 #include "../utils/networkproxy.h"
 #include "../utils/utility.h"
+#include "clashApi.h"
 
 Configurator &Configurator::instance()
 {
@@ -69,6 +70,17 @@ YAML::Node Configurator::loadClashConfig(const QString& name)
     else
         isMixedPort = false;
     return root;
+}
+
+QJsonObject Configurator::getClashConfigs()
+{
+    clashConfigs = ClashApi::getConfigs();
+    auto mixed = clashConfigs.value("mixed-port");
+    if (!mixed.isNull() && mixed.toBool())
+        isMixedPort = true;
+    else
+        isMixedPort = false;
+    return clashConfigs;
 }
 
 QVariant Configurator::loadValue(const QString &key, const QVariant &defaultValue)
@@ -250,7 +262,7 @@ bool Configurator::isAutoUpdate()
 
 void Configurator::setSystemProxy(bool flag)
 {
-    saveValue("systemProxy", flag);
+    // saveValue("systemProxy", flag);
     if (flag) {
         NetworkProxy httpProxy("http", "127.0.0.1",
             getHttpPort(), NetworkProxyMode::GLOBAL_MODE);

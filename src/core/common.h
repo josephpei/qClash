@@ -6,12 +6,6 @@
 #include <QString>
 #include <QDebug>
 
-enum ProxyType {
-    SS,
-    SSR,
-    VMESS,
-    TROJAN
-};
 
 extern QString INT2LOGLEVEL[5];
 extern QJsonObject LOGLEVEL2INT;

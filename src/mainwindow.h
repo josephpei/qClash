@@ -3,8 +3,10 @@
 #include "./dialogs/aboutDialog.h"
 #include "./dialogs/subscribeDialog.h"
 #include "./core/clashCore.h"
+#include "./core/proxy.h"
 #include "./utils/wsclient.h"
 #include "./widgets/flowlayout.h"
+#include "./widgets/collapseWidget.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -136,5 +138,6 @@ private:
 
     ClashCore &clashCore;
     WsClient* wsClient;
+    ClashProxy clashProxy;
 };
 #endif // MAINWINDOW_H

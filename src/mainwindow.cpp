@@ -3,6 +3,7 @@
 #include "./ui_mainwindow.h"
 #include "./core/configurator.h"
 #include "./core/clashApi.h"
+#include "./core/proxy.h"
 #include "./utils/iconsForkAwesome.h"
 #include "./utils/utility.h"
 #include <string>
@@ -132,7 +133,10 @@ bool MainWindow::initClash()
 void MainWindow::createActions()
 {
     quitAction = new QAction(tr("&Quit"), this);
-    connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
+    connect(quitAction, &QAction::triggered, qApp, [=] {
+        configurator.setSystemProxy(false);
+        QApplication::quit();
+    });
 
     QString modeSaved = configurator.getMode().toLower();
     modeActionsGroup = new QActionGroup(this);
@@ -159,8 +163,10 @@ void MainWindow::createActions()
     connect(modeActionsGroup, SIGNAL(triggered(QAction*)), SLOT(modeChange(QAction*)));
 
     setAsSystemProxy = new QAction(tr("Set as system proxy"), this);
+    bool systemProxyMode = configurator.isSystemProxy();
     setAsSystemProxy->setCheckable(true);
-    setAsSystemProxy->setChecked(configurator.isSystemProxy());
+    setAsSystemProxy->setChecked(systemProxyMode);
+    configurator.setSystemProxy(systemProxyMode);
     connect(setAsSystemProxy, &QAction::triggered, this, &MainWindow::systemProxyChange);
 
     copyShellCommand = new QAction(tr("Copy shell command"), this);
@@ -200,15 +206,20 @@ void MainWindow::createActions()
 void MainWindow::proxyGroupMenusChange()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
-    YAML::Node root = configurator.loadClashConfig(subscribe.name);
+//    YAML::Node root = configurator.loadClashConfig(subscribe.name);
     proxies = ClashApi::getProxies();
+    clashProxy.update(proxies);
+    auto groups = clashProxy.getProxyGroups();
     QJsonObject proxyGroupsRule = configurator.getProxyGroupsRule(subscribe.name);
     int i = 0;
-    for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
+    for (auto & group : groups)
+//    for (YAML::const_iterator iter = root["proxy-groups"].begin(); iter != root["proxy-groups"].end(); ++iter)
     {
-        QString groupName = (*iter)["name"].as<std::string>().c_str();
-        QJsonObject proxySelector = proxies.value(groupName).toObject();
-        QString selectProxy = proxySelector.value("now").toString();
+//        QString groupName = (*iter)["name"].as<std::string>().c_str();
+        QString groupName = group.name;
+//        QJsonObject proxySelector = proxies.value(groupName).toObject();
+//        QString selectProxy = proxySelector.value("now").toString();
+        QString selectProxy = group.now;
         if (proxyGroupsRule.contains(groupName)) {
             selectProxy = proxyGroupsRule[groupName].toString();
         }
@@ -218,16 +229,18 @@ void MainWindow::proxyGroupMenusChange()
         proxyGroupMenus[i]->menuAction()->setVisible(true);
         proxyGroupMenus[i]->clear();
         QActionGroup *actions = new QActionGroup(proxyGroupMenus[i]);
-        for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi)
+        for (auto &proxyName : group.all)
+//        for (YAML::const_iterator pi = (*iter)["proxies"].begin(); pi != (*iter)["proxies"].end(); ++pi)
         {
-            QString proxyName = (*pi).as<std::string>().c_str();
+//            QString proxyName = (*pi).as<std::string>().c_str();
             // QAction *proxyAction = new QAction(proxyName, groupMenu);
             QAction *action = proxyGroupMenus[i]->addAction(proxyName);
             action->setCheckable(true);
             if (proxyName == selectProxy) {
                 // const QSignalBlocker blocker(action);
                 action->setChecked(true);
-                if (proxySelector.value("type").toString().toLower() != "urltest")
+                if (group.type.toLower() != "urltest")
+//                if (proxySelector.value("type").toString().toLower() != "urltest")
                     ClashApi::setGroupProxy(groupName, proxyName);
             }
             actions->addAction(action)->setData(proxyName);
@@ -349,6 +362,7 @@ void MainWindow::configComboBoxDel(int index)
 }
 void MainWindow::systemProxyChange(bool flag)
 {
+    configurator.saveValue("systemProxy", flag);
     configurator.setSystemProxy(flag);
 }
 
@@ -451,7 +465,7 @@ void MainWindow::doConfigChange(const QString& name)
     clashCore.restart(configFilePath);
     proxyGroupMenusChange();
     fillOverviewPage();
-    reloadProxiesPage();
+    //reloadProxiesPage();
 }
 
 void MainWindow::modeChange(QAction *action)
@@ -552,7 +566,7 @@ void MainWindow::setupMainWindow()
 
     initConfigComboBox();
     fillOverviewPage();
-    setupProxiesPage();
+//    setupProxiesPage();
     ui->overviewButton->setChecked(true);
     connect(ui->configComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, QOverload<int>::of(&MainWindow::configChange));
     
@@ -565,11 +579,14 @@ void MainWindow::setupMainWindow()
 
 void MainWindow::setupProxiesPage()
 {
-    QVBoxLayout* vLayout = new QVBoxLayout();
+    QVBoxLayout* vLayout = new QVBoxLayout;
     QScrollArea* scrollArea = new QScrollArea(ui->proxies);
     QWidget* scrollWidget = new QWidget(scrollArea);
-    proxiesLayout = new FlowLayout(scrollWidget);
-    // proxiesLayout = new QVBoxLayout(scrollWidget);
+
+    auto inLayout = new QVBoxLayout(scrollWidget);
+    auto test = new CollapseWidget("test");
+
+    auto proxiesLayout = new QVBoxLayout;
     proxies = ClashApi::getProxies();
     for (auto it = proxies.begin(); it != proxies.end(); ++it) {
         QString name = it.key();
@@ -580,11 +597,40 @@ void MainWindow::setupProxiesPage()
             proxiesLayout->addWidget(new QPushButton(text));
         }
     }
+    QHBoxLayout* header = new QHBoxLayout;
+    test->setHeaderLayout(*header);
+    test->setContentLayout(*proxiesLayout);
+    inLayout->addWidget(test);
+    inLayout->addWidget(new QLabel("Some Text in Section"));
+    inLayout->addStretch(1);
+
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(scrollWidget);
     vLayout->addWidget(scrollArea);
     ui->proxies->setLayout(vLayout);
 }
+//void MainWindow::setupProxiesPage()
+//{
+//    QVBoxLayout* vLayout = new QVBoxLayout();
+//    QScrollArea* scrollArea = new QScrollArea(ui->proxies);
+//    QWidget* scrollWidget = new QWidget(scrollArea);
+//    proxiesLayout = new FlowLayout(scrollWidget);
+//    // proxiesLayout = new QVBoxLayout(scrollWidget);
+//    proxies = ClashApi::getProxies();
+//    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
+//        QString name = it.key();
+//        QJsonObject obj = it.value().toObject();
+//        QString type = obj.value("type").toString();
+//        if (type == "Shadowsocks" || type == "Vmess") {
+//            QString text = name + "\n" + obj.value("type").toString();
+//            proxiesLayout->addWidget(new QPushButton(text));
+//        }
+//    }
+//    scrollArea->setWidgetResizable(true);
+//    scrollArea->setWidget(scrollWidget);
+//    vLayout->addWidget(scrollArea);
+//    ui->proxies->setLayout(vLayout);
+//}
 
 void MainWindow::reloadProxiesPage()
 {
