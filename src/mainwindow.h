@@ -7,6 +7,7 @@
 #include "./utils/wsclient.h"
 #include "./widgets/flowlayout.h"
 #include "./widgets/collapseWidget.h"
+#include "./widgets/proxyGroupWidget.h"
 
 #include <QMainWindow>
 #include <QPointer>

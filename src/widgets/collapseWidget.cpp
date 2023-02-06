@@ -1,14 +1,15 @@
 #include "collapseWidget.h"
 #include <QDebug>
 #include <QPropertyAnimation>
+#include <QLabel>
 
 CollapseWidget::CollapseWidget(const QString& title, int duration, QWidget* parent)
-: QWidget(parent), duration(duration)
+: QWidget(parent), title(title), duration(duration)
 {
     toggleButton.setStyleSheet("QToolButton {border: none;}");
     //toggleButton.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toggleButton.setArrowType(Qt::ArrowType::RightArrow);
-    //toggleButton.setText(title);
+//    toggleButton.setText(title);
     toggleButton.setCheckable(true);
     toggleButton.setChecked(false);
     toggleButton.setObjectName("collapsableWidgetToggleButton");
@@ -39,8 +40,8 @@ CollapseWidget::CollapseWidget(const QString& title, int duration, QWidget* pare
     //mainLayout.addWidget(&toggleButton);
     //mainLayout.addWidget(&contentArea);
     int row = 0;
-    mainLayout.addWidget(&toggleButton, row, 0, 1, 1, Qt::AlignLeft);
-    mainLayout.addWidget(&headerLine, row, 2, 1, 1);
+    //mainLayout.addWidget(&toggleButton, row, 0, 1, 1, Qt::AlignLeft);
+    //mainLayout.addWidget(&headerLine, row, 2, 1, 1);
     mainLayout.addWidget(&contentArea, row+1, 0, 1, 3);
 
     setLayout(&mainLayout);
@@ -48,8 +49,9 @@ CollapseWidget::CollapseWidget(const QString& title, int duration, QWidget* pare
     QObject::connect(&toggleButton, &QToolButton::clicked, this, &CollapseWidget::toggleContentShown);
 }
 
-void CollapseWidget::setHeaderLayout(QHBoxLayout& headerLayout)
+void CollapseWidget::setHeaderLayout()
 {
+    headerLayout.addWidget(new QLabel(title));
     headerLayout.addWidget(&toggleButton);
     headerLayout.addWidget(&headerLine);
     mainLayout.addLayout(&headerLayout, 0, 0, 1, 3);

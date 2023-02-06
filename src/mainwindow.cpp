@@ -566,7 +566,7 @@ void MainWindow::setupMainWindow()
 
     initConfigComboBox();
     fillOverviewPage();
-//    setupProxiesPage();
+    setupProxiesPage();
     ui->overviewButton->setChecked(true);
     connect(ui->configComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, QOverload<int>::of(&MainWindow::configChange));
     
@@ -584,23 +584,34 @@ void MainWindow::setupProxiesPage()
     QWidget* scrollWidget = new QWidget(scrollArea);
 
     auto inLayout = new QVBoxLayout(scrollWidget);
-    auto test = new CollapseWidget("test");
-
-    auto proxiesLayout = new QVBoxLayout;
     proxies = ClashApi::getProxies();
-    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
-        QString name = it.key();
-        QJsonObject obj = it.value().toObject();
-        QString type = obj.value("type").toString();
-        if (type == "Shadowsocks" || type == "Vmess") {
-            QString text = name + "\n" + obj.value("type").toString();
-            proxiesLayout->addWidget(new QPushButton(text));
-        }
+    clashProxy.update(proxies);
+    for (auto &group : clashProxy.getProxyGroups()) {
+        auto groupWidget = new ProxyGroupWidget(group);
+//        auto groupWidget = new CollapseWidget(group.name);
+//        auto pLayout = new QVBoxLayout;
+//        for (auto &p : group.all) {
+//            pLayout->addWidget(new QPushButton(p));
+//        }
+//        groupWidget->setHeaderLayout();
+//        groupWidget->setContentLayout(*pLayout);
+        inLayout->addWidget(groupWidget);
     }
-    QHBoxLayout* header = new QHBoxLayout;
-    test->setHeaderLayout(*header);
-    test->setContentLayout(*proxiesLayout);
-    inLayout->addWidget(test);
+//    auto test = new CollapseWidget("test");
+//
+//    auto proxiesLayout = new QVBoxLayout;
+//    proxies = ClashApi::getProxies();
+//    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
+//        QString name = it.key();
+//        QJsonObject obj = it.value().toObject();
+//        QString type = obj.value("type").toString();
+//        if (type == "Shadowsocks" || type == "Vmess") {
+//            QString text = name + "\n" + obj.value("type").toString();
+//            proxiesLayout->addWidget(new QPushButton(text));
+//        }
+//    }
+//    test->setContentLayout(*proxiesLayout);
+//    inLayout->addWidget(test);
     inLayout->addWidget(new QLabel("Some Text in Section"));
     inLayout->addStretch(1);
 

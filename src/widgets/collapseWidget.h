@@ -14,16 +14,18 @@ class CollapseWidget : public QWidget {
     Q_OBJECT
 
 protected:
-    QGridLayout mainLayout;
-    QToolButton toggleButton;
-    QFrame headerLine;
-    QParallelAnimationGroup toggleAnimation;
-    QScrollArea contentArea;
+    QGridLayout mainLayout{};
+    QHBoxLayout headerLayout{};
+    QToolButton toggleButton{};
+    QFrame headerLine{};
+    QParallelAnimationGroup toggleAnimation{};
+    QScrollArea contentArea{};
     int duration;
+    QString title;
 
 public:
     explicit CollapseWidget(const QString &title = "", int duration = 100, QWidget *parent = nullptr);
-    void setHeaderLayout(QHBoxLayout &headerLayout);
+    void setHeaderLayout();
     void setContentLayout(QLayout &contentLayout);
 
     void toggleContentShown(bool visible);
