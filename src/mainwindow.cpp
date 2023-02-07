@@ -394,7 +394,7 @@ void MainWindow::updateSubscribes()
                 ClashApi::reloadConfigs();
                 clashProxy.update(ClashApi::getProxies());
                 proxyGroupMenusChange();
-                setupProxiesPage();
+                proxiesPageChange();
             }
         }
     }
@@ -464,8 +464,11 @@ void MainWindow::doConfigChange(const QString& name)
     configurator.setCurrentConfig(configurator.getSubscribeByName(name));
     QString configFilePath = configurator.getClashConfigPath(name);
     clashCore.restart(configFilePath);
+    configurator.loadClashConfig(name);
+    clashProxy.update(ClashApi::getProxies());
     proxyGroupMenusChange();
-    fillOverviewPage();
+    setupOverviewPage();
+    proxiesPageChange();
     //reloadProxiesPage();
 }
 
@@ -513,6 +516,9 @@ void MainWindow::proxyChange(QAction *action)
         configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, group, proxyName);
         QString proxy = proxyName.size() > 10 ? proxyName.left(10) + "..." : proxyName;
         menu->setTitle(group + "\t" + proxy);
+
+        auto proxyGroupWidget = proxiesLayout->findChild<ProxyGroupWidget*>(group);
+        proxyGroupWidget->setProxy(proxyName);
     }
 }
 
@@ -566,7 +572,7 @@ void MainWindow::setupMainWindow()
     connect(modeButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, QOverload<int>::of(&MainWindow::modeChange));
 
     initConfigComboBox();
-    fillOverviewPage();
+    setupOverviewPage();
     setupProxiesPage();
     ui->overviewButton->setChecked(true);
     connect(ui->configComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, QOverload<int>::of(&MainWindow::configChange));
@@ -585,27 +591,29 @@ void MainWindow::setupProxiesPage()
     QWidget* scrollWidget = new QWidget(scrollArea);
 
     //auto inLayout = new QVBoxLayout(scrollWidget);
-    if (!proxiesLayout)
-        proxiesLayout = new QVBoxLayout(scrollWidget);
-    else {
-        QLayoutItem* item;
-        while ((item = proxiesLayout->takeAt(0)) != nullptr) {
-            delete item->widget();
-            delete item;
-        }
-        proxiesLayout->update();
+    proxiesLayout = new QVBoxLayout(scrollWidget);
+    proxiesPageChange();
+
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(scrollWidget);
+    vLayout->addWidget(scrollArea);
+    ui->proxies->setLayout(vLayout);
+}
+
+void MainWindow::proxiesPageChange()
+{
+    QLayoutItem* item;
+    while ((item = proxiesLayout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
     }
+    proxiesLayout->update();
     for (auto &group : clashProxy.getProxyGroups()) {
         auto groupWidget = new ProxyGroupWidget(group);
         proxiesLayout->addWidget(groupWidget);
     }
 
     proxiesLayout->addStretch(1);
-
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(scrollWidget);
-    vLayout->addWidget(scrollArea);
-    ui->proxies->setLayout(vLayout);
 }
 //void MainWindow::setupProxiesPage()
 //{
@@ -630,7 +638,7 @@ void MainWindow::setupProxiesPage()
 //    ui->proxies->setLayout(vLayout);
 //}
 
-void MainWindow::fillOverviewPage()
+void MainWindow::setupOverviewPage()
 {
     // updateSubComboBox();
     modeButtons->buttons().value(PROXYMODE2INT[configurator.getMode()].toInt())->setChecked(true);

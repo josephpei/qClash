@@ -1,5 +1,6 @@
 #ifndef QCLASH_PROXYGROUPWIDGET_H
 #define QCLASH_PROXYGROUPWIDGET_H
+#include <QLabel>
 #include "collapseWidget.h"
 #include "../core/proxy.h"
 
@@ -12,7 +13,11 @@ public:
 public:
     void setHeaderLayout(const Proxy& proxyGroup);
     void setupUI(const Proxy& proxyGroup);
+    void setProxy(const QString& proxyName);
 
+private:
+    QLabel* groupName{nullptr};
+    QLabel* selectProxy{nullptr};
 };
 
 #endif // QCLASH_PROXYGROUPWIDGET_H

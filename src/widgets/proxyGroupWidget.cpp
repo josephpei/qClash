@@ -1,4 +1,3 @@
-#include <QLabel>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -7,13 +6,14 @@
 ProxyGroupWidget::ProxyGroupWidget(const Proxy &proxyGroup, QWidget *parent)
 : CollapseWidget(proxyGroup.name, 100, parent)
 {
+    setObjectName(proxyGroup.name);
     setHeaderLayout(proxyGroup);
     setupUI(proxyGroup);
 }
 
 void ProxyGroupWidget::setHeaderLayout(const Proxy& proxyGroup) {
-    auto groupName = new QLabel(proxyGroup.name);
-    auto selectProxy = new QLabel(proxyGroup.now);
+    groupName = new QLabel(proxyGroup.name);
+    selectProxy = new QLabel(proxyGroup.now);
     selectProxy->setStyleSheet("border: 1px solid gray; border-radius: 3px; margin: 4px");
     headerLayout.addWidget(groupName);
     headerLayout.addWidget(selectProxy);
@@ -32,4 +32,8 @@ void ProxyGroupWidget::setupUI(const Proxy& proxyGroup) {
         proxiesLayout->addWidget(new QPushButton(proxyGroup.all[i]), row, col);
     }
     setContentLayout(*proxiesLayout);
+}
+
+void ProxyGroupWidget::setProxy(const QString &proxyName) {
+    selectProxy->setText(proxyName);
 }

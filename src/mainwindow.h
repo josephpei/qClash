@@ -68,7 +68,9 @@ private slots:
     void systemProxyChange(bool flag);
     void logLevelChange(int index);
     void pageChange(int);
-    void fillOverviewPage();
+    void setupOverviewPage();
+    void setupProxiesPage();
+    void proxiesPageChange();
     void showNetTraffic(const QString& traffic);
 
     void downloadLastestCountryMMDB();
@@ -79,7 +81,6 @@ private:
 private:
     bool initClash();
     void setupMainWindow();
-    void setupProxiesPage();
     void doConfigChange(const QString& name);
 
 private:
