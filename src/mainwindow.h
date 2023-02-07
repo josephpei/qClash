@@ -69,7 +69,6 @@ private slots:
     void logLevelChange(int index);
     void pageChange(int);
     void fillOverviewPage();
-    void reloadProxiesPage();
     void showNetTraffic(const QString& traffic);
 
     void downloadLastestCountryMMDB();
@@ -87,8 +86,8 @@ private:
     Configurator& configurator;
     QJsonObject proxies;
     bool configHasChanged;
-    // QVBoxLayout* proxiesLayout;
-    FlowLayout* proxiesLayout;
+    QVBoxLayout* proxiesLayout;
+    //FlowLayout* proxiesLayout;
 
     QTimer* periodicTimer;
 

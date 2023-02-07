@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::critical(nullptr, "Port is used!", "socks or http port is used, please check whether another clash is running!");
         ::exit(1);
     }
+    clashProxy.update(ClashApi::getProxies());
 
     setupMainWindow();
 
@@ -207,8 +208,6 @@ void MainWindow::proxyGroupMenusChange()
 {
     Subscribe subscribe = configurator.getCurrentConfig();
 //    YAML::Node root = configurator.loadClashConfig(subscribe.name);
-    proxies = ClashApi::getProxies();
-    clashProxy.update(proxies);
     auto groups = clashProxy.getProxyGroups();
     QJsonObject proxyGroupsRule = configurator.getProxyGroupsRule(subscribe.name);
     int i = 0;
@@ -393,7 +392,9 @@ void MainWindow::updateSubscribes()
             Configurator::saveClashConfig(subscribes[i].name, QString(data));
             if (currSub.name == subscribes[i].name) {
                 ClashApi::reloadConfigs();
+                clashProxy.update(ClashApi::getProxies());
                 proxyGroupMenusChange();
+                setupProxiesPage();
             }
         }
     }
@@ -583,37 +584,23 @@ void MainWindow::setupProxiesPage()
     QScrollArea* scrollArea = new QScrollArea(ui->proxies);
     QWidget* scrollWidget = new QWidget(scrollArea);
 
-    auto inLayout = new QVBoxLayout(scrollWidget);
-    proxies = ClashApi::getProxies();
-    clashProxy.update(proxies);
+    //auto inLayout = new QVBoxLayout(scrollWidget);
+    if (!proxiesLayout)
+        proxiesLayout = new QVBoxLayout(scrollWidget);
+    else {
+        QLayoutItem* item;
+        while ((item = proxiesLayout->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        proxiesLayout->update();
+    }
     for (auto &group : clashProxy.getProxyGroups()) {
         auto groupWidget = new ProxyGroupWidget(group);
-//        auto groupWidget = new CollapseWidget(group.name);
-//        auto pLayout = new QVBoxLayout;
-//        for (auto &p : group.all) {
-//            pLayout->addWidget(new QPushButton(p));
-//        }
-//        groupWidget->setHeaderLayout();
-//        groupWidget->setContentLayout(*pLayout);
-        inLayout->addWidget(groupWidget);
+        proxiesLayout->addWidget(groupWidget);
     }
-//    auto test = new CollapseWidget("test");
-//
-//    auto proxiesLayout = new QVBoxLayout;
-//    proxies = ClashApi::getProxies();
-//    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
-//        QString name = it.key();
-//        QJsonObject obj = it.value().toObject();
-//        QString type = obj.value("type").toString();
-//        if (type == "Shadowsocks" || type == "Vmess") {
-//            QString text = name + "\n" + obj.value("type").toString();
-//            proxiesLayout->addWidget(new QPushButton(text));
-//        }
-//    }
-//    test->setContentLayout(*proxiesLayout);
-//    inLayout->addWidget(test);
-    inLayout->addWidget(new QLabel("Some Text in Section"));
-    inLayout->addStretch(1);
+
+    proxiesLayout->addStretch(1);
 
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(scrollWidget);
@@ -642,28 +629,6 @@ void MainWindow::setupProxiesPage()
 //    vLayout->addWidget(scrollArea);
 //    ui->proxies->setLayout(vLayout);
 //}
-
-void MainWindow::reloadProxiesPage()
-{
-    qDebug() << "Reload proxies page";
-    QLayoutItem* item;
-    while ((item = proxiesLayout->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
-    }
-    proxiesLayout->update();
-    // proxies = ClashApi::getProxies();
-    for (auto it = proxies.begin(); it != proxies.end(); ++it) {
-        QString name = it.key();
-        QJsonObject obj = it.value().toObject();
-        QString type = obj.value("type").toString();
-        if (type == "Shadowsocks" || type == "Vmess") {
-            QString text = name + "\n" + obj.value("type").toString();
-            proxiesLayout->addWidget(new QPushButton(text));
-        }
-    }
-    // proxiesLayout->update();
-}
 
 void MainWindow::fillOverviewPage()
 {

@@ -22,6 +22,8 @@ protected:
     QScrollArea contentArea{};
     int duration;
     QString title;
+    
+    void updateHeights();
 
 public:
     explicit CollapseWidget(const QString &title = "", int duration = 100, QWidget *parent = nullptr);
@@ -29,9 +31,6 @@ public:
     void setContentLayout(QLayout &contentLayout);
 
     void toggleContentShown(bool visible);
-
-public slots:
-    void animationFinished();
 
 };
 

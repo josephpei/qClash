@@ -29,7 +29,6 @@ CollapseWidget::CollapseWidget(const QString& title, int duration, QWidget* pare
     toggleAnimation.addAnimation(new QPropertyAnimation(this, "maximumHeight"));
     toggleAnimation.addAnimation(new QPropertyAnimation(&contentArea, "minimumHeight"));
     toggleAnimation.addAnimation(new QPropertyAnimation(&contentArea, "maximumHeight"));
-    connect(&toggleAnimation, &QParallelAnimationGroup::finished, this, &CollapseWidget::animationFinished);
 
     //Don't waste space
     //mainLayout.setSpacing(0);
@@ -60,24 +59,26 @@ void CollapseWidget::setHeaderLayout()
 void CollapseWidget::setContentLayout(QLayout& contentLayout)
 {
     delete contentArea.layout();
-    //contentLayout.setContentsMargins(8, 4, 4, 4);
+    contentLayout.setContentsMargins(8, 4, 4, 4);
     contentArea.setLayout(&contentLayout);
     
-    //Fetch the current and target heights
-    const int collapsedHeight = sizeHint().height() - contentArea.maximumHeight();
-    const int contentHeight = contentLayout.sizeHint().height();
-    //const int contentHeight = contentArea.layout()->sizeHint().height() + contentArea.contentsMargins().top() + contentArea.contentsMargins().bottom();
+    updateHeights();
     
-    for (int i = 0; i < toggleAnimation.animationCount() - 1; i++) {
-        QPropertyAnimation *spoilerAnimation = qobject_cast<QPropertyAnimation*>(toggleAnimation.animationAt(i));
-        spoilerAnimation->setDuration(duration);
-        spoilerAnimation->setStartValue(collapsedHeight);
-        spoilerAnimation->setEndValue(collapsedHeight + contentHeight);
-    }
-    QPropertyAnimation* contentAnimation = qobject_cast<QPropertyAnimation*>(toggleAnimation.animationAt(2));
-    contentAnimation->setDuration(duration);
-    contentAnimation->setStartValue(0);
-    contentAnimation->setEndValue(contentHeight);
+//    //Fetch the current and target heights
+//    const int collapsedHeight = sizeHint().height() - contentArea.maximumHeight();
+//    const int contentHeight = contentLayout.sizeHint().height();
+//    //const int contentHeight = contentArea.layout()->sizeHint().height() + contentArea.contentsMargins().top() + contentArea.contentsMargins().bottom();
+//    
+//    for (int i = 0; i < toggleAnimation.animationCount() - 1; i++) {
+//        QPropertyAnimation *spoilerAnimation = qobject_cast<QPropertyAnimation*>(toggleAnimation.animationAt(i));
+//        spoilerAnimation->setDuration(duration);
+//        spoilerAnimation->setStartValue(collapsedHeight);
+//        spoilerAnimation->setEndValue(collapsedHeight + contentHeight);
+//    }
+//    QPropertyAnimation* contentAnimation = qobject_cast<QPropertyAnimation*>(toggleAnimation.animationAt(2));
+//    contentAnimation->setDuration(duration);
+//    contentAnimation->setStartValue(0);
+//    contentAnimation->setEndValue(contentHeight);
 }
 
 void CollapseWidget::toggleContentShown(bool visible)
@@ -88,37 +89,30 @@ void CollapseWidget::toggleContentShown(bool visible)
     toggleButton.setChecked(visible);
     toggleButton.setArrowType(visible ? Qt::ArrowType::DownArrow : Qt::ArrowType::RightArrow);
 
-//    //Fetch the current and target heights
-//    const int collapsedHeight = sizeHint().height() - contentArea.height();
-//    const int contentHeight = contentArea.layout()->sizeHint().height() + contentArea.contentsMargins().top() + contentArea.contentsMargins().bottom();
-//
-//    //Setup all the animations
-//    QPropertyAnimation *spoilerAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(0));
-//    spoilerAnimation->setDuration(duration);
-//    spoilerAnimation->setStartValue(collapsedHeight);
-//    spoilerAnimation->setEndValue(collapsedHeight + contentHeight);
-//
-//    //Setup the contentArea minimumHeight animation
-//    QPropertyAnimation *contentAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(1));
-//    contentAnimation->setDuration(duration);
-//    contentAnimation->setStartValue(0);
-//    contentAnimation->setEndValue(contentHeight);
-//    //Setup the contentArea maximumHeight animation
-//    contentAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(2));
-//    contentAnimation->setDuration(duration);
-//    contentAnimation->setStartValue(0);
-//    contentAnimation->setEndValue(contentHeight);
-//
     //Kickstart the animation
     toggleAnimation.setDirection(visible ? QAbstractAnimation::Forward : QAbstractAnimation::Backward);
     toggleAnimation.start();
 }
+void CollapseWidget::updateHeights()
+{
+    //Fetch the current and target heights
+    const int collapsedHeight = sizeHint().height() - contentArea.height();
+    const int contentHeight = contentArea.layout()->sizeHint().height() + contentArea.contentsMargins().top() + contentArea.contentsMargins().bottom();
 
-void CollapseWidget::animationFinished() {
-    if (toggleButton.isChecked()) {
-        //Unset min/max heights when we're done
-//        setMaximumHeight(QWIDGETSIZE_MAX);
-//        contentArea.setMaximumHeight(QWIDGETSIZE_MAX);
-//        contentArea.setMinimumHeight(0);
-    }
+    //Setup all the animations
+    QPropertyAnimation *spoilerAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(0));
+    spoilerAnimation->setDuration(duration);
+    spoilerAnimation->setStartValue(collapsedHeight);
+    spoilerAnimation->setEndValue(collapsedHeight + contentHeight);
+
+    //Setup the contentArea minimumHeight animation
+    QPropertyAnimation *contentAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(1));
+    contentAnimation->setDuration(duration);
+    contentAnimation->setStartValue(0);
+    contentAnimation->setEndValue(contentHeight);
+    //Setup the contentArea maximumHeight animation
+    contentAnimation = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(2));
+    contentAnimation->setDuration(duration);
+    contentAnimation->setStartValue(0);
+    contentAnimation->setEndValue(contentHeight);
 }
