@@ -29,7 +29,12 @@ void ProxyGroupWidget::setupUI(const Proxy& proxyGroup) {
     for (int i = 0; i < proxyGroup.all.size(); ++i) {
         row = i / 2;
         col = i % 2 == 0 ? 0 : 1;
-        proxiesLayout->addWidget(new QPushButton(proxyGroup.all[i]), row, col);
+        auto button = new QPushButton(proxyGroup.all[i]);
+        button->setObjectName(proxyGroup.all[i]);
+        if (proxyGroup.all[i] == proxyGroup.now) {
+            button->setStyleSheet("QPushButton {background: gray}");
+        }
+        proxiesLayout->addWidget(button, row, col);
     }
     setContentLayout(*proxiesLayout);
 }

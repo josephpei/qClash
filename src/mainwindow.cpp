@@ -251,6 +251,9 @@ void MainWindow::proxyGroupMenusChange()
     for (; i < MaxMenu; ++i) {
         proxyGroupMenus[i]->menuAction()->setVisible(false);
     }
+
+    clashProxy.update(ClashApi::getProxies());
+    proxiesPageChange();
 }
 
 void MainWindow::createTrayIcon()
@@ -394,7 +397,7 @@ void MainWindow::updateSubscribes()
                 ClashApi::reloadConfigs();
                 clashProxy.update(ClashApi::getProxies());
                 proxyGroupMenusChange();
-                proxiesPageChange();
+                //proxiesPageChange();
             }
         }
     }
@@ -468,7 +471,7 @@ void MainWindow::doConfigChange(const QString& name)
     clashProxy.update(ClashApi::getProxies());
     proxyGroupMenusChange();
     setupOverviewPage();
-    proxiesPageChange();
+    //proxiesPageChange();
     //reloadProxiesPage();
 }
 
@@ -512,13 +515,22 @@ void MainWindow::proxyChange(QAction *action)
         QMenu *menu = qobject_cast<QMenu *>(widget);
         QString group = menu->title().split('\t')[0];
         qDebug() << "Current group: " << group;
+        auto oldProxy = clashProxy.getProxyByName(group).now;
         ClashApi::setGroupProxy(group, proxyName);
         configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, group, proxyName);
         QString proxy = proxyName.size() > 10 ? proxyName.left(10) + "..." : proxyName;
         menu->setTitle(group + "\t" + proxy);
 
-        auto proxyGroupWidget = proxiesLayout->findChild<ProxyGroupWidget*>(group);
-        proxyGroupWidget->setProxy(proxyName);
+        auto widget = proxyGroupWidgetMap.value(group);
+        if (widget) {
+            widget->setProxy(proxyName);
+            auto oldButton = widget->findChild<QPushButton*>(oldProxy);
+            if (oldButton)
+                oldButton->setStyleSheet("");
+            auto nowButton = widget->findChild<QPushButton*>(proxyName);
+            if (nowButton)
+                nowButton->setStyleSheet("QPushButton {background: gray}");
+        }
     }
 }
 
@@ -588,6 +600,7 @@ void MainWindow::setupProxiesPage()
 {
     QVBoxLayout* vLayout = new QVBoxLayout;
     QScrollArea* scrollArea = new QScrollArea(ui->proxies);
+    scrollArea->setStyleSheet("QScrollArea {border: none}");
     QWidget* scrollWidget = new QWidget(scrollArea);
 
     //auto inLayout = new QVBoxLayout(scrollWidget);
@@ -602,6 +615,7 @@ void MainWindow::setupProxiesPage()
 
 void MainWindow::proxiesPageChange()
 {
+    proxyGroupWidgetMap.clear();
     QLayoutItem* item;
     while ((item = proxiesLayout->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -610,6 +624,7 @@ void MainWindow::proxiesPageChange()
     proxiesLayout->update();
     for (auto &group : clashProxy.getProxyGroups()) {
         auto groupWidget = new ProxyGroupWidget(group);
+        proxyGroupWidgetMap.insert(group.name, groupWidget);
         proxiesLayout->addWidget(groupWidget);
     }
 

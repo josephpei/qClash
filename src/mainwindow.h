@@ -88,6 +88,7 @@ private:
     QJsonObject proxies;
     bool configHasChanged;
     QVBoxLayout* proxiesLayout;
+    QHash<QString, ProxyGroupWidget*> proxyGroupWidgetMap;
     //FlowLayout* proxiesLayout;
 
     QTimer* periodicTimer;

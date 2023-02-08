@@ -25,3 +25,7 @@ void ClashProxy::init(const QJsonObject& providerProxies)
         proxiesMap[name] = p;
     }
 }
+
+Proxy ClashProxy::getProxyByName(QString name) {
+    return proxiesMap.value(name);
+}

@@ -56,6 +56,8 @@ public:
             init(providerProxies);
     }
 
+    Proxy getProxyByName(QString name);
+
     // get sorted proxy groups
     QVector<Proxy> getProxyGroups()
     {
