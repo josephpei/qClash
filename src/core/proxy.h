@@ -56,35 +56,12 @@ public:
             init(providerProxies);
     }
 
-    Proxy getProxyByName(QString name);
+    Proxy getProxyByName(const QString& name);
+    QString updateGroupProxy(const QString& old, const QString& now);
 
     // get sorted proxy groups
-    QVector<Proxy> getProxyGroups()
-    {
-        QVector<Proxy> groups;
-//        std::copy_if(proxies.begin(), proxies.end(), std::back_inserter(groups),
-//            [&](const Proxy& p) { return isProxyGroup(p.type); });
-        for (auto &p : proxies) {
-            if (isProxyGroup(p.type)) {
-                groups.push_back(p);
-            }
-        }
-        
-        if (proxiesMap.contains("GLOBAL")) {
-            auto global = proxiesMap.value("GLOBAL").all;
-            QHash<QString, int> proxiesSortMap;
-            for (int i = 0; i < global.size(); ++i) {
-                proxiesSortMap[global[i]] = i;
-            }
-            std::sort(groups.begin(), groups.end(),
-                [&](const Proxy& p1, const Proxy& p2) {
-                    return proxiesSortMap.value(p1.name) < proxiesSortMap.value(p2.name);
-                });
-        }
+    QVector<Proxy> getProxyGroups();
 
-        return groups;
-    }
-    
     void update(const QJsonObject& providerProxies) {
         proxies.clear();
         proxiesMap.clear();

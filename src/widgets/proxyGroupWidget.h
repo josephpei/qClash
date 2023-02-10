@@ -15,9 +15,14 @@ public:
     void setupUI(const Proxy& proxyGroup);
     void setProxy(const QString& proxyName);
 
+signals:
+    void buttonProxyGroup(const QString&, const QString&);
+
 private:
     QLabel* groupName{nullptr};
     QLabel* selectProxy{nullptr};
+
+    QPushButton* oldButton{nullptr};
 };
 
 #endif // QCLASH_PROXYGROUPWIDGET_H

@@ -26,6 +26,39 @@ void ClashProxy::init(const QJsonObject& providerProxies)
     }
 }
 
-Proxy ClashProxy::getProxyByName(QString name) {
+QVector<Proxy> ClashProxy::getProxyGroups()
+{
+    QVector<Proxy> groups;
+//        std::copy_if(proxies.begin(), proxies.end(), std::back_inserter(groups),
+//            [&](const Proxy& p) { return isProxyGroup(p.type); });
+    for (auto &p : proxies) {
+        if (isProxyGroup(p.type)) {
+            groups.push_back(p);
+        }
+    }
+
+    if (proxiesMap.contains("GLOBAL")) {
+        auto global = proxiesMap.value("GLOBAL").all;
+        QHash<QString, int> proxiesSortMap;
+        for (int i = 0; i < global.size(); ++i) {
+            proxiesSortMap[global[i]] = i;
+        }
+        std::sort(groups.begin(), groups.end(),
+                  [&](const Proxy& p1, const Proxy& p2) {
+                      return proxiesSortMap.value(p1.name) < proxiesSortMap.value(p2.name);
+                  });
+    }
+
+    return groups;
+}
+
+QString ClashProxy::updateGroupProxy(const QString &old, const QString &now) {
+    auto p = proxiesMap.find(old);
+    auto o = p->now;
+    p->now = now;
+    return o;
+}
+
+Proxy ClashProxy::getProxyByName(const QString& name) {
     return proxiesMap.value(name);
 }

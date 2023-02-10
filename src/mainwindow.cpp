@@ -509,27 +509,48 @@ void MainWindow::modeChange(int index)
 void MainWindow::proxyChange(QAction *action)
 {
     QString proxyName = action->data().toString();
-    qDebug() << "Current proxy: " << proxyName;
     QWidget *widget = action->parentWidget();
     if (widget) {
         QMenu *menu = qobject_cast<QMenu *>(widget);
-        QString group = menu->title().split('\t')[0];
-        qDebug() << "Current group: " << group;
-        auto oldProxy = clashProxy.getProxyByName(group).now;
-        ClashApi::setGroupProxy(group, proxyName);
-        configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, group, proxyName);
-        QString proxy = proxyName.size() > 10 ? proxyName.left(10) + "..." : proxyName;
-        menu->setTitle(group + "\t" + proxy);
+        QString groupName = menu->title().split('\t')[0];
+        auto oldProxyName = clashProxy.updateGroupProxy(groupName, proxyName);
 
-        auto widget = proxyGroupWidgetMap.value(group);
+        ClashApi::setGroupProxy(groupName, proxyName);
+        configurator.setProxyGroupsRule(configurator.getCurrentConfig().name, groupName, proxyName);
+        QString proxy = proxyName.size() > 10 ? proxyName.left(12) + "..." : proxyName;
+        menu->setTitle(groupName + "\t" + proxy);
+        qDebug() << "Current group: " << groupName;
+        qDebug() << "Current proxy: " << proxyName;
+        qDebug() << "Old Proxy: " << oldProxyName;
+
+        auto widget = proxyGroupWidgetMap.value(groupName);
         if (widget) {
             widget->setProxy(proxyName);
-            auto oldButton = widget->findChild<QPushButton*>(oldProxy);
+            auto oldButton = widget->findChild<QPushButton*>(oldProxyName);
             if (oldButton)
                 oldButton->setStyleSheet("");
             auto nowButton = widget->findChild<QPushButton*>(proxyName);
             if (nowButton)
                 nowButton->setStyleSheet("QPushButton {background: gray}");
+        }
+
+    }
+}
+
+void MainWindow::proxyChange(const QString& groupName, const QString& proxyName)
+{
+    // update menu
+    for (auto& menu : proxyGroupMenus) {
+        auto name = menu->title().split('\t')[0];
+        if (name == groupName) {
+            for (auto& action : menu->actions()) {
+                if (action->text() == proxyName) {
+                    action->setChecked(true);
+                    action->triggered();
+                }
+            }
+            
+            break;
         }
     }
 }
@@ -626,6 +647,7 @@ void MainWindow::proxiesPageChange()
         auto groupWidget = new ProxyGroupWidget(group);
         proxyGroupWidgetMap.insert(group.name, groupWidget);
         proxiesLayout->addWidget(groupWidget);
+        connect(groupWidget, SIGNAL(buttonProxyGroup(const QString&, const QString&)), SLOT(proxyChange(const QString&, const QString&)));
     }
 
     proxiesLayout->addStretch(1);

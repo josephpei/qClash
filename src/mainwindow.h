@@ -62,6 +62,7 @@ private slots:
     void configChange(QAction*);
     void configChange(int index);
     void proxyChange(QAction*);
+    void proxyChange(const QString&, const QString&);
     void startAtLoginChange(bool autoStart);
     void autoUpdateSubConfigChange(bool autoUpdate);
     void allowLanChange(bool flag);
