@@ -33,10 +33,10 @@ void NetworkProxyHelper::setSystemProxy(const NetworkProxy& proxy)
 #elif defined(Q_OS_MAC)
     return setSystemProxyMacOs(proxy);
 #elif defined(Q_OS_LINUX)
-    QString desktopEnv = QProcessEnvironment::systemEnvironment().value("XDG_CURRENT_DESKTOP");
-    if (desktopEnv == "GNOME" || desktopEnv == "Unity" || desktopEnv == "X-Cinnamon") {
+    QString desktopEnv = QProcessEnvironment::systemEnvironment().value("XDG_CURRENT_DESKTOP").toLower();
+    if (desktopEnv.contains("gnome") || desktopEnv.contains("xfce") || desktopEnv.contains("x-cinnamon")) {
         return setSystemProxyLinuxGnome(proxy);
-    } else if (desktopEnv == "KDE") {
+    } else if (desktopEnv.contains("kde")) {
         return setSystemProxyLinuxKde(proxy);
     }
 #endif
@@ -49,10 +49,10 @@ void NetworkProxyHelper::resetSystemProxy()
 #elif defined(Q_OS_MAC)
     return resetSystemProxyMacOs();
 #elif defined(Q_OS_LINUX)
-    QString desktopEnv = QProcessEnvironment::systemEnvironment().value("XDG_CURRENT_DESKTOP");
-    if (desktopEnv == "GNOME" || desktopEnv == "Unity" || desktopEnv == "X-Cinnamon") {
+    QString desktopEnv = QProcessEnvironment::systemEnvironment().value("XDG_CURRENT_DESKTOP").toLower();
+    if (desktopEnv.contains("gnome") || desktopEnv.contains("xfce") || desktopEnv.contains("x-cinnamon")) {
         return resetSystemProxyLinuxGnome();
-    } else if (desktopEnv == "KDE") {
+    } else if (desktopEnv.contains("kde")) {
         return resetSystemProxyLinuxKde();
     }
 #endif

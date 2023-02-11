@@ -364,6 +364,10 @@ void MainWindow::configComboBoxDel(int index)
 }
 void MainWindow::systemProxyChange(bool flag)
 {
+    if (ui->systemProxyCheckBox->isChecked() != flag)
+        ui->systemProxyCheckBox->setChecked(flag);
+    if (setAsSystemProxy->isChecked() != flag)
+        setAsSystemProxy->setChecked(flag);
     configurator.saveValue("systemProxy", flag);
     configurator.setSystemProxy(flag);
 }
@@ -614,6 +618,8 @@ void MainWindow::setupMainWindow()
 
     connect(ui->allowLanCheckBox, &QCheckBox::stateChanged, this, &MainWindow::allowLanChange);
 
+    connect(ui->systemProxyCheckBox, &QCheckBox::stateChanged, this, &MainWindow::systemProxyChange);
+
     connect(ui->logLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::logLevelChange);
 }
 
@@ -682,7 +688,9 @@ void MainWindow::setupOverviewPage()
     ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
     ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
+    ui->exCtrlPortLineEdit->setReadOnly(true);
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
+    ui->systemProxyCheckBox->setChecked(configurator.isSystemProxy());
     QSignalBlocker logBlocker(ui->logLevelComboBox);
     ui->logLevelComboBox->setCurrentIndex(LOGLEVEL2INT[configurator.getLogLevel()].toInt());
 }
