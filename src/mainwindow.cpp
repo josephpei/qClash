@@ -650,7 +650,7 @@ void MainWindow::proxiesPageChange()
     }
     proxiesLayout->update();
     for (auto &group : clashProxy.getProxyGroups()) {
-        auto groupWidget = new ProxyGroupWidget(group);
+        auto groupWidget = new ProxyGroupWidget(&clashProxy, group.name);
         proxyGroupWidgetMap.insert(group.name, groupWidget);
         proxiesLayout->addWidget(groupWidget);
         connect(groupWidget, SIGNAL(buttonProxyGroup(const QString&, const QString&)), SLOT(proxyChange(const QString&, const QString&)));

@@ -1,7 +1,7 @@
 #include "proxy.h"
 
 
-bool ClashProxy::isProxy(const QString& type)
+bool Proxy::isProxy()
 {
     if (type == "Shadowsocks" || type == "ShadowsocksR" || type == "Vmess" || type == "Trojan" || type == "Snell" || type == "Socks5" || type == "Http")
         return true;

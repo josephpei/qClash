@@ -36,7 +36,14 @@ struct Proxy {
                 all.push_back(it->toString());
             }
         }
+        auto history = proxy.value("history").toArray();
+        if (!history.isEmpty()) {
+            auto lst = history.takeAt(0).toObject();
+            delay = lst.value("delay").toInt();
+        }
     }
+    
+    bool isProxy();
 };
 
 class ClashProxy {
@@ -45,7 +52,6 @@ private:
     QHash<QString, Proxy> proxiesMap;
 
 private:
-    bool isProxy(const QString& type);
     bool isProxyGroup(const QString& type);
     void init(const QJsonObject& providerProxies);
 

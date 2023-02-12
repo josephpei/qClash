@@ -8,7 +8,7 @@ class ProxyGroupWidget: public CollapseWidget {
     Q_OBJECT
 
 public:
-    explicit ProxyGroupWidget(const Proxy& proxyGroup, QWidget* parent = nullptr);
+    explicit ProxyGroupWidget(ClashProxy* clashProxy, QString name, QWidget* parent = nullptr);
 
 public:
     void setHeaderLayout(const Proxy& proxyGroup);
@@ -17,10 +17,18 @@ public:
 
 signals:
     void buttonProxyGroup(const QString&, const QString&);
+    
+private slots:
+    void testProxyLatency();
 
 private:
+    ClashProxy *clashProxy{ nullptr};
+    QString name;
+    QHash<QString, QPushButton*> buttonMap;
+    
     QLabel* groupName{nullptr};
     QLabel* selectProxy{nullptr};
+    QPushButton* latencyTest{nullptr};
 
     QPushButton* oldButton{nullptr};
 };
