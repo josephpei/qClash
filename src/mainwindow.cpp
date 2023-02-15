@@ -26,13 +26,13 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , configurator(Configurator::instance())
+    , configHasChanged(true)
+    , proxiesLayout(nullptr)
     , periodicTimer(new QTimer)
     , pageButtons(new QButtonGroup)
     , modeButtons(new QButtonGroup)
     , clashCore(ClashCore::instance())
-    , configurator(Configurator::instance())
-    , configHasChanged(true)
-    , proxiesLayout(nullptr)
 {
     if (!initClash()) {
         QMessageBox::critical(nullptr, "Port is used!", "socks or http port is used, please check whether another clash is running!");
@@ -550,7 +550,7 @@ void MainWindow::proxyChange(const QString& groupName, const QString& proxyName)
             for (auto& action : menu->actions()) {
                 if (action->text() == proxyName) {
                     action->setChecked(true);
-                    action->triggered();
+                    emit action->triggered();
                 }
             }
             
@@ -597,7 +597,7 @@ void MainWindow::setupMainWindow()
     pageButtons->addButton(ui->proxiesButton, 1);
 
     pageButtons->setExclusive(true);
-    connect(pageButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, [=](int id) {
+    connect(pageButtons, &QButtonGroup::idClicked, this, [=](int id) {
         ui->stackedWidget->setCurrentIndex(id);
     });
     // connect(pageButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(pageChange(QAbstractButton *)));
@@ -606,7 +606,7 @@ void MainWindow::setupMainWindow()
     modeButtons->addButton(ui->ruleButton, 1);
     modeButtons->addButton(ui->directButton, 2);
     modeButtons->setExclusive(true);
-    connect(modeButtons, QOverload<int>::of(&QButtonGroup::buttonClicked), this, QOverload<int>::of(&MainWindow::modeChange));
+    connect(modeButtons, &QButtonGroup::idClicked, this, QOverload<int>::of(&MainWindow::modeChange));
 
     initConfigComboBox();
     setupOverviewPage();

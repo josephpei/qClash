@@ -69,6 +69,8 @@ QByteArray HttpUtil::request(const QUrl &url,
     case QNetworkAccessManager::CustomOperation:
         reply = inner->manager->sendCustomRequest(request, "PATCH", body);
         break;
+    default:
+        break;
     }
     // sync
     // eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
@@ -92,10 +94,13 @@ QByteArray HttpUtil::request(const QUrl &url,
         return {};
     }
 
-    auto data = reply->readAll();
-    reply->deleteLater();
-    // qDebug() << "Url: " << url << ", Response: " << data;
-    return data;
+    if (reply) {
+        auto data = reply->readAll();
+        reply->deleteLater();
+        // qDebug() << "Url: " << url << ", Response: " << data;
+        return data;
+    }
+    return {};
 }
 
 QByteArray HttpUtil::get(const QUrl &url, uint timeout, const QNetworkProxy *proxy)

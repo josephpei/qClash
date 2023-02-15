@@ -52,8 +52,10 @@ Subscribe::Subscribe(const QJsonObject &json)
     if (json.contains("url"))
         url = json["url"].toString();
 
-    if (json.contains("updateTime"))
-        updateTime = QDateTime::fromString(json["updateTime"].toString(), Qt::SystemLocaleDate);
+    if (json.contains("updateTime")) {
+        updateTime = QLocale::system().toDateTime(json["updateTime"].toString(), QLocale::ShortFormat);
+        // updateTime = QDateTime::fromString(json["updateTime"].toString(), Qt::SystemLocaleDate);
+    }
 }
 
 Subscribe Subscribe::read(const QJsonObject &json)
@@ -66,6 +68,7 @@ QJsonObject Subscribe::write() const
     QJsonObject json;
     json["name"] = name;
     json["url"] = url;
-    json["updateTime"] = updateTime.toString(Qt::SystemLocaleDate);
+    json["updateTime"] = QLocale::system().toString(updateTime, QLocale::ShortFormat);
+    //json["updateTime"] = updateTime.toString(Qt::SystemLocaleDate);
     return json;
 }

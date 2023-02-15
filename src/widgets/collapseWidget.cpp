@@ -4,7 +4,7 @@
 #include <QLabel>
 
 CollapseWidget::CollapseWidget(const QString& title, int duration, QWidget* parent)
-: QWidget(parent), title(title), duration(duration)
+: QWidget(parent), duration(duration), title(title)
 {
     toggleButton.setStyleSheet("QToolButton {border: none;}");
     //toggleButton.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);

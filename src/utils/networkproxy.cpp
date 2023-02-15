@@ -76,7 +76,7 @@ NetworkProxy NetworkProxyHelper::getSystemProxyWindows()
         proxy.setProtocol("http");
         proxy.setMode(NetworkProxyMode::GLOBAL_MODE);
         proxy.setHost(proxyServer.left(colonIndex));
-        proxy.setPort(proxyServer.mid(colonIndex + 1).toInt());
+        proxy.setPort(proxyServer.midRef(colonIndex + 1).toInt());
     }
     return proxy;
 }
