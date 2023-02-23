@@ -19,6 +19,7 @@ public:
     static QByteArray setMode(const QString &mode);
     static QByteArray setHttpPort(int port);
     static QByteArray setSocksPort(int port);
+    static QByteArray setMixedPort(int port);
     static QByteArray setAllowLan(bool flag);
     static QByteArray setProxyMode(const QString& mode);
     static QByteArray setLogLevel(const QString& level);

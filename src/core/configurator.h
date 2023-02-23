@@ -21,7 +21,18 @@ class Configurator : public QObject {
     QJsonObject proxyGroups;
 
 private:
-    bool isMixedPort;
+    int controlPort{0};
+    QString secret{""};
+    int port{0};
+    int socksPort{0};
+    int mixedPort{0};
+    bool allowLan{false};
+    QString mode{"rule"};
+    QString logLevel{"info"};
+    bool ipv6{false};
+
+public:
+    bool isMixedPort{false};
 
 public:
     static Configurator& instance();
@@ -62,13 +73,13 @@ public:
     QDateTime getUpdateTime();
 
     QMap<QString, QString> diffConfigs();
-    void setMode(const QString& mode);
+    void setMode(const QString& m);
     QString getMode();
-    void setHttpPort(int port);
+    void setHttpPort(int p);
     int getHttpPort();
-    void setSocksPort(int port);
+    void setSocksPort(int p);
     int getSocksPort();
-    void setExternalControlPort(int port);
+    void setExternalControlPort(int p);
     int getExternalControlPort();
     void setAllowLan(bool flag);
     bool getAllowLan();

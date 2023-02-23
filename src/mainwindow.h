@@ -59,6 +59,7 @@ private slots:
     void proxyGroupMenusChange();
     void modeChange(QAction *);
     void modeChange(int index);
+    void portChange(QString port);
     void configChange(QAction*);
     void configChange(int index);
     void proxyChange(QAction*);

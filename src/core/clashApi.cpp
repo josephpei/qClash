@@ -82,6 +82,16 @@ QByteArray ClashApi::setSocksPort(int port)
     return resp;
 }
 
+QByteArray ClashApi::setMixedPort(int port)
+{
+    QUrl url(QString("%1:%2/configs").arg(baseUrl).arg(configurator.getExternalControlPort()));
+    QVariantMap params;
+    params["mixed-port"] = port;
+
+    QByteArray resp = http.patch(url, params);
+    return resp;
+}
+
 QByteArray ClashApi::setAllowLan(bool flag)
 {
     QUrl url(QString("%1:%2/configs/").arg(baseUrl).arg(configurator.getExternalControlPort()));

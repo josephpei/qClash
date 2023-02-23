@@ -65,10 +65,30 @@ YAML::Node Configurator::loadClashConfig(const QString& name)
 {
     QString configFile = Configurator::getClashConfigPath(name);
     root = YAML::LoadFile(configFile.toStdString());
-    if (root["mixed-port"])
+    // get control port and secret
+    if (root["external-controller"])
+        controlPort = QString(root["external-controller"].as<std::string>().c_str()).split(":")[1].toInt();
+    if (root["secret"])
+        secret = root["secret"].as<std::string>().c_str();
+    // get init configs
+    if (root["mixed-port"]) {
         isMixedPort = true;
-    else
+        mixedPort = root["mixed-port"].as<int>();
+        port = mixedPort;
+        socksPort = mixedPort;
+    } else {
         isMixedPort = false;
+    }
+    if (root["port"])
+        port = root["port"].as<int>();
+    if (root["socks-port"])
+        socksPort = root["socks-port"].as<int>();
+    if (root["allow-lan"])
+        allowLan = root["allow-lan"].as<bool>();
+    if (root["mode"])
+        mode = root["mode"].as<std::string>().c_str();
+    if (root["ipv6"])
+        ipv6 = root["ipv6"].as<bool>();
     return root;
 }
 
@@ -314,62 +334,68 @@ QMap<QString, QString> Configurator::diffConfigs()
     return configs;
 }
 
-void Configurator::setMode(const QString& mode)
+void Configurator::setMode(const QString& m)
 {
-    saveValue("mode", mode);
+    mode = m;
+    saveValue("mode", m);
 }
 
 QString Configurator::getMode()
 {
-    return loadValue("mode", root["mode"].as<std::string>().c_str()).toString();
+    return loadValue("mode", mode).toString();
 }
 
-void Configurator::setHttpPort(int port)
+void Configurator::setHttpPort(int p)
 {
-    saveValue("httpPort", port);
+    port = p;
+    saveValue("httpPort", p);
 }
 
 int Configurator::getHttpPort()
 {
     if(isMixedPort)
-        return loadValue("mixed-port", root["mixed-port"].as<int>()).toInt();
-    return loadValue("port", root["port"].as<int>()).toInt();
+        return loadValue("mixed-port", mixedPort).toInt();
+    return loadValue("port", port).toInt();
 }
 
-void Configurator::setSocksPort(int port)
+void Configurator::setSocksPort(int p)
 {
-    saveValue("socksPort", port);
+    socksPort = p;
+    saveValue("socksPort", p);
 }
 
 int Configurator::getSocksPort()
 {
     if(isMixedPort)
-        return loadValue("mixed-port", root["mixed-port"].as<int>()).toInt();
-    return loadValue("socksPort", root["socks-port"].as<int>()).toInt();
+        return loadValue("mixed-port", mixedPort).toInt();
+    return loadValue("socksPort", socksPort).toInt();
 }
 
-void Configurator::setExternalControlPort(int port)
+void Configurator::setExternalControlPort(int p)
 {
-    saveValue("externalControlPort", port);
+    controlPort = p;
+    saveValue("externalControlPort", p);
 }
 
 int Configurator::getExternalControlPort()
 {
-    return loadValue("externalControlPort", QString(root["external-controller"].as<std::string>().c_str()).split(":")[1].toInt()).toInt();
+    return loadValue("externalControlPort", controlPort).toInt();
 }
 
 void Configurator::setAllowLan(bool flag)
 {
+    allowLan = flag;
     saveValue("allowLan", flag);
 }
 
 bool Configurator::getAllowLan()
 {
-    return loadValue("allowLan", root["allow-lan"].as<bool>()).toBool();
+    return loadValue("allowLan", allowLan).toBool();
 }
 
 void Configurator::setLogLevel(const QString& level)
 {
+    logLevel = level;
     saveValue("logLevel", level);
 }
 
@@ -379,6 +405,6 @@ QString Configurator::getLogLevel()
     if (!root["log-level"])
         level = "info";
     else
-        level = QString(root["log-level"].as<std::string>().c_str());
+        level = QString(logLevel);
     return loadValue("logLevel", level).toString();
 }

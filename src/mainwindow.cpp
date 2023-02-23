@@ -121,6 +121,12 @@ bool MainWindow::initClash()
     }
     qDebug() << "Current configs: " << ClashApi::getConfigs();
     ClashApi::setSecret(configurator.getSecret());
+    // if not mixed-port, set http port as mixed port
+    if (!configurator.isMixedPort) {
+        auto port = configurator.getHttpPort();
+        ClashApi::setHttpPort(0);
+        ClashApi::setMixedPort(port);
+    }
 
     connect(periodicTimer, &QTimer::timeout, this, &MainWindow::updateSubscribes);
     periodicTimer->start(12*60*60*1000);
@@ -510,6 +516,13 @@ void MainWindow::modeChange(int index)
     }
 }
 
+void MainWindow::portChange(QString port)
+{
+    auto newPort = port.toInt();
+    configurator.setHttpPort(newPort);
+    ClashApi::setMixedPort(newPort);
+}
+
 void MainWindow::proxyChange(QAction *action)
 {
     QString proxyName = action->data().toString();
@@ -616,6 +629,8 @@ void MainWindow::setupMainWindow()
     
     connect(ui->configManageButton, &QPushButton::clicked, this, &MainWindow::showSubscribeDialog);
 
+    connect(ui->httpPortLineEdit, &QLineEdit::textChanged, this, &MainWindow::portChange);
+
     connect(ui->allowLanCheckBox, &QCheckBox::stateChanged, this, &MainWindow::allowLanChange);
 
     connect(ui->systemProxyCheckBox, &QCheckBox::stateChanged, this, &MainWindow::systemProxyChange);
@@ -686,7 +701,9 @@ void MainWindow::setupOverviewPage()
     // updateSubComboBox();
     modeButtons->buttons().value(PROXYMODE2INT[configurator.getMode()].toInt())->setChecked(true);
     ui->httpPortLineEdit->setText(QString::number(configurator.getHttpPort()));
+    ui->httpPortLineEdit->setValidator(new QIntValidator(1024, 65535));
     ui->socksPortLineEdit->setText(QString::number(configurator.getSocksPort()));
+    ui->socksPortLineEdit->setValidator(new QIntValidator(1024, 65535));
     ui->exCtrlPortLineEdit->setText(QString::number(configurator.getExternalControlPort()));
     ui->exCtrlPortLineEdit->setReadOnly(true);
     ui->allowLanCheckBox->setChecked(configurator.getAllowLan());
